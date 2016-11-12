@@ -8,7 +8,7 @@ import externalgreeting
 # Say hi to some folks
 
 mrmat = ExternalGreeting("MrMat")
-mrmat.sayHi()
+mrmat.say_hi()
 
 ee = ExternalGreeting("Eelyn")
-ee.sayHi()
+ee.say_hi()

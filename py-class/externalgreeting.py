@@ -5,7 +5,11 @@ A Python class defined in a separate file
 
 class ExternalGreeting:
 
-    def sayHi(self):
+    def say_hi(self):
+        """
+        Note that Python functions should be lowercase and optionally contain an underscore
+        :return:
+        """
         print("Hi there, {}".format(self.name))
 
     def __init__(self, name='MrMat'):

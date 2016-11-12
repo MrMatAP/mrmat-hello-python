@@ -1,20 +1,17 @@
 """
-Using a class within a package
+Using a class defined within a package
 """
 
-# this works
-from MyPackage.packagedgreeting import PackagedGreeting
-# this doesn't
-#import MyPackage.packagedgreeting
+from MyPackage import PackagedGreeting
 
 
 #
 # Say hi to some folks
 
 mrmat = PackagedGreeting("MrMat")
-mrmat.sayHi()
+mrmat.say_hi()
 
 ee = PackagedGreeting("Eelyn")
-ee.sayHi()
+ee.say_hi()
 
 

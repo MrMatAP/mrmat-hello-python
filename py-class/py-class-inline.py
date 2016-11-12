@@ -5,7 +5,11 @@ Inline definition of a class in Python
 
 class Greeting:
 
-    def sayHi(self):
+    def say_hi(self):
+        """
+        Note that Python functions should be lowercase and optionally contain an underscore
+        :return:
+        """
         print("Hi there, {}".format(self.name))
 
     def __init__(self, name='MrMat'):
@@ -22,7 +26,7 @@ class Greeting:
 # Say hi to some folks
 
 mrmat = Greeting("MrMat")
-mrmat.sayHi()
+mrmat.say_hi()
 
 ee = Greeting("Eelyn")
-ee.sayHi()
+ee.say_hi()

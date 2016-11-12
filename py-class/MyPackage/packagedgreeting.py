@@ -5,7 +5,11 @@ A Python class defined in a package
 
 class PackagedGreeting:
 
-    def sayHi(self):
+    def say_hi(self):
+        """
+        Note that Python functions should be lowercase and optionally contain an underscore
+        :return:
+        """
         print("Hi there, {}".format(self.name))
 
     def __init__(self, name='MrMat'):
