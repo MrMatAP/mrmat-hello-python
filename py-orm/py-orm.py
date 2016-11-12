@@ -1,6 +1,11 @@
 #!python
 
-#
-# py-orm.py
-# Exploring ORM using Pythons SQLAlchemy
+"""
+py-orm.py
+
+Object-Relational Persistence using Python
+"""
+
+import sqlalchemy
+import psycopg2
 
