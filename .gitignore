@@ -134,3 +134,4 @@ ENV/
 
 # Rope project settings
 .ropeproject
+/py-io/py-io-output.txt
