@@ -8,7 +8,6 @@ A description of this boilerplate.
 
 import argparse
 import logging
-import sys
 
 #
 # Establish logging
