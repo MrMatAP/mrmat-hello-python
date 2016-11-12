@@ -1,12 +1,34 @@
-#!env python-3.5
+#!/usr/bin/env python
 
-import sys
+"""
+py-env.py - Introspection of the Python execution environment
+
+Introspection of the Python execution environment
+"""
+
+import argparse
+import logging
+
+import utils
 
 #
-# py-env.py
-# Execution behaviour end environment of the Python interpreter
+# Establish logging
+
+logging.basicConfig(level=logging.WARN, format="%(levelname)s - %(message)s")
+LOG = logging.getLogger(__name__)
+
+#
+# Parse arguments
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', help='Be chatty', action='store_true')
+parser.add_argument('--debug', help='Be very chatty', action='store_true')
+options = parser.parse_args()
+if options.verbose:
+    LOG.setLevel(logging.INFO)
+if options.debug:
+    LOG.setLevel(logging.DEBUG)
 
 
-print("Sys:")
-for entry in dir(sys):
-    print("%s - %s" % (type(entry), entry))
+utils.print_arguments()
+utils.print_search_path()
