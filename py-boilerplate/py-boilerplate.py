@@ -8,6 +8,7 @@ A description of this boilerplate.
 
 import argparse
 import logging
+import sys
 
 #
 # Establish logging
@@ -27,9 +28,16 @@ if options.verbose:
 if options.debug:
     LOG.setLevel(logging.DEBUG)
 
-LOG.debug("This is a DEBUG message")
-LOG.info("This is a INFO message")
-LOG.warn("This is a WARN message")
-LOG.error("This is an ERROR message")
-LOG.fatal("This is a FATAL message")
+try:
+    LOG.debug("This is a DEBUG message")
+    LOG.info("This is a INFO message")
+    LOG.warn("This is a WARN message")
+    LOG.error("This is an ERROR message")
+    LOG.fatal("This is a FATAL message")
 
+except Exception as ex:
+    LOG.fatal('{} - {}'.format(type(ex), ex))
+else:
+    LOG.debug('No exception occurred within the code block')
+finally:
+    LOG.debug('The finally block is always executed')
