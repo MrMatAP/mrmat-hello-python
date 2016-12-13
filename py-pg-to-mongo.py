@@ -6,9 +6,10 @@ py-pg-to-mongo.py - A Python script to pull data from a PostgreSQL table towards
 
 import argparse
 import logging
+import concurrent.futures
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 from mhporm.pg import PGPerson, PGCity, PGCompany
 
@@ -33,25 +34,11 @@ if options.verbose:
 if options.debug:
     LOG.setLevel(logging.DEBUG)
 
-try:
 
-    #
-    # Initialize SQLAlchemy for PG
-
-    LOG.info("Connecting to PG")
-    engine = create_engine('postgresql+psycopg2://hr:hr@infra.bobeli.org:15432/infradb', echo=False)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    print("Number of people : %s" % session.query(PGPerson).count())
-
-    #
-    # Initialize MongoEngine
-
-    LOG.info("Connecting to Mongo")
-    connect('hr', host="infra.bobeli.org")
-
-    LOG.info("Defining people")
-    for person in session.query(PGPerson).limit(100).offset(100):
+def mgupload(offset, limit):
+    print("Dealing with chunk at offset %s" % offset)
+    localsession = Session()
+    for person in localsession.query(PGPerson).limit(limit).offset(offset):
 
         #
         # Ensure we have a city defined
@@ -70,7 +57,6 @@ try:
                 country=person.city.country.name,
                 code=person.city.country.code
             ).save()
-            print("Created city %s" % city.name)
 
         #
         # Ensure we have a company defined
@@ -83,7 +69,6 @@ try:
             company = MGCompany(
                 name=person.company.name
             ).save()
-            print("Created company %s" % company.name)
 
         #
         # Ensure we have an occupation defined
@@ -96,7 +81,6 @@ try:
             occupation = MGOccupation(
                 name=person.occupation.name
             ).save()
-            print("Created occupation %s" % occupation.name)
 
         #
         # Define the person unless it already exists
@@ -139,7 +123,44 @@ try:
                 company=company,
                 occupation=occupation
             ).save()
-            print("Created person %s %s %s" % (person.givenname, person.middleinitial, person.surname))
+
+    Session.remove()
+
+
+try:
+
+    #
+    # Initialize SQLAlchemy for PG
+
+    LOG.info("Connecting to PG")
+    engine = create_engine('postgresql+psycopg2://hr:hr@infra.bobeli.org:15432/infradb', echo=False)
+    session_factory = sessionmaker(bind=engine)
+    Session = scoped_session(session_factory)
+
+    #
+    # Initialize MongoEngine
+
+    LOG.info("Connecting to Mongo")
+    connect('hr', host="infra.bobeli.org")
+
+    #
+    # Establish the number of people we will upload per thread
+
+    topsession = Session()
+    peoplecount = topsession.query(PGPerson).limit(10000).count()
+    perthread = peoplecount / 5
+    print("Will upload %s people per thread to a calculated total of %s and actual total %s" %
+          (perthread, perthread * 5, peoplecount))
+    Session.remove()
+
+    LOG.info("Defining people")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+
+        future_to_chunk = {executor.submit(mgupload(offset * perthread, perthread)): offset for offset in range(0, 5)}
+        for future in concurrent.futures.as_completed(future_to_chunk):
+            chunk = future_to_chunk[future]
+            print("chunk %s has completed" % chunk)
+
 
 except Exception as ex:
     LOG.fatal('{} - {}'.format(type(ex), ex))
