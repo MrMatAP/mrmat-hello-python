@@ -6,6 +6,6 @@ py-orm.py
 Object-Relational Persistence using Python
 """
 
-import sqlalchemy
-import psycopg2
+from mhporm.pg.pgperson import foo
 
+foo()
