@@ -19,8 +19,7 @@ class PicturePG(Base):
     datetimeaccessed = Column(DateTime)
     datetimemodified = Column(DateTime)
 
-    ahash = Column(String)
     phash = Column(String)
-    dhash = Column(String)
-    whashhaar = Column(String)
-    whashdb4 = Column(String)
+    phashrot90 = Column(String)
+    phashrot180 = Column(String)
+    phashrot270 = Column(String)

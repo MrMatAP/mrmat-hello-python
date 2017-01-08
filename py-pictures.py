@@ -144,20 +144,17 @@ def action_update_from_files(directory):
                     picPG.height = picFile.exif_dict_raw['Exif'][piexif.ExifIFD.PixelYDimension]
                     dirty = True
 
-                if picPG.ahash is None:
-                    picPG.ahash = str(imagehash.average_hash(picFile.im))
-                    dirty = True
                 if picPG.phash is None:
                     picPG.phash = str(imagehash.phash(picFile.im))
                     dirty = True
-                if picPG.dhash is None:
-                    picPG.dhash = str(imagehash.dhash(picFile.im))
+                if picPG.phashrot90 is None:
+                    picPG.phashrot90 = str(imagehash.phash(picFile.im.rotate(90)))
                     dirty = True
-                if picPG.whashhaar is None:
-                    picPG.whashhaar = str(imagehash.whash(picFile.im))
+                if picPG.phashrot180 is None:
+                    picPG.phashrot180 = str(imagehash.phash(picFile.im.rotate(180)))
                     dirty = True
-                if picPG.whashdb4 is None:
-                    picPG.whashdb4 = str(imagehash.whash(picFile.im, mode='db4'))
+                if picPG.phashrot270 is None:
+                    picPG.phashrot270 = str(imagehash.phash(picFile.im.rotate(270)))
                     dirty = True
 
                 picFile.save()
