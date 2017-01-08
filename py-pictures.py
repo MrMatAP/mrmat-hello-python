@@ -14,17 +14,18 @@ import shutil
 import uuid
 import datetime
 import subprocess
-import tqdm
+from tqdm import tqdm
 from pprint import pprint
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from mhp.pictures import Base, Picture
+from mhp.pictures import Base, PicturePG, PictureFile
 
 from fnmatch import fnmatch
 from PIL import Image
 from PIL.ExifTags import TAGS
 import piexif
+import imagehash
 
 
 #
@@ -91,61 +92,113 @@ def action_show(directory):
 
 def action_import(directory):
     for dirpath, dirnames, filenames in os.walk(directory):
-        for file in filenames:
+        for file in tqdm(filenames):
             if fnmatch(file.lower(), "*.jpg"):
-                im = Image.open(os.path.join(dirpath, file))
-                info = im.info
-                exif_dict = {}
-                if 'exif' in info:
-                    exif_dict = piexif.load(info['exif'])
-                    if 'Exif' not in exif_dict:
-                        exif_dict['Exif'] = {}
-                    if piexif.ExifIFD.ImageUniqueID not in exif_dict['Exif']:
-                        exif_dict['Exif'][piexif.ExifIFD.ImageUniqueID] = getuuid()
-                else:
-                    exif_dict['Exif'] = {}
-                    exif_dict['Exif'][piexif.ExifIFD.ImageUniqueID] = getuuid()
+                picFile = PictureFile(dirpath, file)
+                imageuniqueid = picFile.get_imageuniqueid()
+                picFile.save()
 
-                imageuniqueid = exif_dict['Exif'][piexif.ExifIFD.ImageUniqueID]
-                if type(imageuniqueid) is bytes:
-                    imageuniqueid = imageuniqueid.decode()
-                exif_bytes = piexif.dump(exif_dict)
-                im.save(os.path.join(dirpath, file), "jpeg", exif=exif_bytes)
+                picPG = PicturePG(
+                    imageuniqueid=imageuniqueid,
+                    originalpath=dirpath,
+                    originalname=file,
+                    datetimecreated=picFile.datetimecreated,
+                    datetimemodified=picFile.datetimemodified,
+                    datetimeaccessed=picFile.datetimeaccessed
+                )
+                session.add(picPG)
 
-                pic = Picture(imageuniqueid=imageuniqueid, originalpath=dirpath, originalname=file)
-                session.add(pic)
-
-                #
-                # TODO: Must capture the file creation time here
-
-                shutil.move(os.path.join(directory, file), os.path.join(options.target, imageuniqueid + '.jpg'))
+                targetFile = os.path.join(options.target, imageuniqueid + '.jpg')
+                shutil.move(os.path.join(dirpath, file), targetFile)
                 session.commit()
-
+                subprocess.run(['SetFile', '-d', "'" + picFile.datetimecreated.strftime("%m/%d/%Y %H:%M:%S") + "'", targetFile], check=True)
                 print("{: <20}: {}".format(file, imageuniqueid))
+
+
+def action_update_from_files(directory):
+    for dirpath, dirnames, filenames in os.walk(directory):
+        for file in tqdm(filenames):
+            if fnmatch(file.lower(), "*.jpg"):
+                picFile = PictureFile(dirpath, file)
+                imageuniqueid = picFile.get_imageuniqueid()
+                picPG = session.query(PicturePG).filter(PicturePG.imageuniqueid == imageuniqueid).one()
+                if not picPG:
+                    LOG.error("Unable to find picture with ImageUniqueID {} in datebase".format(imageuniqueid))
+                    continue
+                dirty = False
+
+                if picPG.datetimecreated is None:
+                    picPG.datetimecreated = picFile.datetimecreated
+                    dirty = True
+                if picPG.datetimemodified is None:
+                    picPG.datetimemodified = picFile.datetimemodified
+                    dirty = True
+                if picPG.datetimeaccessed is None:
+                    picPG.datetimeaccessed = picFile.datetimeaccessed
+                    dirty = True
+
+                if picPG.width is None or picFile.dirty:
+                    picPG.width = picFile.exif_dict_raw['Exif'][piexif.ExifIFD.PixelXDimension]
+                    dirty = True
+                if picPG.height is None or picFile.dirty:
+                    picPG.height = picFile.exif_dict_raw['Exif'][piexif.ExifIFD.PixelYDimension]
+                    dirty = True
+
+                if picPG.ahash is None:
+                    picPG.ahash = str(imagehash.average_hash(picFile.im))
+                    dirty = True
+                if picPG.phash is None:
+                    picPG.phash = str(imagehash.phash(picFile.im))
+                    dirty = True
+                if picPG.dhash is None:
+                    picPG.dhash = str(imagehash.dhash(picFile.im))
+                    dirty = True
+                if picPG.whashhaar is None:
+                    picPG.whashhaar = str(imagehash.whash(picFile.im))
+                    dirty = True
+                if picPG.whashdb4 is None:
+                    picPG.whashdb4 = str(imagehash.whash(picFile.im, mode='db4'))
+                    dirty = True
+
+                picFile.save()
+                if dirty:
+                    session.commit()
 
 
 def action_updatedb(directory):
     for dirpath, dirnames, filenames in os.walk(directory):
-        for file in filenames:
+        for file in tqdm(filenames):
             if fnmatch(file.lower(), "*.jpg"):
                 im = Image.open(os.path.join(dirpath, file))
                 info = im.info
                 exif_dict = piexif.load(info['exif'])
                 imageuniqueid = exif_dict['Exif'][piexif.ExifIFD.ImageUniqueID].decode()
 
-                pic = session.query(Picture).filter(Picture.imageuniqueid == imageuniqueid).one()
+                pic = session.query(PicturePG).filter(PicturePG.imageuniqueid == imageuniqueid).one()
                 if not pic:
                     LOG.error("Unable to find picture with ImageUniqueID {}".format(imageuniqueid))
                     continue
 
-                dateTimeOriginal = exif_dict['Exif'][piexif.ExifIFD.DateTimeOriginal] if piexif.ExifIFD.DateTimeOriginal in exif_dict['Exif'] else None
-                dateTimeDigitized = exif_dict['Exif'][piexif.ExifIFD.DateTimeDigitized] if piexif.ExifIFD.DateTimeDigitized in exif_dict['Exif'] else None
+                dirty = False
 
-                if dateTimeOriginal:
-                    pic.datetimeoriginal = datetime.datetime.strptime(dateTimeOriginal.decode(), "%Y:%m:%d %H:%M:%S")
-                if dateTimeDigitized:
-                    pic.datetimedigitized = datetime.datetime.strptime(dateTimeDigitized.decode(), "%Y:%m:%d %H:%M:%S")
-                session.commit()
+                if pic.datetimeoriginal is None:
+                    dateTimeOriginal = exif_dict['Exif'][piexif.ExifIFD.DateTimeOriginal] if piexif.ExifIFD.DateTimeOriginal in exif_dict['Exif'] else None
+                    if dateTimeOriginal:
+                        pic.datetimeoriginal = datetime.datetime.strptime(dateTimeOriginal.decode(), "%Y:%m:%d %H:%M:%S")
+                    dirty = True
+
+                if pic.datetimedigitized is None:
+                    dateTimeDigitized = exif_dict['Exif'][piexif.ExifIFD.DateTimeDigitized] if piexif.ExifIFD.DateTimeDigitized in exif_dict['Exif'] else None
+                    if dateTimeDigitized:
+                        pic.datetimedigitized = datetime.datetime.strptime(dateTimeDigitized.decode(), "%Y:%m:%d %H:%M:%S")
+                    dirty = True
+
+                if pic.width is None:
+                    exifWidth = exif_dict['Exif'][piexif.ExifIFD.PixelXDimension] if piexif.ExifIFD.PixelXDimension in exif_dict['Exif'] else None
+                    exifHeight = exif_dict['Exif'][piexif.ExifIFD.PixelYDimension] if piexif.ExifIFD.PixelYDimension in exif_dict['Exif'] else None
+
+                if dirty:
+                    session.commit()
 
                 print("{: <20}: {} {}".format(file, pic.datetimeoriginal, pic.datetimedigitized))
 
@@ -155,7 +208,7 @@ def action_updatecreationtime(directory):
     #
     # Update the creation time from data stored in the database
 
-    for pic in session.query(Picture).filter(Picture.datetimeoriginal.isnot(None)).all():
+    for pic in session.query(PicturePG).filter(PicturePG.datetimeoriginal.isnot(None)).all():
         f = os.path.join(directory, pic.imageuniqueid + '.jpg')
         creationtime = pic.datetimeoriginal.strftime("%m/%d/%Y %H:%M:%S")
         subprocess.run(['SetFile', '-d', "'" + creationtime + "'", f], check=True)
@@ -167,7 +220,7 @@ def action_updateexif(directory):
     #
     # Update the EXIF data from the database
 
-    for pic in tqdm.tqdm(session.query(Picture).all()):
+    for pic in tqdm(session.query(PicturePG).all()):
         f = os.path.join(directory, pic.imageuniqueid + '.jpg')
         im = Image.open(f)
         info = im.info
@@ -190,6 +243,7 @@ def action_updateexif(directory):
         if dirty:
             exif_bytes = piexif.dump(exif_dict)
             im.save(f, "jpeg", exif=exif_bytes)
+
 
 
 #
@@ -233,6 +287,9 @@ try:
 
     elif options.action == 'updateexif':
         action_updateexif(options.directory)
+
+    elif options.action == 'update_from_files':
+        action_update_from_files(options.directory)
 
     else:
         LOG.fatal('Invalid Action')
