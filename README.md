@@ -1,5 +1,6 @@
-# mrmat-hello-python
-Python Experiments
+# MrMat :: Hello Python
+
+Small Python projects that don't warrant their own repository
 
 ## Project Setup
 

@@ -15,6 +15,7 @@
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/py-packages/py-packages.py" />
     <option name="PARAMETERS" value="-v" />
     <option name="SHOW_COMMAND_LINE" value="false" />
+    <option name="EMULATE_TERMINAL" value="false" />
     <method />
   </configuration>
 </component>
