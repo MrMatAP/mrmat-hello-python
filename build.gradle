@@ -5,6 +5,10 @@ plugins {
 
 description 'MrMat Hello Python'
 
+nebulaRelease {
+    Set<String> releaseBranchPatterns = [/develop/, /HEAD]
+}
+
 allprojects {
 
     task info {
