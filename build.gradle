@@ -1,0 +1,23 @@
+
+plugins {
+    id 'nebula.release' version '6.0.0'
+}
+
+description 'MrMat Hello Python'
+
+allprojects {
+
+    task info {
+        doLast {
+            println "Project: ${project.name}"
+            println "Version: ${project.version}"
+        }
+    }
+
+    task clean {
+        description "Clean up"
+    }
+    task build {
+        description "Build this project"
+    }
+}
