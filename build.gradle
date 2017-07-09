@@ -11,15 +11,18 @@ allprojects {
         doLast {
             println "Project: ${project.name}"
             println "Version: ${project.version}"
+            println "Dir    : ${project.projectDir}"
         }
     }
 
     task clean {
         description "Clean up"
     }
-    task build {
+    task build(type: Exec) {
         description "Build this project"
-        "python setup.py install".execute()
+        workingDir project.projectDir
+        commandLine 'env', 'python', 'setup.py', 'build'
     }
-    tasks.findByPath(':release').dependsOn build
+
+    tasks.release.dependsOn 'build'
 }
