@@ -24,7 +24,7 @@ setup(
 
     packages=find_packages(exclude=['tests']),
     entry_points={
-        'console_scripts': ['gh-webhook-manager = mhpython.cli:gh_webhook_manager'],
+        'console_scripts': ['gh-webhook-manager = mhpython.github:gh_webhook_manager'],
     },
 
     #
@@ -36,6 +36,7 @@ setup(
         'pyhamcrest'
     ],
     install_requires=[
+        'requests'
     ],
 
     #
