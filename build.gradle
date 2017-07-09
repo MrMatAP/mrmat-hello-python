@@ -19,5 +19,7 @@ allprojects {
     }
     task build {
         description "Build this project"
+        "python setup.py install".execute()
     }
+    tasks.findByPath(':release').dependsOn build
 }

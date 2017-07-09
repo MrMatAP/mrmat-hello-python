@@ -14,10 +14,13 @@ basedir = path.abspath(path.dirname(__file__))
 
 with open(path.join(basedir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
+with open(path.join(basedir, 'gradle.properties'), encoding='utf-8') as v:
+    version = v.read()
+    version.replace("version=",'')
 
 setup(
     name='mhpython',
-    version='1.0.0.dev1',
+    version=version,
 
     #
     # What we build
