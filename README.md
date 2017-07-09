@@ -13,7 +13,7 @@ $ . /opt/local/dyn/python/mrmat-hello-python/bin/activate
 
 ## mhpython
 
-Everything else should migrate here.
+Everything else should migrate here
 
 ## hackathon-2015
 
