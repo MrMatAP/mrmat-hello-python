@@ -136,9 +136,11 @@ ENV/
 .ropeproject
 /py-io/py-io-output.txt
 
-#
-# Gradle
+# pbr generated
 
-.idea/gradle.xml
-.idea/libraries
-.gradle
+AUTHORS
+ChangeLog
+
+# Sonar
+
+.idea/sonarlint

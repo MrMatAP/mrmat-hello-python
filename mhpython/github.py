@@ -7,7 +7,6 @@ import argparse
 import sys
 import requests
 import requests.auth
-from pprint import pprint
 
 logging.basicConfig(level=logging.WARN, format="%(levelname)s - %(message)s")
 log = logging.getLogger(__name__)
