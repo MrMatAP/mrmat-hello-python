@@ -24,12 +24,12 @@ pipeline {
                 """
             }
         }
-        /*
         stage('QA Gate') {
             steps {
                 slackSend botUser: true, message: "QA Gate Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
                 withSonarQubeEnv('jenkins-sonar') {
                     pyBuild(this, "test")
+                    //sh ". ${env.WORKSPACE}/.venv/bin/activate && behave"
                     sh "${env.SONAR_SCANNER} -Dsonar.branch=${env.BRANCH_NAME} -Dsonar.projectVersion=${pyBuild.version}"
                 }
                 script {
@@ -43,14 +43,13 @@ pipeline {
                 }
             }
         }
-        */
         stage('\uD83D\uDEE0 Build') {
             when { expression { return ! params.RELEASE_BUILD } }
             steps {
                 slackSend botUser: true, message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
                 ansiColor('xterm') {
                     pyBuild(this, "test sdist bdist docs")
-                    sh ". ${env.WORKSPACE}/.venv/bin/activate && behave"
+                    //sh ". ${env.WORKSPACE}/.venv/bin/activate && behave"
                 }
                 script {
                     currentBuild.displayName = "${currentBuild.number}: \uD83D\uDEE0 Build ${pyBuild.version}"
@@ -64,33 +63,22 @@ pipeline {
                 ansiColor('xterm') {
 
                     //
-                    // Force checkout develop and perform an initial test
+                    // Gather project information
 
-                    sh "git checkout -f develop"
                     pyBuild(this, "test")
-                    sh ". ${env.WORKSPACE}/.venv/bin/activate && behave"
+                    //sh ". ${env.WORKSPACE}/.venv/bin/activate && behave"
 
                     //
-                    // If the above was successful then clean up, tag the release and perform the release build
-                    // Note that it's important to tag it on the develop branch, otherwise subsequent builds won't
-                    // recognize the release to have been made
+                    // Tag for a release build and perform
 
                     sh "git tag -am 'Release ${pyBuild.nextReleaseVersion}' ${pyBuild.nextReleaseVersion}"
                     pyBuild(this, "sdist bdist docs")
 
                     //
-                    // The release was successful, merge with master and push
+                    // The release was successful, publish the release
 
                     sh "git checkout -f master && git pull && git merge --no-ff develop"
-
-                    //
-                    // Upload the release to the Nexus
-
                     sh 'twine upload -r nexus dist/*'
-
-					//
-					// Push master branch and new tag
-
 					sh 'git push && git push --tags'
                 }
                 script {
