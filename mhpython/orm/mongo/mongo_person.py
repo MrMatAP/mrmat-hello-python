@@ -1,10 +1,10 @@
 from mongoengine import *
-from .mgcity import MGCity
-from .mgcompany import MGCompany
-from .mgoccupation import MGOccupation
+from .mongo_city import MongoCity
+from .mongo_company import MongoCompany
+from .mongo_occupation import MongoOccupation
 
 
-class MGPerson(Document):
+class MongoPerson(Document):
     meta = {'collection': 'people'}
 
     givenname = StringField(required=True)
@@ -35,6 +35,6 @@ class MGPerson(Document):
     bloodtype = StringField(max_length=3, choices=('B+', 'AB-', 'O-', 'A-', 'AB+', 'O+', 'A+', 'B-'))
     title = StringField(max_length=3, choices=('Mr.', 'Mrs.', 'Ms.', 'Dr.'))
     cctype = StringField(max_length=10, choices=('Visa', 'MasterCard'))
-    city = ReferenceField(MGCity)
-    company = ReferenceField(MGCompany)
-    occupation = ReferenceField(MGOccupation)
+    city = ReferenceField(MongoCity)
+    company = ReferenceField(MongoCompany)
+    occupation = ReferenceField(MongoOccupation)

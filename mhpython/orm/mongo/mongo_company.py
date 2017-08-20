@@ -1,7 +1,7 @@
 from mongoengine import *
 
 
-class MGOccupation(Document):
-    meta = {'collection': 'occupations'}
+class MongoCompany(Document):
+    meta = {'collection': 'companies'}
 
     name = StringField(required=True, unique=True)

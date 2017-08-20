@@ -6,6 +6,6 @@ py-orm.py
 Object-Relational Persistence using Python
 """
 
-from mhporm.pg.pgperson import foo
+from mhpython.orm.sqlorm.sqlorm_person import foo
 
 foo()

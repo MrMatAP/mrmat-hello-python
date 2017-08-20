@@ -1,7 +1,7 @@
 from mongoengine import *
 
 
-class MGCity(Document):
+class MongoCity(Document):
     meta = {'collection': 'cities'}
 
     name = StringField(required=True)
