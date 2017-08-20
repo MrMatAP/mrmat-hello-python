@@ -91,7 +91,7 @@ pipeline {
     }
     post {
         always {
-            junit 'build/reports/**/*.xml'
+            //junit 'build/reports/**/*.xml'
             archive 'dist/mrmat-pictures-*.tar.gz'
             deleteDir()
         }
