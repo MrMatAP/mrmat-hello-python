@@ -2,15 +2,6 @@
 
 Small Python projects that don't warrant their own repository
 
-## Project Setup
-
-Create and activate a virtual environment like this:
-
-```
-$ /opt/local/bin/python3.5 -m venv /opt/dyn/python/mrmat-hello-python
-$ . /opt/local/dyn/python/mrmat-hello-python/bin/activate
-```
-
 ## mhpython
 
 Everything else should migrate here

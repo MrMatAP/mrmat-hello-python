@@ -1,0 +1,8 @@
+behave
+coverage
+pyhamcrest
+pytest-cov      # MIT
+pytest          # MIT
+sphinx>=1.6.2   # BSD./se
+pyscaffold>=2.5a0,<2.6a0
+twine>=1.9.1    # Apache 2.0
