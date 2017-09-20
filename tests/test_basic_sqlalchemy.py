@@ -16,12 +16,12 @@ def test_basic_sqlalchemy():
     session.commit()
     assert blood_type.id is not None, 'blood type id is populated after persisting it'
 
-    person = SQLORMPerson(
+    person1 = SQLORMPerson(
         givenname='Mathieu',
         middleinitial='M',
         surname='Imfeld',
         streetaddress='70 Dakota Crescent',
-        zipcode='399940',
+        zipcode='399944',
         emailaddress='foo@bar.com',
         username='mrmat',
         password='blah',
@@ -32,9 +32,40 @@ def test_basic_sqlalchemy():
         domain='bobeli.org',
         kilograms='70',
         centimeters='174',
-        gender=SQLORMGender(name='male'),
-        bloodtype=SQLORMBloodType(name='A'),
-        title=SQLORMTitle(name='Mr')
+        title='Mr'
     )
-    session.add(person)
+    person1.gender(session, 'male')
+    person1.bloodtype(session, 'A')
+    session.add(person1)
     session.commit()
+
+    #
+    # Now add a second person with the same blood type
+
+    person2 = SQLORMPerson(
+        givenname='Eelyn',
+        surname='Chen-Imfeld',
+        streetaddress='70 Dakota Crescent',
+        zipcode='399944',
+        emailaddress='eelync@bar.com',
+        username='eelync',
+        password='blah2',
+        telephonenumber='+65 9854 1235',
+        ccnumber='4901 1101 1234 5638',
+        cvv2='124',
+        nationalid='S123453',
+        domain='swissotter.org',
+        kilograms='69',
+        centimeters='160',
+        title='Mrs'
+    )
+    person2.gender(session, 'female')
+    person2.bloodtype(session, 'A')
+    session.add(person2)
+    session.commit()
+
+    bloodtypes = session.query(SQLORMBloodType).filter(SQLORMBloodType.name.is_('A')).all()
+    for bt in bloodtypes:
+        people = bt.people_rel
+        for p in people:
+            print("{}: {}".format(bt.name, p.givenname))
