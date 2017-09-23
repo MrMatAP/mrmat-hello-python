@@ -16,4 +16,8 @@ class SQLORMCountry(Base):
     name = Column(String, unique=True)
     code = Column(String)
 
-    cities = relationship("SQLORMCity", back_populates="country")
+    cities_rel = relationship("SQLORMCity", back_populates="country_rel")
+
+    def __init__(self, name, code):
+        self.name = name
+        self.code = code

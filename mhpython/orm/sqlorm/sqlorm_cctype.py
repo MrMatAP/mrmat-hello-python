@@ -15,4 +15,7 @@ class SQLORMCCType(Base):
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True)
     name = Column(String, unique=True)
 
-    people = relationship("SQLORMPerson", back_populates="cctype")
+    people_rel = relationship("SQLORMPerson", back_populates="cctype_rel")
+
+    def __init__(self, name):
+        self.name = name

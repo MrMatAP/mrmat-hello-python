@@ -15,4 +15,7 @@ class SQLORMOccupation(Base):
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True)
     name = Column(String, unique=True)
 
-    people = relationship("SQLORMPerson", back_populates="occupation")
+    people_rel = relationship("SQLORMPerson", back_populates="occupation_rel")
+
+    def __init__(self, name):
+        self.name = name
