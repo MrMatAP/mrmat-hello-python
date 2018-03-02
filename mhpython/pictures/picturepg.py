@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, BigInteger, String, DateTime
 
-from mhp.pictures.base import Base
+from mhpython.pictures.base import Base
 
 
 class PicturePG(Base):
