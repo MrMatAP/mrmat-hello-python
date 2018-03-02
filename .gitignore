@@ -144,4 +144,6 @@ ChangeLog
 # Sonar
 
 .idea/sonarlint
+.scannerwork
+
 doc/source/api

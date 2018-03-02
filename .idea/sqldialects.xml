@@ -3,5 +3,6 @@
   <component name="SqlDialectMappings">
     <file url="dbSrc:///1e769474/0e9b63f0-9666-467b-8e72-25d0462be875" dialect="PostgreSQL" />
     <file url="dbSrc:///1e769474/841bf4e0-dbcc-4043-9a5d-333b26cfde8f" dialect="PostgreSQL" />
+    <file url="PROJECT" dialect="PostgreSQL" />
   </component>
 </project>

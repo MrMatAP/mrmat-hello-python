@@ -1,2 +1,5 @@
 requests>=2.18.1    # Apache 2.0
 sqlalchemy>=1.1.13  # MIT
+Flask               # BSD
+flask-restplus
+Flask-OpenID
