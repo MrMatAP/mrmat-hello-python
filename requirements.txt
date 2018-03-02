@@ -3,3 +3,6 @@ sqlalchemy>=1.1.13  # MIT
 Flask               # BSD
 flask-restplus
 Flask-OpenID
+cqlengine>=0.21.0   # BSD
+psycopg2>=2.7.4     # LGPL with exceptions
+pyspark>=2.3.0      # Apache 2.0

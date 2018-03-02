@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 from sqlalchemy import create_engine, Column, Integer, BigInteger, String, Boolean, REAL
 from sqlalchemy.ext.declarative import declarative_base
@@ -19,6 +18,9 @@ Base = declarative_base()
 
 
 class PTweet(Base):
+    """
+    A Postgresql model for a tweet
+    """
     __tablename__ = 'tweet'
 
     id = Column(Integer, primary_key=True)
@@ -75,6 +77,9 @@ class PTweet(Base):
 
 
 class CTweet(Model):
+    """
+    A cassandra model for a Tweet
+    """
     __table_name__ = 'tweet'
     __keyspace__ = 'tweet'
 
@@ -125,6 +130,9 @@ class CTweet(Model):
 
 
 class CTweetContent(Model):
+    """
+    A Cassandra model for Tweet Content
+    """
     __table_name__ = 'tweetcontent'
     __keyspace__ = 'tweet'
 
@@ -132,78 +140,84 @@ class CTweetContent(Model):
     content = columns.Text(index=True)
 
 
-#
-# Connect to PostgreSQL
+def run():
+    """
+    Main script entry point
+    :return:
+    """
+    #
+    # Connect to PostgreSQL
 
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-psess = Session()
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    psess = Session()
 
-#
-# Connect to Cassandra
+    #
+    # Connect to Cassandra
 
-connection.setup(['infra.bobeli.org'], 'tweet', protocol_version=3)
-drop_table(CTweet)
-sync_table(CTweet)
-sync_table(CTweetContent)
+    connection.setup(['infra.bobeli.org'], 'tweet', protocol_version=3)
+    drop_table(CTweet)
+    sync_table(CTweet)
+    sync_table(CTweetContent)
 
-#
-# Iterate over all tweets to upload them into cassandra
+    #
+    # Iterate over all tweets to upload them into cassandra
 
-for tweet in psess.query(PTweet).order_by(PTweet.id):
-    print("Uploading Tweet: %s" % tweet.id)
-    CTweetContent.create(
-        id=tweet.id,
-        content=tweet.content
-    )
-    CTweet.create(
-        id=tweet.id,
-        tweetid=tweet.tweetid,
-        createdat=tweet.createdat,
-        currentuserretweetid=tweet.currentuserretweetid,
-        favouritecount=tweet.favouritecount,
-        inreplytoscreenname=tweet.inreplytoscreenname,
-        inreplytostatusid=tweet.inreplytostatusid,
-        quotedstatusid=tweet.quotedstatusid,
-        lang=tweet.lang,
-        retweetcount=tweet.retweetcount,
-        source=tweet.source,
-        content=tweet.content,
-        isfavourited=tweet.isfavourited,
-        ispossiblysensitive=tweet.ispossiblysensitive,
-        isretweet=tweet.isretweet,
-        isretweeted=tweet.isretweeted,
-        isretweetedbyme=tweet.isretweetedbyme,
-        istruncated=tweet.istruncated,
-        latitude=tweet.latitude,
-        longitude=tweet.longitude,
-        country=tweet.country,
-        countrycode=tweet.countrycode,
-        placefullname=tweet.placefullname,
-        placename=tweet.placename,
-        placetype=tweet.placetype,
-        placestreetaddress=tweet.placestreetaddress,
-        placeurl=tweet.placeurl,
-        usercreatedat=tweet.usercreatedat,
-        userdescription=tweet.userdescription,
-        userfavouritescount=tweet.userfavouritescount,
-        userfollowerscount=tweet.userfollowerscount,
-        userfriendscount=tweet.userfriendscount,
-        userid=tweet.userid,
-        userlang=tweet.userlang,
-        userlistedcount=tweet.userlistedcount,
-        userlocation=tweet.userlocation,
-        userminiprofileimageurl=tweet.userminiprofileimageurl,
-        username=tweet.username,
-        userscreenname=tweet.userscreenname,
-        usertimezone=tweet.usertimezone,
-        userurl=tweet.userurl,
-        userutcoffset=tweet.userutcoffset,
-        useristranslator=tweet.useristranslator,
-        userisverified=tweet.userisverified
-    )
+    for tweet in psess.query(PTweet).order_by(PTweet.id):
+        print("Uploading Tweet: %s" % tweet.id)
+        CTweetContent.create(
+            id=tweet.id,
+            content=tweet.content
+        )
+        CTweet.create(
+            id=tweet.id,
+            tweetid=tweet.tweetid,
+            createdat=tweet.createdat,
+            currentuserretweetid=tweet.currentuserretweetid,
+            favouritecount=tweet.favouritecount,
+            inreplytoscreenname=tweet.inreplytoscreenname,
+            inreplytostatusid=tweet.inreplytostatusid,
+            quotedstatusid=tweet.quotedstatusid,
+            lang=tweet.lang,
+            retweetcount=tweet.retweetcount,
+            source=tweet.source,
+            content=tweet.content,
+            isfavourited=tweet.isfavourited,
+            ispossiblysensitive=tweet.ispossiblysensitive,
+            isretweet=tweet.isretweet,
+            isretweeted=tweet.isretweeted,
+            isretweetedbyme=tweet.isretweetedbyme,
+            istruncated=tweet.istruncated,
+            latitude=tweet.latitude,
+            longitude=tweet.longitude,
+            country=tweet.country,
+            countrycode=tweet.countrycode,
+            placefullname=tweet.placefullname,
+            placename=tweet.placename,
+            placetype=tweet.placetype,
+            placestreetaddress=tweet.placestreetaddress,
+            placeurl=tweet.placeurl,
+            usercreatedat=tweet.usercreatedat,
+            userdescription=tweet.userdescription,
+            userfavouritescount=tweet.userfavouritescount,
+            userfollowerscount=tweet.userfollowerscount,
+            userfriendscount=tweet.userfriendscount,
+            userid=tweet.userid,
+            userlang=tweet.userlang,
+            userlistedcount=tweet.userlistedcount,
+            userlocation=tweet.userlocation,
+            userminiprofileimageurl=tweet.userminiprofileimageurl,
+            username=tweet.username,
+            userscreenname=tweet.userscreenname,
+            usertimezone=tweet.usertimezone,
+            userurl=tweet.userurl,
+            userutcoffset=tweet.userutcoffset,
+            useristranslator=tweet.useristranslator,
+            userisverified=tweet.userisverified
+        )
 
-#
-# Report
+    print("Uploaded %d CTweets" % CTweet.objects.count())
 
-print "Uploaded %d CTweets" % CTweet.objects.count()
+
+if __name__ == '__main__':
+    run()
