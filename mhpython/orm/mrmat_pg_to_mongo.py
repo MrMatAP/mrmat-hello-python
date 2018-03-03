@@ -127,44 +127,48 @@ def mgupload(offset, limit):
     Session.remove()
 
 
-try:
+def run():
+    try:
 
-    #
-    # Initialize SQLAlchemy for PG
+        #
+        # Initialize SQLAlchemy for PG
 
-    LOG.info("Connecting to PG")
-    engine = create_engine('postgresql+psycopg2://hr:hr@infra.bobeli.org:15432/infradb', echo=False)
-    session_factory = sessionmaker(bind=engine)
-    Session = scoped_session(session_factory)
+        LOG.info("Connecting to PG")
+        engine = create_engine('postgresql+psycopg2://hr:hr@infra.bobeli.org:15432/infradb', echo=False)
+        session_factory = sessionmaker(bind=engine)
+        Session = scoped_session(session_factory)
 
-    #
-    # Initialize MongoEngine
+        #
+        # Initialize MongoEngine
 
-    LOG.info("Connecting to Mongo")
-    connect('hr', host="infra.bobeli.org")
+        LOG.info("Connecting to Mongo")
+        connect('hr', host="infra.bobeli.org")
 
-    #
-    # Establish the number of people we will upload per thread
+        #
+        # Establish the number of people we will upload per thread
 
-    topsession = Session()
-    peoplecount = topsession.query(PGPerson).limit(10000).count()
-    perthread = peoplecount / 5
-    print("Will upload %s people per thread to a calculated total of %s and actual total %s" %
-          (perthread, perthread * 5, peoplecount))
-    Session.remove()
+        topsession = Session()
+        peoplecount = topsession.query(PGPerson).limit(10000).count()
+        perthread = peoplecount / 5
+        print("Will upload %s people per thread to a calculated total of %s and actual total %s" %
+              (perthread, perthread * 5, peoplecount))
+        Session.remove()
 
-    LOG.info("Defining people")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        LOG.info("Defining people")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
 
-        future_to_chunk = {executor.submit(mgupload(offset * perthread, perthread)): offset for offset in range(0, 5)}
-        for future in concurrent.futures.as_completed(future_to_chunk):
-            chunk = future_to_chunk[future]
-            print("chunk %s has completed" % chunk)
+            future_to_chunk = {executor.submit(mgupload(offset * perthread, perthread)): offset for offset in range(0, 5)}
+            for future in concurrent.futures.as_completed(future_to_chunk):
+                chunk = future_to_chunk[future]
+                print("chunk %s has completed" % chunk)
+
+    except Exception as ex:
+        LOG.fatal('{} - {}'.format(type(ex), ex))
+    else:
+        LOG.debug('No exception occurred within the code block')
+    finally:
+        LOG.debug('The finally block is always executed')
 
 
-except Exception as ex:
-    LOG.fatal('{} - {}'.format(type(ex), ex))
-else:
-    LOG.debug('No exception occurred within the code block')
-finally:
-    LOG.debug('The finally block is always executed')
+if __name__ == '__main__':
+    run()

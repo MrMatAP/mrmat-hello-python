@@ -28,7 +28,7 @@ class IO(unittest.TestCase):
         if os.path.isfile(self.SAMPLETEXTFILE):
             os.unlink(self.SAMPLETEXTFILE)
 
-    def test_canPersistSimpleText(self):
+    def test_can_persist_simple_text(self):
         f = open(self.SAMPLETEXTFILE, 'w')
         f.write(self.SAMPLETEXT)
         f.close()
@@ -39,7 +39,7 @@ class IO(unittest.TestCase):
 
         self.assertEqual(self.SAMPLETEXT, text, 'The text read from the file is the same as we wrote')
 
-    def test_canPersistJSON(self):
+    def test_can_persist_json(self):
         f = open(self.SAMPLEJSONFILE, 'w')
         json.dump(self.SAMPLEDICT, f)
         f.close()
@@ -50,6 +50,7 @@ class IO(unittest.TestCase):
 
         self.assertEqual(self.SAMPLEDICT, j, 'The JSON read from the file is the same as we wrote')
         pprint(j)
+
 
 if __name__ == '__main__':
     unittest.main()

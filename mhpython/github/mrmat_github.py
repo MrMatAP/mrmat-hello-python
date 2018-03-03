@@ -105,7 +105,7 @@ def _get_gh_repos():
     return repos
 
 
-def gh_webhook_manager():  # pragma: no cover
+def run():  # pragma: no cover
     """
     Main entry point the gh-webhook-manager script
     :return: 0 exit code for success
@@ -160,5 +160,8 @@ def gh_webhook_manager():  # pragma: no cover
 
     sys.exit(ret)
 
+
+if __name__ == '__main__':
+    run()
 
 
