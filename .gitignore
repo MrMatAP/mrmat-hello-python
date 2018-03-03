@@ -133,7 +133,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
-/py-io/py-io-output.txt
 
 # pbr generated
 
@@ -146,3 +145,4 @@ ChangeLog
 .scannerwork
 
 doc/source/api
+mhpython/py_io/py-io-output.txt
