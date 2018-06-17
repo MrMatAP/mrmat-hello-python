@@ -41,6 +41,7 @@ def run():
     t = threading.Thread(target=spinner, name="spinner")
     t.setDaemon(True)
     t.start()
+
     lengthy_task()
 
 
