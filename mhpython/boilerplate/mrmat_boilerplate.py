@@ -20,8 +20,8 @@ def run():
     # Parse arguments
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--verbose', help='Be chatty', action='store_true')
-    parser.add_argument('--debug', help='Be very chatty', action='store_true')
+    parser.add_argument('-v', '--verbose', help='Be verbose', action='store_true')
+    parser.add_argument('--debug', help='Be very verbose', action='store_true')
     options = parser.parse_args()
     if options.verbose:
         LOG.setLevel(logging.INFO)
