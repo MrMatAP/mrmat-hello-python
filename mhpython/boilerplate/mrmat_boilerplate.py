@@ -14,7 +14,7 @@ def run():
     # Establish logging
 
     logging.basicConfig(level=logging.WARN, format="%(levelname)s - %(message)s")
-    LOG = logging.getLogger(__name__)
+    log = logging.getLogger(__name__)
 
     #
     # Parse arguments
@@ -24,23 +24,23 @@ def run():
     parser.add_argument('--debug', help='Be very verbose', action='store_true')
     options = parser.parse_args()
     if options.verbose:
-        LOG.setLevel(logging.INFO)
+        log.setLevel(logging.INFO)
     if options.debug:
-        LOG.setLevel(logging.DEBUG)
+        log.setLevel(logging.DEBUG)
 
     try:
-        LOG.debug("This is a DEBUG message")
-        LOG.info("This is a INFO message")
-        LOG.warning("This is a WARN message")
-        LOG.error("This is an ERROR message")
-        LOG.fatal("This is a FATAL message")
+        log.debug("This is a DEBUG message")
+        log.info("This is a INFO message")
+        log.warning("This is a WARN message")
+        log.error("This is an ERROR message")
+        log.fatal("This is a FATAL message")
 
     except Exception as ex:
-        LOG.fatal('{} - {}'.format(type(ex), ex))
+        log.fatal('{} - {}'.format(type(ex), ex))
     else:
-        LOG.debug('No exception occurred within the code block')
+        log.debug('No exception occurred within the code block')
     finally:
-        LOG.debug('The finally block is always executed')
+        log.debug('The finally block is always executed')
 
 
 if __name__ == '__main__':
