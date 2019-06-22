@@ -31,7 +31,7 @@ def run():
     try:
         LOG.debug("This is a DEBUG message")
         LOG.info("This is a INFO message")
-        LOG.warn("This is a WARN message")
+        LOG.warning("This is a WARN message")
         LOG.error("This is an ERROR message")
         LOG.fatal("This is a FATAL message")
 
