@@ -23,7 +23,8 @@ setup(
     ],
 
     setup_requires=[
-        'wheel>=0.33.4'     # MIT
+        'wheel>=0.33.4',     # MIT
+        'babel>=2.7.0'       # BSD
     ],
     install_requires=[
         'requests>=2.18.1',         # Apache 2.0
@@ -69,6 +70,12 @@ setup(
             'locale/de_CH/LC_MESSAGES/*.mo',
             'locale/en/LC_MESSAGES/*.mo'
         ]
-    }
+    },
+
+    message_extractors={
+        'mhpython': [
+            ('**.py',                'python', None)
+        ],
+    },
 
 )

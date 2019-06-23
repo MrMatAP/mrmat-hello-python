@@ -4,19 +4,18 @@ localized.py - A localized Python boilerplate
 A description of this localized boilerplate.
 """
 
-import os
 import argparse
 import logging
 import gettext
 
-# Obtain the directory in which locales have been installed
-localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')
+from mhpython.locale import localedir
+
 # Establish the fallback in English
-en = gettext.translation('mhpython.localization',
+en = gettext.translation('messages',
                          localedir=localedir,
                          languages=['en'])
 # Localize text, fallback to English if we don't have a localization
-t = gettext.translation('mhpython.localization',
+t = gettext.translation('messages',
                         localedir=localedir,
                         codeset='UTF-8',
                         fallback=en)
