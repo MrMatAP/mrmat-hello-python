@@ -13,7 +13,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="C:/Python37/Tools/i18n/pygettext.py" />
-    <option name="PARAMETERS" value="-a -p mhpython\localization\de\LC_MESSAGES -o mhpython.localization.po mhpython\localization\localized.py" />
+    <option name="PARAMETERS" value="-a -p mhpython\localization\locale\de\LC_MESSAGES -o mhpython.localization.po mhpython\localization\localized.py" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />

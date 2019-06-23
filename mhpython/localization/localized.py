@@ -9,13 +9,15 @@ import argparse
 import logging
 import gettext
 
+# Obtain the directory in which locales have been installed
+localedir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale')
 # Establish the fallback in English
 en = gettext.translation('mhpython.localization',
-                         localedir=os.path.dirname(__file__),
+                         localedir=localedir,
                          languages=['en'])
 # Localize text, fallback to English if we don't have a localization
 t = gettext.translation('mhpython.localization',
-                        localedir=os.path.dirname(__file__),
+                        localedir=localedir,
                         codeset='UTF-8',
                         fallback=en)
 _ = t.gettext

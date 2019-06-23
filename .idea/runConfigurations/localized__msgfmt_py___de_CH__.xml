@@ -13,7 +13,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="C:/Python37/Tools/i18n/msgfmt.py" />
-    <option name="PARAMETERS" value="-o mhpython\localization\de_CH\LC_MESSAGES\mhpython.localization.mo mhpython\localization\de_CH\LC_MESSAGES\mhpython.localization.po" />
+    <option name="PARAMETERS" value="-o mhpython\localization\locale\de_CH\LC_MESSAGES\mhpython.localization.mo mhpython\localization\locale\de_CH\LC_MESSAGES\mhpython.localization.po" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />
