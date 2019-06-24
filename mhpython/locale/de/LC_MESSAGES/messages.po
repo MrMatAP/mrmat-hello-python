@@ -52,3 +52,43 @@ msgstr "Keine Ausnahme ist während der Ausfuehrung des Programms geschehen"
 msgid "The finally block is always executed"
 msgstr "Der Schlussblock wird immer ausgefuehrt"
 
+#: mhpython/py_spinner/mrmat_spinner.py:27
+msgid "Creating host"
+msgstr "Eine Maschine wird erstellt"
+
+#: mhpython/py_spinner/mrmat_spinner.py:35
+msgid "Done"
+msgstr "Fertig"
+
+#: mhpython/py_spinner/mrmat_spinner.py:39
+msgid "Argument Parser"
+msgstr "Argument-übersetzer"
+
+#: mhpython/py_spinner/mrmat_spinner.py:41
+msgid "sub-command help"
+msgstr "Hilfe fuer Sub-Kommandos"
+
+#: mhpython/py_spinner/mrmat_spinner.py:44
+msgid "Create an alias"
+msgstr "Erstelle einen Alias"
+
+#: mhpython/py_spinner/mrmat_spinner.py:45
+msgid "The FQDN to add the alias to"
+msgstr "Der voll qualifizierte Domänenname auf welchen der Alias zeigen soll"
+
+#: mhpython/py_spinner/mrmat_spinner.py:46
+msgid "The alias to create"
+msgstr "Der zu erstellende Alias"
+
+#: mhpython/py_spinner/mrmat_spinner.py:49
+msgid "Create a host"
+msgstr "Erstelle eine Maschine"
+
+#: mhpython/py_spinner/mrmat_spinner.py:50
+msgid "FQDN to create"
+msgstr "Der zu erstellende voll qualifizierte Domänenname"
+
+#: mhpython/py_spinner/mrmat_spinner.py:51
+msgid "IP to create"
+msgstr "Die zu erstellende Internet Adresse"
+

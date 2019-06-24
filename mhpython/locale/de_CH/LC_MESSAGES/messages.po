@@ -51,3 +51,44 @@ msgstr "Im Programm isch kei uusnahm passiert"
 #: mhpython/localization/localized.py:58
 msgid "The finally block is always executed"
 msgstr "De schluss-block wird immer uusgführt"
+
+#: mhpython/py_spinner/mrmat_spinner.py:27
+msgid "Creating host"
+msgstr "E maschinä wird baut"
+
+#: mhpython/py_spinner/mrmat_spinner.py:35
+msgid "Done"
+msgstr "Färtig"
+
+#: mhpython/py_spinner/mrmat_spinner.py:39
+msgid "Argument Parser"
+msgstr "Argument-übersätzer"
+
+#: mhpython/py_spinner/mrmat_spinner.py:41
+msgid "sub-command help"
+msgstr "Hülf fuer Sub-Kommandos"
+
+#: mhpython/py_spinner/mrmat_spinner.py:44
+msgid "Create an alias"
+msgstr "Bau en alias"
+
+#: mhpython/py_spinner/mrmat_spinner.py:45
+msgid "The FQDN to add the alias to"
+msgstr "Dä voll qualifizierti domänename wo de alias druf zeige söll"
+
+#: mhpython/py_spinner/mrmat_spinner.py:46
+msgid "The alias to create"
+msgstr "Dä alias womer soelled baue"
+
+#: mhpython/py_spinner/mrmat_spinner.py:49
+msgid "Create a host"
+msgstr "Bau e nöi maschinä"
+
+#: mhpython/py_spinner/mrmat_spinner.py:50
+msgid "FQDN to create"
+msgstr "De voll qualifizierti domänename wo mer sölled baue"
+
+#: mhpython/py_spinner/mrmat_spinner.py:51
+msgid "IP to create"
+msgstr "D'Internet Adressä wo mer sölled baue"
+

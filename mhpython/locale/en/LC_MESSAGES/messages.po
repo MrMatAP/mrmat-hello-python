@@ -51,3 +51,44 @@ msgstr "No exception occurred within the code block"
 #: mhpython/localization/localized.py:58
 msgid "The finally block is always executed"
 msgstr "The finally block is always executed"
+
+#: mhpython/py_spinner/mrmat_spinner.py:27
+msgid "Creating host"
+msgstr "Creating host"
+
+#: mhpython/py_spinner/mrmat_spinner.py:35
+msgid "Done"
+msgstr "Done"
+
+#: mhpython/py_spinner/mrmat_spinner.py:39
+msgid "Argument Parser"
+msgstr "Argument Parser"
+
+#: mhpython/py_spinner/mrmat_spinner.py:41
+msgid "sub-command help"
+msgstr "sub-command help"
+
+#: mhpython/py_spinner/mrmat_spinner.py:44
+msgid "Create an alias"
+msgstr "Create an alias"
+
+#: mhpython/py_spinner/mrmat_spinner.py:45
+msgid "The FQDN to add the alias to"
+msgstr "The FQDN to add the alias to"
+
+#: mhpython/py_spinner/mrmat_spinner.py:46
+msgid "The alias to create"
+msgstr "The alias to create"
+
+#: mhpython/py_spinner/mrmat_spinner.py:49
+msgid "Create a host"
+msgstr "Create a host"
+
+#: mhpython/py_spinner/mrmat_spinner.py:50
+msgid "FQDN to create"
+msgstr "FQDN to create"
+
+#: mhpython/py_spinner/mrmat_spinner.py:51
+msgid "IP to create"
+msgstr "IP to create"
+
