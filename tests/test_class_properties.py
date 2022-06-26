@@ -36,7 +36,7 @@ def test_property_ro():
 
     # Can we change Eelyn's first name via the ro property indirectly?
 
-    first_name = person.first_name
+    first_name = person.first_name      # pylint: disable=W0612
     first_name = 'Jerome'
 
     # No we cannot
