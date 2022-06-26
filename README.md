@@ -19,3 +19,6 @@ directory containing `__main__.py` to sys.path, which can be a useful distributi
 contents of the directory (but not the directory itself). Python supports executing code directly from a zip file.
 
 If you put `__main__.py` within a package then that package becomes executable via `python -m <package>`.
+
+It is strongly recommended to use a `src` directory rather than placing packages into the root directory. This avoids
+accidental import of the development version.
