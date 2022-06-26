@@ -11,6 +11,7 @@ There is a namespaced package called `mrmat_hello_python_namespaced`. Namespace 
 in that they do not have a `__init__.py` (although since it is no longer required for a Python package to have a
 `__init__.py` it is probably difficult to distinguish between these). Namespace packages can be programmatically 
 recognised because they have a different object for their loader than a regular package or module (NamespaceLoader vs
-SourceFileLoader).
+SourceFileLoader). See [PEP420](https://peps.python.org/pep-0420/).
 
-See [PEP420](https://peps.python.org/pep-0420/).
+There is an executable directory called `mrmat-hello-python-executable`, which can be executed via `python 
+mrmat-hello-python-executable`. Python looks for a `__main__.py` and will just execute it.
