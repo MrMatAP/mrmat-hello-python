@@ -27,6 +27,7 @@ def run():
         log.setLevel(logging.INFO)
     if options.debug:
         log.setLevel(logging.DEBUG)
+        print('Hello World!')
 
     try:
         log.debug("This is a DEBUG message")
