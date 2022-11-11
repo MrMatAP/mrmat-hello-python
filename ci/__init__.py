@@ -1,6 +1,6 @@
 #  MIT License
 #
-#  Copyright (c) 2022 Mathieu Imfeld
+#  Copyright (c) 2021 Mathieu Imfeld
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -24,4 +24,3 @@
 import os
 
 version = os.environ.get('MRMAT_VERSION', '0.0.0.dev0')
-
