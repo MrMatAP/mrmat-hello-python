@@ -10,7 +10,7 @@ import logging
 #
 # Establish logging
 
-logging.basicConfig(level=logging.WARN, format="%(levelname)s - %(message)s")
+logging.basicConfig(level=logging.WARN, format='%(levelname)s - %(message)s')
 LOG = logging.getLogger(__name__)
 
 
@@ -27,28 +27,26 @@ def run():
     try:
         LOG.info('IO from stdin')
         s = input('Enter a line of text: ')
-        print('We got the following input {}'.format(s))
+        print(f'We got the following input {s}')
 
         #
         # Basic File IO
 
-        LOG.info("Writing that line to a simple text file")
-        f = open('py-io-output.txt', 'w')
-        f.write(s)
-        f.close()
+        LOG.info('Writing that line to a simple text file')
+        with open('py-io-output.txt', 'w', encoding='UTF-8') as f:
+            f.write(s)
         LOG.info('Reading that file again')
-        g = open('py-io-output.txt', 'r')
-        t = g.readline()
-        g.close()
+        with open('py-io-output.txt', 'r', encoding='UTF-8') as g:
+            t = g.readline()
         if s != t:
-            LOG.error('The input string {} does not match the string read from the file {}'.format(s, t))
+            LOG.error('The input string %s does not match the string read from the file %s', s, t)
         else:
-            LOG.info('The input string {} matches the string read from the file {}'.format(s, t))
+            LOG.info('The input string %s matches the string read from the file %s', s, t)
 
     except EOFError:
         LOG.warning('Got an EOFError because you pressed Ctrl-D')
-    except Exception as ex:
-        LOG.fatal('{} - {}'.format(type(ex), ex))
+    except Exception as ex:                     # pylint: disable=W0703
+        LOG.fatal('%s - %s', type(ex), ex)
     else:
         LOG.debug('No exception occurred within the code block')
     finally:
