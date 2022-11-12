@@ -9,7 +9,7 @@ class Greeting:
         Note that Python functions should be lowercase and optionally contain an underscore
         :return:
         """
-        return "Hi there, {}".format(self.name)
+        return f'Hi there, {self.name}'
 
     def __init__(self, name='MrMat'):
         """

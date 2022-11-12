@@ -1,5 +1,5 @@
 
-from mhpython.classes.Greeting import Greeting
+from mhpython.classes.greeting import Greeting
 
 
 class GermanGreeting(Greeting):
@@ -12,4 +12,4 @@ class GermanGreeting(Greeting):
         Overrides the greeting
         :return:
         """
-        return "Hallo, {}".format(self.name)
+        return f'Hallo, {self.name}'
