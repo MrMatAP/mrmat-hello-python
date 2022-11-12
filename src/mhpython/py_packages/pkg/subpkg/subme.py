@@ -4,4 +4,4 @@ A sample function within pkg.subpkg
 
 
 def test():
-    print('Test function within {}'.format(__name__))
+    print(f'Test function within {__name__}')
