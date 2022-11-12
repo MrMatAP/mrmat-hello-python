@@ -8,9 +8,8 @@ import imagehash
 
 
 class HashTest(unittest.TestCase):
-    
     testpicdir = 'var/test-pictures/'
-    
+
     def setUp(self):
         self.badger = PictureFile(self.testpicdir, 'badger.jpg')
         self.badger_duplicate = PictureFile(self.testpicdir, 'badger_duplicate.jpg')

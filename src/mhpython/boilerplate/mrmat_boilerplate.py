@@ -13,7 +13,7 @@ def run():
     #
     # Establish logging
 
-    logging.basicConfig(level=logging.WARN, format="%(levelname)s - %(message)s")
+    logging.basicConfig(level=logging.WARN, format='%(levelname)s - %(message)s')
     log = logging.getLogger(__name__)
 
     #
@@ -30,14 +30,14 @@ def run():
         print('Hello World!')
 
     try:
-        log.debug("This is a DEBUG message")
-        log.info("This is a INFO message")
-        log.warning("This is a WARN message")
-        log.error("This is an ERROR message")
-        log.fatal("This is a FATAL message")
+        log.debug('This is a DEBUG message')
+        log.info('This is a INFO message')
+        log.warning('This is a WARN message')
+        log.error('This is an ERROR message')
+        log.fatal('This is a FATAL message')
 
-    except Exception as ex:
-        log.fatal('{} - {}'.format(type(ex), ex))
+    except Exception as ex:                 # pylint: disable=broad-except
+        log.fatal('%s - %s', type(ex), ex)
     else:
         log.debug('No exception occurred within the code block')
     finally:

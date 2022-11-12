@@ -1,10 +1,13 @@
-from mongoengine import *
+from mongoengine import Document, StringField, DateTimeField, FloatField, UUIDField, ReferenceField
 from .mongo_city import MongoCity
 from .mongo_company import MongoCompany
 from .mongo_occupation import MongoOccupation
 
 
 class MongoPerson(Document):
+    """
+    Person record in the Mongo database
+    """
     meta = {'collection': 'people'}
 
     givenname = StringField(required=True)

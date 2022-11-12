@@ -7,19 +7,19 @@ import re
 
 
 def run():
-    sc = CassandraSparkContext(appName="tweet-analyze")
+    sc = CassandraSparkContext(appName='tweet-analyze')
     sc.setLogLevel('ERROR')
     rdd = sc.cassandraTable('tweet', 'tweetcontent')
 
-    print("- Content structure")
+    print('- Content structure')
     first = rdd.select('content').first()
     print(first)
     print(first['content'])
 
-    print("- Tokenization")
+    print('- Tokenization')
     tokenized = rdd.select('content').flatMap(lambda r: re.split('\W', r['content'])).collect()
 
-    print("- Word count")
+    print('- Word count')
     word_count = sc.parallelize(tokenized)\
         .map(lambda word: (word, 1))\
         .reduceByKey(lambda v1, v2: v1 + v2)\

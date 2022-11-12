@@ -8,7 +8,7 @@ import sys
 import requests
 import requests.auth
 
-logging.basicConfig(level=logging.WARN, format="%(levelname)s - %(message)s")
+logging.basicConfig(level=logging.WARN, format='%(levelname)s - %(message)s')
 log = logging.getLogger(__name__)
 session = None
 args = None
@@ -142,7 +142,7 @@ def run():  # pragma: no cover
     session = requests.Session()
     session.headers.update({
         'Accept': 'application/vnd.github.v3+json',
-        'Authorization': "token " + args.token
+        'Authorization': f'token {args.token}'
     })
 
     #

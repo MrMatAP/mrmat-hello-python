@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from cassandra.cqlengine import columns, connection
-from cassandra.cqlengine.management import drop_keyspace, create_keyspace_simple, drop_table, sync_table
+from cassandra.cqlengine.management import drop_table, sync_table
 from cassandra.cqlengine.models import Model
 
 #
@@ -69,7 +69,7 @@ class PTweet(Base):
     userisverified = Column(Boolean)
 
     def __repr__(self):
-        return "<Tweet(id='%d', username='%s', content='%s'>" % (self.id, self.username, self.content)
+        return f"<Tweet(id='{self.id}', username='{self.username}', content='{self.content}'>"
 
 
 #
@@ -149,7 +149,7 @@ def run():
     # Connect to PostgreSQL
 
     Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
+    Session = sessionmaker(bind=engine)         # pylint: ignore=invalid-name
     psess = Session()
 
     #
@@ -164,7 +164,7 @@ def run():
     # Iterate over all tweets to upload them into cassandra
 
     for tweet in psess.query(PTweet).order_by(PTweet.id):
-        print("Uploading Tweet: %s" % tweet.id)
+        print(f'Uploading Tweet: {tweet.id}')
         CTweetContent.create(
             id=tweet.id,
             content=tweet.content
@@ -216,7 +216,7 @@ def run():
             userisverified=tweet.userisverified
         )
 
-    print("Uploaded %d CTweets" % CTweet.objects.count())
+    print(f'Uploaded {CTweet.objects.count()} CTweets')
 
 
 if __name__ == '__main__':

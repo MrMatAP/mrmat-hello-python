@@ -4,6 +4,9 @@ from mhpython.pictures.base import Base
 
 
 class PicturePG(Base):
+    """
+    A picture record in the database
+    """
     __tablename__ = 'pictures'
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)

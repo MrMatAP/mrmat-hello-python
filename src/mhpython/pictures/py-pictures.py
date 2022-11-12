@@ -31,7 +31,7 @@ import imagehash
 #
 # Establish logging
 
-logging.basicConfig(level=logging.WARN, format="%(levelname)s - %(message)s")
+logging.basicConfig(level=logging.WARN, format='%(levelname)s - %(message)s')
 LOG = logging.getLogger(__name__)
 
 #
@@ -57,7 +57,7 @@ def getuuid():
 def action_check(directory):
     for dirpath, dirnames, filenames in os.walk(directory):
         for file in filenames:
-            if fnmatch(file.lower(), "*.jpg"):
+            if fnmatch(file.lower(), '*.jpg'):
                 has_exif = False
                 has_imageuniqueid = False
 
@@ -70,7 +70,7 @@ def action_check(directory):
                         if piexif.ExifIFD.ImageUniqueID in exif_dict['Exif']:
                             has_imageuniqueid = True
 
-                print("{: <20}: {!r: <5} {!r: <5}".format(file, has_exif, has_imageuniqueid))
+                print('{: <20}: {!r: <5} {!r: <5}'.format(file, has_exif, has_imageuniqueid))
 
 
 def action_show(directory):
@@ -87,13 +87,13 @@ def action_show(directory):
                 dateTimeOriginal = exif['DateTimeOriginal'] if 'DateTimeOriginal' in exif else 'N/A'
                 dateTimeDigitized = exif['DateTimeDigitized'] if 'DateTimeDigitzed' in exif else 'N/A'
 
-                print("{: <20}: {} {} {}".format(file, imageuniqueid, dateTimeOriginal, dateTimeDigitized))
+                print('{: <20}: {} {} {}'.format(file, imageuniqueid, dateTimeOriginal, dateTimeDigitized))
 
 
 def action_import(directory):
     for dirpath, dirnames, filenames in os.walk(directory):
         for file in tqdm(filenames):
-            if fnmatch(file.lower(), "*.jpg"):
+            if fnmatch(file.lower(), '*.jpg'):
                 picFile = PictureFile(dirpath, file)
                 imageuniqueid = picFile.get_imageuniqueid()
                 picFile.save()
@@ -111,19 +111,19 @@ def action_import(directory):
                 targetFile = os.path.join(options.target, imageuniqueid + '.jpg')
                 shutil.move(os.path.join(dirpath, file), targetFile)
                 session.commit()
-                subprocess.run(['SetFile', '-d', "'" + picFile.datetimecreated.strftime("%m/%d/%Y %H:%M:%S") + "'", targetFile], check=True)
-                print("{: <20}: {}".format(file, imageuniqueid))
+                subprocess.run(['SetFile', '-d', "'" + picFile.datetimecreated.strftime('%m/%d/%Y %H:%M:%S') + "'", targetFile], check=True)
+                print('{: <20}: {}'.format(file, imageuniqueid))
 
 
 def action_update_from_files(directory):
     for dirpath, dirnames, filenames in os.walk(directory):
         for file in tqdm(filenames):
-            if fnmatch(file.lower(), "*.jpg"):
+            if fnmatch(file.lower(), '*.jpg'):
                 picFile = PictureFile(dirpath, file)
                 imageuniqueid = picFile.get_imageuniqueid()
                 picPG = session.query(PicturePG).filter(PicturePG.imageuniqueid == imageuniqueid).one()
                 if not picPG:
-                    LOG.error("Unable to find picture with ImageUniqueID {} in datebase".format(imageuniqueid))
+                    LOG.error('Unable to find picture with ImageUniqueID %s in datebase', imageuniqueid)
                     continue
                 dirty = False
 
@@ -165,7 +165,7 @@ def action_update_from_files(directory):
 def action_updatedb(directory):
     for dirpath, dirnames, filenames in os.walk(directory):
         for file in tqdm(filenames):
-            if fnmatch(file.lower(), "*.jpg"):
+            if fnmatch(file.lower(), '*.jpg'):
                 im = Image.open(os.path.join(dirpath, file))
                 info = im.info
                 exif_dict = piexif.load(info['exif'])
@@ -173,7 +173,7 @@ def action_updatedb(directory):
 
                 pic = session.query(PicturePG).filter(PicturePG.imageuniqueid == imageuniqueid).one()
                 if not pic:
-                    LOG.error("Unable to find picture with ImageUniqueID {}".format(imageuniqueid))
+                    LOG.error('Unable to find picture with ImageUniqueID %s', imageuniqueid)
                     continue
 
                 dirty = False
@@ -181,13 +181,13 @@ def action_updatedb(directory):
                 if pic.datetimeoriginal is None:
                     dateTimeOriginal = exif_dict['Exif'][piexif.ExifIFD.DateTimeOriginal] if piexif.ExifIFD.DateTimeOriginal in exif_dict['Exif'] else None
                     if dateTimeOriginal:
-                        pic.datetimeoriginal = datetime.datetime.strptime(dateTimeOriginal.decode(), "%Y:%m:%d %H:%M:%S")
+                        pic.datetimeoriginal = datetime.datetime.strptime(dateTimeOriginal.decode(), '%Y:%m:%d %H:%M:%S')
                     dirty = True
 
                 if pic.datetimedigitized is None:
                     dateTimeDigitized = exif_dict['Exif'][piexif.ExifIFD.DateTimeDigitized] if piexif.ExifIFD.DateTimeDigitized in exif_dict['Exif'] else None
                     if dateTimeDigitized:
-                        pic.datetimedigitized = datetime.datetime.strptime(dateTimeDigitized.decode(), "%Y:%m:%d %H:%M:%S")
+                        pic.datetimedigitized = datetime.datetime.strptime(dateTimeDigitized.decode(), '%Y:%m:%d %H:%M:%S')
                     dirty = True
 
                 if pic.width is None:
@@ -207,9 +207,9 @@ def action_updatecreationtime(directory):
 
     for pic in session.query(PicturePG).filter(PicturePG.datetimeoriginal.isnot(None)).all():
         f = os.path.join(directory, pic.imageuniqueid + '.jpg')
-        creationtime = pic.datetimeoriginal.strftime("%m/%d/%Y %H:%M:%S")
+        creationtime = pic.datetimeoriginal.strftime('%m/%d/%Y %H:%M:%S')
         subprocess.run(['SetFile', '-d', "'" + creationtime + "'", f], check=True)
-        print("{: <20}: {}".format(f, creationtime))
+        print('{: <20}: {}'.format(f, creationtime))
 
 
 def action_updateexif(directory):
@@ -226,9 +226,9 @@ def action_updateexif(directory):
         dirty = False
 
         if pic.datetimeoriginal and piexif.ExifIFD.DateTimeOriginal not in exif_dict['Exif']:
-            dateTimeOriginal = pic.datetimeoriginal.strftime("%Y:%m:%d %H:%M:%S").encode()
+            dateTimeOriginal = pic.datetimeoriginal.strftime('%Y:%m:%d %H:%M:%S').encode()
             exif_dict['Exif'][piexif.ExifIFD.DateTimeOriginal] = dateTimeOriginal
-            print("{: <20}: DateTimeOriginal {}".format(f, dateTimeOriginal))
+            print('{: <20}: DateTimeOriginal {}'.format(f, dateTimeOriginal))
             dirty = True
 
         if pic.datetimedigitized and piexif.ExifIFD.DateTimeDigitized not in exif_dict['Exif']:
