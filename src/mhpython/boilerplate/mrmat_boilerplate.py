@@ -1,5 +1,5 @@
 """
-py-boilerplate.py - A Python boilerplate
+mrmat-boilerplate.py - A Python boilerplate
 
 A description of this boilerplate.
 """
