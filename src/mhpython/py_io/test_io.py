@@ -14,41 +14,33 @@ class IO(unittest.TestCase):
     """
 
     def setUp(self):
-        self.SAMPLETEXT = 'Hi there, I am a fake constant in the IO unit test'
-        self.SAMPLETEXTFILE = 'io-unittest.txt'
-        if os.path.isfile(self.SAMPLETEXTFILE):
-            os.unlink(self.SAMPLETEXTFILE)
+        self.sample_text = 'Hi there, I am a fake constant in the IO unit test'
+        self.sample_text_file = 'io-unittest.txt'
+        if os.path.isfile(self.sample_text_file):
+            os.unlink(self.sample_text_file)
 
-        self.SAMPLEDICT = { 'foo': 1, 'bar': 'two', 'baz': [ 1, 'quux', 'quz']}
-        self.SAMPLEJSONFILE = 'io-unittest.json'
-        if os.path.isfile(self.SAMPLEJSONFILE):
-            os.unlink(self.SAMPLEJSONFILE)
+        self.sample_dict = {'foo': 1, 'bar': 'two', 'baz': [1, 'quux', 'quz']}
+        self.sample_json_file = 'io-unittest.json'
+        if os.path.isfile(self.sample_json_file):
+            os.unlink(self.sample_json_file)
 
     def tearDown(self):
-        if os.path.isfile(self.SAMPLETEXTFILE):
-            os.unlink(self.SAMPLETEXTFILE)
+        if os.path.isfile(self.sample_text_file):
+            os.unlink(self.sample_text_file)
 
     def test_can_persist_simple_text(self):
-        f = open(self.SAMPLETEXTFILE, 'w')
-        f.write(self.SAMPLETEXT)
-        f.close()
-
-        g = open(self.SAMPLETEXTFILE, 'r')
-        text = g.readline()
-        g.close()
-
-        self.assertEqual(self.SAMPLETEXT, text, 'The text read from the file is the same as we wrote')
+        with open(self.sample_text_file, 'w', encoding='UTF-8') as f:
+            f.write(self.sample_text)
+        with open(self.sample_text_file, 'r', encoding='UTF-8') as g:
+            text = g.readline()
+        self.assertEqual(self.sample_text, text, 'The text read from the file is the same as we wrote')
 
     def test_can_persist_json(self):
-        f = open(self.SAMPLEJSONFILE, 'w')
-        json.dump(self.SAMPLEDICT, f)
-        f.close()
-
-        g = open(self.SAMPLEJSONFILE, 'r')
-        j = json.load(g)
-        g.close()
-
-        self.assertEqual(self.SAMPLEDICT, j, 'The JSON read from the file is the same as we wrote')
+        with open(self.sample_json_file, 'w', encoding='UTF-8') as f:
+            json.dump(self.sample_dict, f)
+        with open(self.sample_json_file, 'r', encoding='UTF-8') as g:
+            j = json.load(g)
+        self.assertEqual(self.sample_dict, j, 'The JSON read from the file is the same as we wrote')
         pprint(j)
 
 
