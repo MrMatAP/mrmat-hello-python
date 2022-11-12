@@ -12,7 +12,7 @@ from mhpython.py_packages.pkg.subpkg import subme
 #
 # Establish logging
 
-logging.basicConfig(level=logging.WARN, format="%(levelname)s - %(message)s")
+logging.basicConfig(level=logging.WARN, format='%(levelname)s - %(message)s')
 LOG = logging.getLogger(__name__)
 
 
