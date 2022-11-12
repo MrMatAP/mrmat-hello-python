@@ -21,7 +21,7 @@
 #  SOFTWARE.
 #
 
-from mrmat_hello_python.class_decorator import Greeting
+from mhpython.classes.class_decorator import Greeting
 
 
 def test_greeting():

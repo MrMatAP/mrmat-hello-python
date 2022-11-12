@@ -21,7 +21,7 @@
 #  SOFTWARE.
 #
 
-from mrmat_hello_python.class_properties import Person
+from mhpython.classes.class_properties import Person
 
 
 def test_property_ro():
