@@ -11,7 +11,7 @@ build-backend = 'setuptools.build_meta'
 [project]
 name = "mrmat-hello-python"
 description = "Small Python projects that don't warrant their own repository"
-urls = { "Sources" = "https://github.com/MrMatOrg/mrmat-hello-python" }
+urls = { "Sources" = "https://github.com/MrMatAP/mrmat-hello-python" }
 keywords = ["experimental"]
 readme = "README.md"
 license = { text = "MIT" }
