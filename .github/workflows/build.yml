@@ -69,7 +69,7 @@ jobs:
       run: |
         pip install --user -r requirements.txt
         pylint ${GITHUB_WORKSPACE}/src/mhpython
-        python -m pytest
+        PYTHONPATH=${GITHUB_WORKSPACE}/src python -m pytest
         python -m build --wheel -n        
 
     - name: Upload test results
