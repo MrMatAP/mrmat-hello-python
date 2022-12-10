@@ -17,23 +17,36 @@
 #  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 #  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#  SOFTWARE.
-#
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import pytest
 
-def gen():
-    yield 1
-    yield 2
-    yield 3
+from mhpython.decorators import can_greet
 
 
-def test_generator_function():
-    last_value = 0
-    for i in gen():
-        assert last_value < i, 'Generator returns sequential values'
-        last_value = i
+@can_greet
+class Greeting:
+    """
+    A class initialised with a name, decorated to receive a greet method
+    """
+
+    def __init__(self, name):
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
 
 
-def test_generator_expression():
-    sqrt_generator = (x for x in range(1, 100))
-    # Creates a generator, consumes no memory
+def test_greeting_decorator():
+    greeting = Greeting('MrMat')
+    assert greeting.greet() == 'Hello MrMat'
+
+
+def test_greeting_typeerror():
+    with pytest.raises(TypeError):
+        @can_greet
+        class BadGreeting:
+            def greet(self):
+                pass
+
+        assert False, "We expect a TypeError of the decorator would overwrite an existing method"

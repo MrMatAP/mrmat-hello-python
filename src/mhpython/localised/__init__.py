@@ -17,23 +17,6 @@
 #  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 #  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#  SOFTWARE.
-#
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-def gen():
-    yield 1
-    yield 2
-    yield 3
-
-
-def test_generator_function():
-    last_value = 0
-    for i in gen():
-        assert last_value < i, 'Generator returns sequential values'
-        last_value = i
-
-
-def test_generator_expression():
-    sqrt_generator = (x for x in range(1, 100))
-    # Creates a generator, consumes no memory
+from .greeting import Greeting, Language

@@ -21,39 +21,26 @@
 #  SOFTWARE.
 #
 
-"""
-Tests for builtin Python functions
-"""
-
-int_array = [1, 2, 3, 101, 102, 103]
-dict_array = [
-    dict(id=1, name='one'),
-    dict(id=2, name='two'),
-    dict(id=3, name='three'),
-    dict(id=101, name='one-hundred-and-one'),
-    dict(id=102, name='one-hundred-and-two'),
-    dict(id=103, name='one-hundred-and-three')
-]
+import typing
 
 
-def test_filter_integers():
+def function_with_extra_args(simple: str, *args) -> typing.Tuple:
     """
-    We can filter on a simple array of integers, but must remember to resolve the returned generator as a list
+    A star argument comes across as a tuple for all remaining attibutes
     """
-    filtered_list = list(filter(lambda _: _ < 100, int_array))
-    assert filtered_list == [1, 2, 3]
+    return simple, args
 
 
-def test_filter_generator():
+def function_with_extra_kwargs(simple: str, **kwargs):
     """
-    We can also use the filter on a simple array and use the returned generator directly
+    A double-star argument comes across as a dict and it only accepts named attributes.
+    Note that it is not required to be called kwargs
     """
-    filtered_generator = filter(lambda _: _ < 100, int_array)
-    assert isinstance(filtered_generator, filter)
-    for entry in filtered_generator:
-        assert entry < 100
+    return simple, kwargs
 
 
-def test_filter_complex():
-    filtered_list = list(filter(lambda _: _.get('id') < 100, dict_array))
-    assert len(filtered_list) == 3
+def function_with_all_three(simple: str, *args, **kwargs):
+    """
+    All three can be combined, but order matters. args must come before kwargs. ** parameters MUST come after *params
+    """
+    return simple, args, kwargs

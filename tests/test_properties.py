@@ -21,39 +21,24 @@
 #  SOFTWARE.
 #
 
-"""
-Tests for builtin Python functions
-"""
-
-int_array = [1, 2, 3, 101, 102, 103]
-dict_array = [
-    dict(id=1, name='one'),
-    dict(id=2, name='two'),
-    dict(id=3, name='three'),
-    dict(id=101, name='one-hundred-and-one'),
-    dict(id=102, name='one-hundred-and-two'),
-    dict(id=103, name='one-hundred-and-three')
-]
+from mhpython.properties import Person
 
 
-def test_filter_integers():
-    """
-    We can filter on a simple array of integers, but must remember to resolve the returned generator as a list
-    """
-    filtered_list = list(filter(lambda _: _ < 100, int_array))
-    assert filtered_list == [1, 2, 3]
+def test_property_ro():
+    person = Person('Eelyn', 'Chen')
+    assert person.first_name == 'Eelyn'
+    assert person.last_name == 'Chen'
 
+    # Now Eelyn gets married
 
-def test_filter_generator():
-    """
-    We can also use the filter on a simple array and use the returned generator directly
-    """
-    filtered_generator = filter(lambda _: _ < 100, int_array)
-    assert isinstance(filtered_generator, filter)
-    for entry in filtered_generator:
-        assert entry < 100
+    person.last_name = 'Chen-Imfeld'
+    assert person.last_name == 'Chen-Imfeld'
 
+    # Can we change Eelyn's first name via the ro property indirectly?
 
-def test_filter_complex():
-    filtered_list = list(filter(lambda _: _.get('id') < 100, dict_array))
-    assert len(filtered_list) == 3
+    first_name = person.first_name      # pylint: disable=W0612
+    first_name = 'Jerome'
+
+    # No, we cannot
+
+    assert person.first_name == 'Eelyn'
