@@ -1,3 +1,57 @@
 [build-system]
-requires = ['setuptools', 'wheel']
+requires = [
+    'setuptools>=42.0.0',
+    'wheel >= 0.36.0',
+    'pylint~=2.15.5',           # MIT
+    'pytest~=7.2.0',            # GPL-2.0-or-later
+    'pytest-cov~=4.0.0',        # MIT
+]
 build-backend = 'setuptools.build_meta'
+
+[project]
+name = "mrmat-hello-python"
+description = "Small Python projects that don't warrant their own repository"
+urls = { "Sources" = "https://github.com/MrMatOrg/mrmat-hello-python" }
+keywords = ["experimental"]
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { "name" = "Mathieu Imfeld", "email" = "imfeldma+9jqerw@gmail.com" }
+]
+maintainers = [
+    { "name" = "Mathieu Imfeld", "email" = "imfeldma+9jqerw@gmail.com" }
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT",
+    "Programming Language :: Python :: 3.10"
+]
+requires-python = ">=3.10"
+dependencies = []
+dynamic = ["version"]
+
+[tool.setuptools.dynamic]
+version = { attr = "ci.version "}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["mhpython*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+"*" = ["*.mo"]
+
+[project.scripts]
+mrmat-localised = "mhpython.localised.cli:main"
+
+# If you are debugging your tests using PyCharm then comment out the coverage options
+# in addopts
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov=mhpython --cov-report=term --cov-report=xml:build/coverage.xml --junit-xml=build/junit.xml"
+testpaths = ["tests"]
+junit_family = "xunit2"
+log_cli = 1
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format="%Y-%m-%d %H:%M:%S"
