@@ -69,8 +69,9 @@ jobs:
       run: |
         pip install --user -r requirements.txt
         pylint ${GITHUB_WORKSPACE}/src/mhpython
-        PYTHONPATH=${GITHUB_WORKSPACE}/src python -m pytest
-        PYTHONPATH=${GITHUB_WORKSPACE}/src python -m build --wheel -n
+        python -m build --wheel -n
+        pip install ${GITHUB_WORKSPACE}/dist/*.whl
+        python -m pytest
 
     - name: Upload test results
       uses: actions/upload-artifact@v2
