@@ -57,4 +57,3 @@ def test_filter_generator():
 def test_filter_complex():
     filtered_list = list(filter(lambda _: _.get('id') < 100, dict_array))
     assert len(filtered_list) == 3
-

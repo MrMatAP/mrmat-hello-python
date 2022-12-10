@@ -9,7 +9,7 @@ name: Build
 env:
   MAJOR: 0
   MINOR: 0
-  PYTHON_VERSION: 3.10.0
+  PYTHON_VERSION: 3.11.0
 
 #
 # Establish when the workflow is run
@@ -68,8 +68,8 @@ jobs:
     - name: Build
       run: |
         pip install --user -r requirements.txt
-        pylint ${GITHUB_WORKSPACE}/mrmat_hello_python
-        PYTHONPATH=${GITHUB_WORKSPACE} python -m pytest --cov=mrmat_hello_python
+        pylint ${GITHUB_WORKSPACE}/src/mhpython
+        PYTHONPATH=${GITHUB_WORKSPACE} python -m pytest
         PYTHONPATH=${GITHUB_WORKSPACE} python -m build --wheel -n
 
     - name: Upload test results

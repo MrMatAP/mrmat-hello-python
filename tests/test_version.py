@@ -19,8 +19,9 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from .functions import (
-    function_with_extra_args,
-    function_with_extra_kwargs,
-    function_with_all_three
-)
+import os
+from mhpython import __version__
+
+
+def test_version():
+    assert os.environ.get('MRMAT_VERSION', '0.0.0.dev0') == __version__

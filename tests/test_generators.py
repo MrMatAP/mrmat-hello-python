@@ -37,4 +37,3 @@ def test_generator_function():
 def test_generator_expression():
     sqrt_generator = (x for x in range(1, 100))
     # Creates a generator, consumes no memory
-

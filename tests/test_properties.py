@@ -17,10 +17,28 @@
 #  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 #  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#  SOFTWARE.
+#
 
-from .functions import (
-    function_with_extra_args,
-    function_with_extra_kwargs,
-    function_with_all_three
-)
+from mhpython.properties import Person
+
+
+def test_property_ro():
+    person = Person('Eelyn', 'Chen')
+    assert person.first_name == 'Eelyn'
+    assert person.last_name == 'Chen'
+
+    # Now Eelyn gets married
+
+    person.last_name = 'Chen-Imfeld'
+    assert person.last_name == 'Chen-Imfeld'
+
+    # Can we change Eelyn's first name via the ro property indirectly?
+
+    first_name = person.first_name      # pylint: disable=W0612
+    first_name = 'Jerome'
+
+    # No, we cannot
+
+    assert person.first_name == 'Eelyn'

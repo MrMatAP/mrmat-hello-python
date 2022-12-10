@@ -18,9 +18,35 @@
 #  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+import pytest
 
-from .functions import (
-    function_with_extra_args,
-    function_with_extra_kwargs,
-    function_with_all_three
-)
+from mhpython.decorators import can_greet
+
+
+@can_greet
+class Greeting:
+    """
+    A class initialised with a name, decorated to receive a greet method
+    """
+
+    def __init__(self, name):
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
+
+
+def test_greeting_decorator():
+    greeting = Greeting('MrMat')
+    assert greeting.greet() == 'Hello MrMat'
+
+
+def test_greeting_typeerror():
+    with pytest.raises(TypeError):
+        @can_greet
+        class BadGreeting:
+            def greet(self):
+                pass
+
+        assert False, "We expect a TypeError of the decorator would overwrite an existing method"

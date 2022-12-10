@@ -19,8 +19,19 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from .functions import (
-    function_with_extra_args,
-    function_with_extra_kwargs,
-    function_with_all_three
-)
+from mhpython.localised import Language, Greeting
+
+
+def test_en_localisation():
+    greeting = Greeting(language=Language.EN)
+    assert greeting.greet() == 'Hello World'
+
+
+def test_de_localisation():
+    greeting = Greeting(language=Language.DE)
+    assert greeting.greet() == 'Hallo Welt'
+
+
+def test_fr_localisation():
+    greeting = Greeting(language=Language.FR)
+    assert greeting.greet() == 'Bonjour Monde'

@@ -21,16 +21,14 @@
 #  SOFTWARE.
 #
 
-import sys
+import typing
 
 
-def function_with_extra_args(simple: str, *args):
+def function_with_extra_args(simple: str, *args) -> typing.Tuple:
     """
     A star argument comes across as a tuple for all remaining attibutes
     """
-    print('function_with_extra_args:')
-    print(f'Simple   = {type(simple)}')
-    print(f'*args    = {type(args)}')
+    return simple, args
 
 
 def function_with_extra_kwargs(simple: str, **kwargs):
@@ -38,23 +36,11 @@ def function_with_extra_kwargs(simple: str, **kwargs):
     A double-star argument comes across as a dict and it only accepts named attributes.
     Note that it is not required to be called kwargs
     """
-    print('function_with_extra_kwargs:')
-    print(f'Simple   = {type(simple)}')
-    print(f'*kwargs    = {type(kwargs)}')
+    return simple, kwargs
 
 
 def function_with_all_three(simple: str, *args, **kwargs):
     """
     All three can be combined, but order matters. args must come before kwargs. ** parameters MUST come after *params
     """
-    print('function_with_all_three:')
-    print(f'Simple   = {type(simple)}')
-    print(f'*args    = {type(args)} [{len(args)}]')
-    print(f'*kwargs    = {type(kwargs)} [{len(kwargs)}]')
-
-
-if __name__ == '__main__':
-    function_with_extra_args('foo', 1, 2, 3, 4, 5, 'baz')
-    function_with_extra_kwargs('foo', bar='baz', quz='quux')
-    function_with_all_three('foo', 1, 2, 3, 4, 5, bar='baz', quz='quux')
-    sys.exit(0)
+    return simple, args, kwargs
