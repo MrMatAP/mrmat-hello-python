@@ -3,6 +3,7 @@
 Python Experiments
 
 [![Build](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/build.yml/badge.svg)](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/build.yml)
+[![CodeQL](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/codeql.yml/badge.svg)](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/codeql.yml)
 
 ## How to use this
 
