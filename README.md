@@ -2,6 +2,8 @@
 
 Python Experiments
 
+[![Build](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/build.yml/badge.svg)](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/build.yml)
+
 ## How to use this
 
 This repository serves as a demonstration on how to get a Python project on its feet. There is currently nothing truly
