@@ -62,15 +62,15 @@ jobs:
     - name: Establish a cache for dependencies
       uses: actions/cache@v2
       with:
-        path: ~/.local
+        path: ~/.cache/pip
         key: ${{ runner.os }}
 
     - name: Build
       run: |
         pip install --user -r requirements.txt
         pylint ${GITHUB_WORKSPACE}/src/mhpython
-        PYTHONPATH=${GITHUB_WORKSPACE} python -m pytest
-        PYTHONPATH=${GITHUB_WORKSPACE} python -m build --wheel -n
+        PYTHONPATH=${GITHUB_WORKSPACE}/src python -m pytest
+        PYTHONPATH=${GITHUB_WORKSPACE}/src python -m build --wheel -n
 
     - name: Upload test results
       uses: actions/upload-artifact@v2
