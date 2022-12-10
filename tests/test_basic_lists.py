@@ -23,8 +23,6 @@
 import pytest
 
 
-@pytest.mark.basics
-@pytest.mark.lists
 def test_list_type():
     simple_list = ['one', 'two', 'three']
     assert type(simple_list) is list, 'The type of a list is "list"'
@@ -46,8 +44,6 @@ def test_list_type():
     assert str_list.pop() == 'm', 'The list-specific methods are now available'
 
 
-@pytest.mark.basics
-@pytest.mark.lists
 def test_list_mixed():
     mixed_list = ['one', 2, 'three']
     assert type(mixed_list) is list, 'A list can contain mixed types'
@@ -56,8 +52,6 @@ def test_list_mixed():
     assert type(mixed_list[2]) is str, 'The third element of the list is a string'
 
 
-@pytest.mark.basics
-@pytest.mark.lists
 def test_list_nested():
     nested_list = ['one', ['a', 'b', 'c'], {'foo': 'bar'}]
     assert type(nested_list[1]) is list, 'Lists can be nested'
@@ -67,8 +61,6 @@ def test_list_nested():
     assert nested_list[2][key] == 'bar', 'We can access the nested dict element using variable values'
 
 
-@pytest.mark.basics
-@pytest.mark.lists
 def test_list_comprehension():
     base_list = ['foo', 'bar', 'baz']
     comprehended_list = [e for e in base_list]
