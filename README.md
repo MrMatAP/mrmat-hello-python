@@ -71,3 +71,7 @@ $ pybabel compile -d src/mhpython/localised/locale --statistics
 
 >You could dynamically compile the translations at build-time, but they're small and I find it okay to check them in as 
 > binary. **Be sure to specify namespaces = true in pyproject.toml** so the build actually finds the .mo files.
+
+### Fullscreen UI
+
+The fullscreen UI demonstrates how to make a fullscreen (yet non-interactive) UI with some concurrency features.
