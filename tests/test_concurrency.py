@@ -19,3 +19,11 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+import mhpython.concurrency.workers
+
+
+def test_concurrent_futures():
+    concurrent_futures_work = mhpython.concurrency.workers.ConcurrentFuturesThreadWork()
+    concurrent_futures_work.start()
+    assert len(concurrent_futures_work.results) > 0

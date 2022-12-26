@@ -15,3 +15,4 @@ Babel~=2.11.0            # BSD
 # Runtime requirements
 
 rich~=12.6.0            # MIT
+cryptography~=38.0.4    # MIT
