@@ -24,8 +24,6 @@ import typing
 import dataclasses
 import queue
 import concurrent.futures
-import multiprocessing
-import multiprocessing.managers
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 
@@ -107,12 +105,17 @@ class Execution(abc.ABC):
         self._worker_class = worker_class
         self._worker_count = worker_count
         self._iterations = iterations
+        self._q = queue.Queue()
         self._jobs = []
         self._done = False
 
     @abc.abstractmethod
     def start(self):
         pass
+
+    @property
+    def queue(self) -> queue.Queue:
+        return self._q
 
     @property
     def done(self) -> bool:
@@ -124,14 +127,6 @@ class ConcurrentFuturesThreadExecution(Execution):
     Execution of multiple threads
     """
 
-    def __init__(self, worker_class: typing.Type[Work]):
-        super().__init__(worker_class)
-        self._q = queue.Queue()
-
-    @property
-    def queue(self) -> queue.Queue:
-        return self._q
-
     def start(self):
         with concurrent.futures.ThreadPoolExecutor(thread_name_prefix='worker') as executor:
             for i in range(0, self._worker_count):
@@ -142,22 +137,3 @@ class ConcurrentFuturesThreadExecution(Execution):
             # concurrent.futures.wait returns a status tuple that can be evaluated in detail
             concurrent.futures.wait(self._jobs, return_when=concurrent.futures.ALL_COMPLETED)
             self._done = True
-
-
-class MultiprocessingExecution(Execution):
-    """
-    Execution of multiple processes
-    """
-
-    def start(self):
-        with multiprocessing.managers.SyncManager() as manager:
-            mp_q = manager.Queue()
-            for i in range(0, self._worker_count):
-                worker = self._worker_class(worker_id=i,
-                                            q=mp_q,
-                                            iterations=self._iterations)
-                self._jobs.append(multiprocessing.Process(target=worker.work))
-            for job in self._jobs:
-                job.start()
-            for job in self._jobs:
-                job.join()
