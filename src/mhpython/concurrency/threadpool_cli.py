@@ -26,8 +26,8 @@ import concurrent.futures
 from rich.layout import Layout
 from rich.live import Live
 
-from mhpython.concurrency.workers import Execution, CPUIntensiveWorkThreaded, ConcurrentFuturesThreadExecution
-from mhpython.concurrency.ui import ProgressPanel, ResultsPanel, InfoPanel, console
+from .workers import Execution, CPUIntensiveWorkThreaded, ConcurrentFuturesThreadExecution
+from .ui import ProgressPanel, ResultsPanel, InfoPanel
 
 
 def ui_update(execution: Execution,
@@ -40,8 +40,6 @@ def ui_update(execution: Execution,
             results_panel.update(msg)
     except queue.Empty:
         pass
-    except Exception as e:
-        console.print_exception()
 
 
 def main() -> int:
@@ -68,10 +66,6 @@ def main() -> int:
         ui_job = executor.submit(ui_update, execution, progress_panel, results_panel)
         try:
             concurrent.futures.wait([work_job, ui_job], return_when=concurrent.futures.ALL_COMPLETED)
-        except Exception as e:
-            console.print_exception()
-        except concurrent.futures.CancelledError | concurrent.futures.TimeoutError as er:
-            console.print('CancelledError or TimeoutError')
         except KeyboardInterrupt:
             return 0
 

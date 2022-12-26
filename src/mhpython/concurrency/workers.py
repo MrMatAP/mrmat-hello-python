@@ -24,11 +24,16 @@ import typing
 import dataclasses
 import queue
 import concurrent.futures
+import multiprocessing
+import multiprocessing.managers
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 
 @dataclasses.dataclass
 class WorkerMessage:
+    """
+    A message to be passed between workers
+    """
     worker_id: int
     iteration: int
     result: typing.Optional[str] = None
@@ -36,6 +41,9 @@ class WorkerMessage:
 
 
 class Work(abc.ABC):
+    """
+    An abstract worker base class
+    """
 
     def __init__(self, worker_id: int, q: queue.Queue, iterations: typing.Optional[int] = 100):
         self._worker_id = worker_id
@@ -52,6 +60,10 @@ class Work(abc.ABC):
 
 
 class CPUIntensiveWorkThreaded(Work):
+    """
+    A class performing cpu intensive work. This is usable in a thread pool
+    but not in a process pool because the data it involves is not picklable (i.e. the queue)
+    """
 
     def work(self):
         for iteration in range(0, self._iterations):
@@ -61,7 +73,7 @@ class CPUIntensiveWorkThreaded(Work):
                                           iteration=iteration,
                                           result=str(key)),
                             block=True)
-            except Exception as e:
+            except Exception as e:      # pylint: disable=broad-except
                 self._q.put(WorkerMessage(worker_id=self._worker_id,
                                           iteration=iteration,
                                           message=f'Exception: {e}'),
@@ -69,22 +81,29 @@ class CPUIntensiveWorkThreaded(Work):
 
 
 def cpu_intensive_work(worker_id: int, iterations: int) -> WorkerMessage:
-    keys = list()
-    for iteration in range(0, iterations):
-        try:
-            keys.append(rsa.generate_private_key(public_exponent=65537, key_size=1024))
-        except Exception as e:
-            pass
+    """
+    A simple function that can be invoked in a ProcessPool. This must be
+    simpler than the CPUIntensiveWork class because data in a Process pool
+    requires to be picklable.
+    :param worker_id: The identifier for which process is performing this work
+    :param iterations: The number of iterations to perform
+    :return: A message
+    """
+    keys = []
+    for _ in range(0, iterations):
+        keys.append(rsa.generate_private_key(public_exponent=65537, key_size=1024))
     return WorkerMessage(worker_id, iterations, f'Number of keys {len(keys)}', 'OK')
 
 
 class Execution(abc.ABC):
+    """
+    An abstract execution base class
+    """
 
     def __init__(self,
                  worker_class: typing.Type[Work],
                  worker_count: typing.Optional[int] = 4,
                  iterations: typing.Optional[int] = 100):
-        self._q = queue.Queue()
         self._worker_class = worker_class
         self._worker_count = worker_count
         self._iterations = iterations
@@ -96,15 +115,22 @@ class Execution(abc.ABC):
         pass
 
     @property
-    def queue(self) -> queue.Queue:
-        return self._q
-
-    @property
     def done(self) -> bool:
         return self._done
 
 
 class ConcurrentFuturesThreadExecution(Execution):
+    """
+    Execution of multiple threads
+    """
+
+    def __init__(self, worker_class: typing.Type[Work]):
+        super().__init__(worker_class)
+        self._q = queue.Queue()
+
+    @property
+    def queue(self) -> queue.Queue:
+        return self._q
 
     def start(self):
         with concurrent.futures.ThreadPoolExecutor(thread_name_prefix='worker') as executor:
@@ -113,20 +139,25 @@ class ConcurrentFuturesThreadExecution(Execution):
                                             q=self._q,
                                             iterations=self._iterations)
                 self._jobs.append(executor.submit(worker.work))
-            status = concurrent.futures.wait(self._jobs, return_when=concurrent.futures.ALL_COMPLETED)
+            # concurrent.futures.wait returns a status tuple that can be evaluated in detail
+            concurrent.futures.wait(self._jobs, return_when=concurrent.futures.ALL_COMPLETED)
             self._done = True
 
 
-class ConcurrentFuturesProcessExecution(Execution):
+class MultiprocessingExecution(Execution):
+    """
+    Execution of multiple processes
+    """
 
     def start(self):
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            executor.map()
+        with multiprocessing.managers.SyncManager() as manager:
+            mp_q = manager.Queue()
             for i in range(0, self._worker_count):
-                self._jobs.append(executor.submit(cpu_intensive_work(worker_id=i,
-                                                                     iterations=self._iterations,
-                                                                     q=self._q)))
-            status = concurrent.futures.wait(self._jobs, return_when=concurrent.futures.ALL_COMPLETED)
-            self._done = True
-
-
+                worker = self._worker_class(worker_id=i,
+                                            q=mp_q,
+                                            iterations=self._iterations)
+                self._jobs.append(multiprocessing.Process(target=worker.work))
+            for job in self._jobs:
+                job.start()
+            for job in self._jobs:
+                job.join()

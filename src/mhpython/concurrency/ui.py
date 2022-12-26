@@ -20,18 +20,21 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import typing
-import queue
 
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.progress import Progress, TaskID
 
-from .workers import WorkerMessage, Execution
+from .workers import WorkerMessage
 
 console = Console()
 
+
 class InfoPanel:
+    """
+    An informational UI panel
+    """
 
     def __init__(self, info: str):
         self._info = info
@@ -41,11 +44,14 @@ class InfoPanel:
 
 
 class ProgressPanel:
+    """
+    A progress UI panel
+    """
 
     def __init__(self, worker_count: int, iterations: int):
         self._progress = Progress()
-        self._worker_tasks: typing.Dict[int, TaskID] = dict()
-        self._worker_status: typing.Dict[int, str] = dict()
+        self._worker_tasks: typing.Dict[int, TaskID] = {}
+        self._worker_status: typing.Dict[int, str] = {}
         for i in range(0, worker_count):
             self._worker_tasks[i] = self._progress.add_task(f'Worker {i}', total=iterations - 1)
             self._worker_status[i] = 'OK'
@@ -63,6 +69,9 @@ class ProgressPanel:
 
 
 class ResultsPanel:
+    """
+    A results UI panel
+    """
 
     def __init__(self):
         self._results: typing.List[WorkerMessage] = []

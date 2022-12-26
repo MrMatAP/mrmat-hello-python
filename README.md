@@ -75,3 +75,4 @@ $ pybabel compile -d src/mhpython/localised/locale --statistics
 ### Fullscreen UI
 
 The fullscreen UI demonstrates how to make a fullscreen (yet non-interactive) UI with some concurrency features.
+
