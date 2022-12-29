@@ -84,7 +84,7 @@ def cpu_intensive_work(worker_id: int, iterations: int) -> WorkerMessage:
     simpler than the CPUIntensiveWork class because data in a Process pool
     requires to be picklable.
     :param worker_id: The identifier for which process is performing this work
-    :param iterations: The number of iterations to perform
+    :param iterations: Home many iterations to perform
     :return: A message
     """
     keys = []
