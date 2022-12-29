@@ -65,6 +65,11 @@ jobs:
         path: ~/.cache/pip
         key: ${{ runner.os }}
 
+    - name: 'Qodana Scan'
+      uses: JetBrains/qodana-action@main
+      env:
+        QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+
     - name: Build
       run: |
         pip install --user -r requirements.txt
