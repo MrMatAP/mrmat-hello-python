@@ -65,17 +65,17 @@ jobs:
         path: ~/.cache/pip
         key: ${{ runner.os }}
 
-    - name: 'Qodana Scan'
-      uses: JetBrains/qodana-action@main
-      env:
-        QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
-
     - name: Build
       run: |
         pip install --user -r requirements.txt
         pylint ${GITHUB_WORKSPACE}/src/mhpython
         PYTHONPATH=${GITHUB_WORKSPACE}/src python -m pytest
-        python -m build --wheel -n        
+        python -m build --wheel -n
+
+    - name: 'Qodana Scan'
+      uses: JetBrains/qodana-action@main
+      env:
+        QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
 
     - name: Upload test results
       uses: actions/upload-artifact@v2
