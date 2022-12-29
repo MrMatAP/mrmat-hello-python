@@ -66,7 +66,7 @@ class CPUIntensiveWorkThreaded(Work):
     def work(self):
         for iteration in range(0, self._iterations):
             try:
-                key = rsa.generate_private_key(public_exponent=65537, key_size=1024)
+                key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
                 self._q.put(WorkerMessage(worker_id=self._worker_id,
                                           iteration=iteration,
                                           result=str(key)),
@@ -84,12 +84,12 @@ def cpu_intensive_work(worker_id: int, iterations: int) -> WorkerMessage:
     simpler than the CPUIntensiveWork class because data in a Process pool
     requires to be picklable.
     :param worker_id: The identifier for which process is performing this work
-    :param iterations: The number of iterations to perform
+    :param iterations: Home many iterations to perform
     :return: A message
     """
     keys = []
     for _ in range(0, iterations):
-        keys.append(rsa.generate_private_key(public_exponent=65537, key_size=1024))
+        keys.append(rsa.generate_private_key(public_exponent=65537, key_size=2048))
     return WorkerMessage(worker_id, iterations, f'Number of keys {len(keys)}', 'OK')
 
 
