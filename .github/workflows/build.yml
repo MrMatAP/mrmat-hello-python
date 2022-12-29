@@ -72,11 +72,6 @@ jobs:
         PYTHONPATH=${GITHUB_WORKSPACE}/src python -m pytest
         python -m build --wheel -n
 
-    - name: 'Qodana Scan'
-      uses: JetBrains/qodana-action@main
-      env:
-        QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
-
     - name: Upload test results
       uses: actions/upload-artifact@v2
       if: ${{ always() }}
