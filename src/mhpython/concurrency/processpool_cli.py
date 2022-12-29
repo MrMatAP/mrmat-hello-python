@@ -1,3 +1,4 @@
+#!python3
 #  MIT License
 #
 #  Copyright (c) 2022 Mathieu Imfeld

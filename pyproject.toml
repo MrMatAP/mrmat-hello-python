@@ -46,6 +46,7 @@ namespaces = true
 
 [project.scripts]
 mrmat-localised = "mhpython.localised.cli:main"
+mrmat-fullscreen = "mhpython.fullscreen.cli:main"
 mrmat-concurrency-threadpool = "mhpython.concurrency.threadpool_cli:main"
 mrmat-concurrency-processpool = "mhpython.concurrency.processpool_cli:main"
 
