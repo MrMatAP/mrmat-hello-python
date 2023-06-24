@@ -3,7 +3,7 @@
 Python Experiments
 
 [![Build](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/build.yml/badge.svg)](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/build.yml)
-[![SAST](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/sast.yml/badge.svg)](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/sast.yml)
+[![SAST](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/codeql.yml/badge.svg)](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/codeql.yml)
 
 ## How to use this
 
