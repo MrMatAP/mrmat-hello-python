@@ -25,7 +25,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    'rich~=12.6.0',             # MIT
+    'rich~=13.4.2',             # MIT
     'cryptography~=38.0.4'      # MIT
 ]
 dynamic = ["version"]
