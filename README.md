@@ -27,8 +27,9 @@ to override this behaviour by setting the 'MRMAT_VERSION' environment variable t
 clearly doing so is discouraged.
 
 ### As part of a CI build
+
 GitHub Actions will trigger a build upon a push and as part of a pull request. If the build is the result of a merge 
-onto the merge branch then it is considered to be a release build, which will cause a tag to be created. The version is 
+onto the merge branch then it is considered to be a release build which will cause a tag to be created. The version is 
 suffixed with '.dev0' for any non-release build.
 
 The build version is relayed via the 'MRMAT_VERSION' environment variable from the 'MAJOR', 'MINOR' operational 
@@ -36,11 +37,11 @@ variables as well as the 'GITHUB_RUN_NUMBER'. 'MAJOR' and 'MINOR' are meant to b
 conscious version bumps that are expected to happen far less frequently than individual builds. The 'GITHUB_RUN_NUMBER' 
 is injected by GitHub Actions itself, resulting in a discrete version of the product for each build.
 
-### Relaying the version
-
 The version constructed at build time is relayed by using a Python module in `src/ci`, which is referred to by 
 `pyproject.toml` and explicitly excluded from the resulting distribution. Pythons `importlib.metadata` is then used
 in the top-level `__init__.py` for relaying the version into the runtime.
+
+## How to hack on this
 
 ### Localisation
 
@@ -76,3 +77,6 @@ $ pybabel compile -d src/mhpython/localised/locale --statistics
 
 The fullscreen UI demonstrates how to make a fullscreen (yet non-interactive) UI with some concurrency features.
 
+### SAST
+
+SAST is provided by CodeQL straight in the main `.github/workflows/codeql.yml` workflow.
