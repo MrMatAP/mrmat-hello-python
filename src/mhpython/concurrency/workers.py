@@ -105,8 +105,8 @@ class Execution(abc.ABC):
         self._worker_class = worker_class
         self._worker_count = worker_count
         self._iterations = iterations
-        self._q = queue.Queue()
-        self._jobs = []
+        self._q: queue.Queue = queue.Queue()
+        self._jobs: typing.List[concurrent.futures.Future] = []
         self._done = False
 
     @abc.abstractmethod
