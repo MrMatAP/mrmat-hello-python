@@ -69,6 +69,7 @@ def main() -> int:
             concurrent.futures.wait([work_job, ui_job], return_when=concurrent.futures.ALL_COMPLETED)
         except KeyboardInterrupt:
             return 0
+    return 0
 
 
 if __name__ == '__main__':

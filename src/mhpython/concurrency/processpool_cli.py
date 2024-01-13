@@ -62,6 +62,7 @@ def main() -> int:
                 ui_update(worker.result(), progress_panel, results_panel)
         except KeyboardInterrupt:
             return 0
+    return 0
 
 
 if __name__ == '__main__':

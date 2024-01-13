@@ -51,7 +51,7 @@ class ProgressPanel:
     def __init__(self, worker_count: int, iterations: int):
         self._progress = Progress()
         self._worker_tasks: typing.Dict[int, TaskID] = {}
-        self._worker_status: typing.Dict[int, str] = {}
+        self._worker_status: typing.Dict[int, str | None] = {}
         for i in range(0, worker_count):
             self._worker_tasks[i] = self._progress.add_task(f'Worker {i}', total=iterations - 1)
             self._worker_status[i] = 'OK'

@@ -36,7 +36,7 @@ class Greeting:
     A localised Greeting
     """
 
-    def __init__(self, language: typing.Optional[Language] = Language.EN):
+    def __init__(self, language: Language = Language.EN):
         self._ = language.value.gettext
 
     def greet(self) -> str:

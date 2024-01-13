@@ -73,7 +73,7 @@ class ConsumerPanel(ValuePanel):
 
 
 def main() -> int:
-    q = queue.Queue()
+    q: queue.Queue = queue.Queue()
     layout = Layout()
     producer_panel = ProducerPanel('Producer', q)
     consumer_panel = ConsumerPanel('Consumer', q)
@@ -90,6 +90,7 @@ def main() -> int:
             c_job.result()
         except KeyboardInterrupt:
             return 0
+    return 0
 
 
 if __name__ == '__main__':
