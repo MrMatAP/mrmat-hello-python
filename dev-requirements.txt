@@ -16,6 +16,6 @@ Babel==2.14.0                       # BSD
 # Runtime requirements
 
 rich==13.7.0                        # MIT
-cryptography==41.0.7                # MIT
+cryptography==42.0.3                # MIT
 aiosqlite==0.19.0                   # MIT
 sqlalchemy[asyncio]==2.0.25         # MIT
