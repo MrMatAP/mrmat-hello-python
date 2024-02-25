@@ -1,6 +1,6 @@
 #  MIT License
 #
-#  Copyright (c) 2022 Mathieu Imfeld
+#  Copyright (c) 2024 Mathieu Imfeld
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -19,18 +19,35 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from sqlalchemy.orm import DeclarativeBase
+import functools
 
-import importlib.metadata
-try:
-    __version__ = importlib.metadata.version('mhpython')
-except importlib.metadata.PackageNotFoundError:
-    # You have not yet installed this as a package, likely because you're hacking on it in some IDE
-    __version__ = '0.0.0.dev0'
+from .base_types import DDDAttribute
 
-
-class ORMBase(DeclarativeBase):
-    """
-    Base class for all ORM we test with this code
-    """
+def make_orm_class(tablename: str):
     pass
+
+
+def ddd_entity_tablename(tablename: str):
+    def ddd_entity_decorator(cls):
+        @functools.wraps(cls)
+        def ddd_entity_wrapper(*args, **kwargs):
+            cls.__tablename__ = tablename
+            return cls
+        return ddd_entity_wrapper
+    return ddd_entity_decorator
+
+
+def ddd_entity(tablename: str):
+    def ddd_entity_decorator(cls):
+        @functools.wraps(cls)
+        def ddd_entity_wrapper(*args, **kwargs):
+            attrs = {field: info for field, info in vars(cls).items() if isinstance(info, DDDAttribute)}
+            for attr in attrs.keys():
+                del cls.__dict__[attr]
+                cls.__dict__[attr] = 'int'
+            cls._orm_class = make_orm_class(tablename)
+            return cls
+        return ddd_entity_wrapper
+    return ddd_entity_decorator
+
+

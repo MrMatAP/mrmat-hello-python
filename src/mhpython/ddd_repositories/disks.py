@@ -7,7 +7,7 @@ from sqlalchemy import String, Integer, Enum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base_types import (
-    BaseException,
+    RepositoryBaseException,
     ORMBase,
     UniqueIdentifier, BinaryScale, BinarySizedValue,
     Entity, AggregateRoot, AsyncAggregateRoot,
@@ -15,7 +15,7 @@ from .base_types import (
 from .images import ImageEntity
 
 
-class DiskException(BaseException):
+class DiskBaseException(RepositoryBaseException):
     pass
 
 
@@ -49,7 +49,7 @@ class DiskEntity(Entity[DiskModel]):
     @staticmethod
     def create(name: str, path: pathlib.Path, size: BinarySizedValue) -> 'DiskEntity':
         if path.exists():
-            raise DiskException(code=400, msg=f'Disk at {path} already exists')
+            raise DiskBaseException(code=400, msg=f'Disk at {path} already exists')
         path.parent.mkdir(parents=True, exist_ok=True)
         disk = DiskEntity(name=name, path=path, size=size)
         try:
@@ -60,13 +60,13 @@ class DiskEntity(Entity[DiskModel]):
                             str(size)],
                            check=True)
         except subprocess.CalledProcessError as e:
-            raise DiskException(code=500, msg=f'Failed to create disk: {e.output}') from e
+            raise DiskBaseException(code=500, msg=f'Failed to create disk: {e.output}') from e
         return disk
 
     @staticmethod
     def create_from_image(name: str, path: pathlib.Path, size: BinarySizedValue, image: ImageEntity):
         if path.exists():
-            raise DiskException(code=400, msg=f'Disk at {path} already exists')
+            raise DiskBaseException(code=400, msg=f'Disk at {path} already exists')
         path.parent.mkdir(parents=True, exist_ok=True)
         disk = DiskEntity(name=name, path=path, size=size)
         try:
@@ -80,7 +80,7 @@ class DiskEntity(Entity[DiskModel]):
                             str(size)],
                            check=True)
         except subprocess.CalledProcessError as e:
-            raise DiskException(code=500, msg=f'Failed to create disk from image: {e.output}') from e
+            raise DiskBaseException(code=500, msg=f'Failed to create disk from image: {e.output}') from e
         return disk
 
     def resize(self, new_size: BinarySizedValue):
@@ -92,7 +92,7 @@ class DiskEntity(Entity[DiskModel]):
                            check=True)
             self.size = new_size
         except subprocess.CalledProcessError as e:
-            raise DiskException(code=500, msg=f'Failed to resize disk: {e.output}') from e
+            raise DiskBaseException(code=500, msg=f'Failed to resize disk: {e.output}') from e
 
     def remove(self):
         if not self.path.exists():

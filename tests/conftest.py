@@ -15,7 +15,7 @@ def generics_db() -> pathlib.Path:
 
 
 @pytest.fixture(scope='module')
-def generics_session_maker(generics_db) -> sqlalchemy.orm.sessionmaker[sqlalchemy.orm.Session]:
+def sync_session_maker(generics_db) -> sqlalchemy.orm.sessionmaker[sqlalchemy.orm.Session]:
     engine = sqlalchemy.create_engine(f'sqlite:///{generics_db}', echo=False)
     session_maker = sqlalchemy.orm.sessionmaker(engine, expire_on_commit=False)
     with engine.begin() as conn:
@@ -26,10 +26,10 @@ def generics_session_maker(generics_db) -> sqlalchemy.orm.sessionmaker[sqlalchem
 
 @pytest.mark.asyncio
 @pytest_asyncio.fixture
-async def generics_async_session_maker(generics_db) -> sqlalchemy.ext.asyncio.async_sessionmaker[sqlalchemy.ext.asyncio.AsyncSession]:
+async def async_session_maker(generics_db) -> sqlalchemy.ext.asyncio.async_sessionmaker[sqlalchemy.ext.asyncio.AsyncSession]:
     engine = sqlalchemy.ext.asyncio.create_async_engine(f'sqlite+aiosqlite:///{generics_db}', echo=False)
-    async_session = sqlalchemy.ext.asyncio.async_sessionmaker(engine, expire_on_commit=False)
+    asm = sqlalchemy.ext.asyncio.async_sessionmaker(engine, expire_on_commit=False)
     async with engine.begin() as conn:
         await conn.run_sync(ORMBase.metadata.create_all)
-    yield async_session
+    yield asm
     await engine.dispose()

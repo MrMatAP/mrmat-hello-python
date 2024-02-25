@@ -8,11 +8,13 @@ import typing
 import uuid
 
 from sqlalchemy import UUID, String, select
-from sqlalchemy.orm import DeclarativeBase, sessionmaker, Session, Mapped, mapped_column
+from sqlalchemy.orm import sessionmaker, Session, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
+from mhpython import ORMBase
 
-class BaseException(Exception):
+
+class RepositoryBaseException(Exception):
 
     def __init__(self, code: int, msg: str) -> None:
         super().__init__()
@@ -26,18 +28,19 @@ class BaseException(Exception):
         return f'{self.__class__.__name__}(code={self._code}, msg={self._msg})'
 
 
-class EntityNotFoundException(BaseException):
+class EntityNotFoundBaseException(RepositoryBaseException):
     pass
 
 
-class EntityInvariantException(BaseException):
+class EntityInvariantBaseException(RepositoryBaseException):
     pass
 
 
-class ORMBase(DeclarativeBase):
+class ORMRepositoryBase(ORMBase):
     """
     ORM base class for persisted entities
     """
+    __tablename__ = 'orm_repository_base'
     id: Mapped[str] = mapped_column(UUID(as_uuid=True).with_variant(String(32), 'sqlite'), primary_key=True)
 
     @abc.abstractmethod
@@ -46,7 +49,7 @@ class ORMBase(DeclarativeBase):
 
 
 UniqueIdentifier = uuid.UUID
-T_Model = typing.TypeVar('T_Model', bound=ORMBase)
+T_Model = typing.TypeVar('T_Model', bound=ORMRepositoryBase)
 
 
 @dataclasses.dataclass
@@ -81,7 +84,7 @@ class AsyncAggregateRoot(typing.Generic[T_Entity, T_Model]):
         model = await self._repository.get_by_id(str(uid))
         entity = await self.deserialise(model)
         if not await self.validate(entity):
-            raise EntityInvariantException(code=500, msg='Entity fails validation')
+            raise EntityInvariantBaseException(code=500, msg='Entity fails validation')
         return entity
 
     async def list(self) -> typing.List[T_Entity]:
@@ -89,18 +92,18 @@ class AsyncAggregateRoot(typing.Generic[T_Entity, T_Model]):
         entities = [await self.deserialise(model) for model in models]
         bad_entities = [e for e in entities if not await self.validate(e)]
         if len(bad_entities) > 0:
-            raise EntityInvariantException(code=500, msg='Entity fails validation')
+            raise EntityInvariantBaseException(code=500, msg='Entity fails validation')
         return entities
 
     async def create(self, entity: T_Entity) -> T_Entity:
         if not await self.validate(entity):
-            raise EntityInvariantException(code=500, msg='Entity fails validation')
+            raise EntityInvariantBaseException(code=500, msg='Entity fails validation')
         model = await self._repository.create(await self.serialise(entity))
         return await self.deserialise(model)
 
     async def modify(self, entity: T_Entity) -> T_Entity:
         if not await self.validate(entity):
-            raise EntityInvariantException(code=500, msg='Entity fails validation')
+            raise EntityInvariantBaseException(code=500, msg='Entity fails validation')
         model = await self._repository.modify(await self.serialise(entity))
         return await self.deserialise(model)
 
@@ -131,7 +134,7 @@ class AggregateRoot(typing.Generic[T_Entity, T_Model]):
         model = self._repository.get_by_id(str(uid))
         entity = self.deserialise(model)
         if not self.validate(entity):
-            raise EntityInvariantException(code=500, msg='Entity fails validation')
+            raise EntityInvariantBaseException(code=500, msg='Entity fails validation')
         return entity
 
     def list(self) -> typing.List[T_Entity]:
@@ -139,18 +142,18 @@ class AggregateRoot(typing.Generic[T_Entity, T_Model]):
         entities = [self.deserialise(model) for model in models]
         bad_entities = [e for e in entities if not self.validate(e)]
         if len(bad_entities) > 0:
-            raise EntityInvariantException(code=500, msg='Entity fails validation')
+            raise EntityInvariantBaseException(code=500, msg='Entity fails validation')
         return entities
 
     def create(self, entity: T_Entity) -> T_Entity:
         if not self.validate(entity):
-            raise EntityInvariantException(code=500, msg='Entity fails validation')
+            raise EntityInvariantBaseException(code=500, msg='Entity fails validation')
         model = self._repository.create(self.serialise(entity))
         return self.deserialise(model)
 
     def modify(self, entity: T_Entity) -> T_Entity:
         if not self.validate(entity):
-            raise EntityInvariantException(code=500, msg='Entity fails validation')
+            raise EntityInvariantBaseException(code=500, msg='Entity fails validation')
         model = self._repository.modify(self.serialise(entity))
         return self.deserialise(model)
 
@@ -208,7 +211,7 @@ class AsyncRepository(typing.Generic[T_Model]):
         async with self._session_maker() as session:
             model = await session.get(self._model_clazz, str(uid))
             if model is None:
-                raise EntityNotFoundException(code=400, msg='No such entity')
+                raise EntityNotFoundBaseException(code=400, msg='No such entity')
             self._identity_map[uid] = model
             return self._identity_map[uid]
 
@@ -236,7 +239,7 @@ class AsyncRepository(typing.Generic[T_Model]):
         async with self._session_maker() as session:
             current = await session.get(self._model_clazz, str(update.id))
             if current is None:
-                raise EntityNotFoundException(code=400, msg='No such entity')
+                raise EntityNotFoundBaseException(code=400, msg='No such entity')
             current.merge(update)
             session.add(current)
             await session.commit()
@@ -267,7 +270,7 @@ class Repository(typing.Generic[T_Model]):
         with self._session_maker() as session:
             model = session.get(self._model_clazz, str(uid))
             if model is None:
-                raise EntityNotFoundException(code=400, msg='No such entity')
+                raise EntityNotFoundBaseException(code=400, msg='No such entity')
             self._identity_map[uid] = model
         return self._identity_map[uid]
 
@@ -289,7 +292,7 @@ class Repository(typing.Generic[T_Model]):
         with self._session_maker() as session:
             current = session.get(self._model_clazz, str(update.id))
             if current is None:
-                raise EntityNotFoundException(code=400, msg='No such entity')
+                raise EntityNotFoundBaseException(code=400, msg='No such entity')
             current.merge(update)
             session.add(current)
             session.commit()

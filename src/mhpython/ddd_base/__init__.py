@@ -1,6 +1,6 @@
 #  MIT License
 #
-#  Copyright (c) 2022 Mathieu Imfeld
+#  Copyright (c) 2024 Mathieu Imfeld
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -18,19 +18,3 @@
 #  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-from sqlalchemy.orm import DeclarativeBase
-
-import importlib.metadata
-try:
-    __version__ = importlib.metadata.version('mhpython')
-except importlib.metadata.PackageNotFoundError:
-    # You have not yet installed this as a package, likely because you're hacking on it in some IDE
-    __version__ = '0.0.0.dev0'
-
-
-class ORMBase(DeclarativeBase):
-    """
-    Base class for all ORM we test with this code
-    """
-    pass

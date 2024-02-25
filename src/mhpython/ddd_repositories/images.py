@@ -5,14 +5,14 @@ from sqlalchemy import String, Integer, Enum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base_types import (
-    BaseException,
+    RepositoryBaseException,
     ORMBase,
     UniqueIdentifier, BinaryScale, BinarySizedValue,
     Entity, AggregateRoot, AsyncAggregateRoot,
     T_Entity, AsyncRepository, T_Model)
 
 
-class ImageException(BaseException):
+class ImageException(RepositoryBaseException):
     pass
 
 

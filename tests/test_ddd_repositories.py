@@ -5,8 +5,8 @@ from mhpython.ddd_repositories.base_types import BinaryScale, BinarySizedValue
 from mhpython.ddd_repositories.disks import DiskEntity, DiskModel, DiskAggregateRoot, AsyncDiskAggregateRoot
 
 
-def test_disks(generics_session_maker):
-    aggregate_root = DiskAggregateRoot(model=DiskModel, session_maker=generics_session_maker)
+def test_disks(sync_session_maker):
+    aggregate_root = DiskAggregateRoot(model=DiskModel, session_maker=sync_session_maker)
 
     assert aggregate_root.list() == []
     try:
@@ -28,8 +28,8 @@ def test_disks(generics_session_maker):
 
 
 @pytest.mark.asyncio
-async def test_async_disks(generics_async_session_maker):
-    aggregate_root = AsyncDiskAggregateRoot(model=DiskModel, session_maker=generics_async_session_maker)
+async def test_async_disks(async_session_maker):
+    aggregate_root = AsyncDiskAggregateRoot(model=DiskModel, session_maker=async_session_maker)
     try:
         disk = await aggregate_root.create(DiskEntity(name='Test Disk',
                                                       path=pathlib.Path(__file__).parent / 'build' / 'test.qcow2',
