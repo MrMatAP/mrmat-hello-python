@@ -28,7 +28,7 @@ dependencies = [
     'rich==13.7.0',                # MIT
     'cryptography==41.0.7',        # MIT
     'aiosqlite==0.19.0',           # MIT
-    'sqlalchemy[asyncio]==2.0.25'  # MIT
+    'sqlalchemy[asyncio]==2.0.29'  # MIT
 ]
 dynamic = ["version"]
 
