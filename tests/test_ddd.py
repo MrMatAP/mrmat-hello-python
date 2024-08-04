@@ -18,3 +18,32 @@
 #  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+import pytest
+
+from mhpython.ddd.ddd_kaso import (
+    ClusterRepository, Cluster, ClusterModel,
+    Node, NodeModel
+)
+
+
+@pytest.mark.asyncio
+async def test_clusters(async_session_maker):
+    cluster_repository = ClusterRepository(session_maker=async_session_maker,
+                                           entity_clazz=Cluster)
+    assert cluster_repository is not None
+    clusters = []
+    for i in range(1, 10):
+        cluster = Cluster(model_clazz=ClusterModel)
+        cluster.name = f'Test Cluster {i}'
+        await cluster_repository.create(cluster)
+        assert cluster.uid is not None
+        clusters.append(cluster)
+
+    for cluster in clusters:
+        for i in range(1, 10):
+            node = Node(model_clazz=NodeModel)
+            node.name = f'Test Node {i}'
+            cluster.add_node(node)
+        await cluster_repository.modify(cluster)
+    pass

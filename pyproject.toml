@@ -1,7 +1,8 @@
 [build-system]
 requires = [
-    'setuptools==69.0.3',
-    'wheel==0.42.0',
+    'setuptools==72.1.0',
+    'build==1.2.1',
+    'wheel==0.43.0',
 ]
 build-backend = 'setuptools.build_meta'
 
@@ -23,17 +24,13 @@ classifiers = [
     "License :: OSI Approved :: MIT",
     "Programming Language :: Python :: 3.10"
 ]
-requires-python = ">=3.10"
-dependencies = [
-    'rich==13.7.0',                # MIT
-    'cryptography==41.0.7',        # MIT
-    'aiosqlite==0.19.0',           # MIT
-    'sqlalchemy[asyncio]==2.0.25'  # MIT
-]
-dynamic = ["version"]
+requires-python = ">=3.12"
+dynamic = ["version", "dependencies", "optional-dependencies"]
 
 [tool.setuptools.dynamic]
-version = { attr = "ci.version "}
+version = { attr = "ci.version" }
+dependencies = {file = ["requirements.txt"] }
+optional-dependencies = { dev = {file = ["requirements.dev.txt"] } }
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -53,7 +50,7 @@ mrmat-concurrency-processpool = "mhpython.concurrency.processpool_cli:main"
 # in addopts
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov=mhpython --cov-report=term --cov-report=xml:build/coverage.xml --junit-xml=build/junit.xml"
+#addopts = "--cov=mhpython --cov-report=term --cov-report=xml:build/coverage.xml --junit-xml=build/junit.xml"
 testpaths = ["tests"]
 junit_family = "xunit2"
 log_cli = 1

@@ -14,12 +14,19 @@ functional demonstrated except for a reasonable CI process as well as tests for 
 
 ### Interactively
 
-The general sequence for building interactively is:
+The general sequence for building interactively is as follows. If you intend to develop on the package, then also
+install `requirements.txt`. The runtime dependencies would otherwise only get installed during the installation of the
+package that was build.
 
 ```$shell
-$ pip install ./requirements.txt
-$ python -m build -n --wheel
+$ pip install -r ./requirements.dev.txt
+$ PYTHONPATH=$(pwd)/src python -m build -n --wheel
+
+# Install the runtime dependencies if you intend to change code
+$ pip install -r ./requirements.txt
 ```
+
+> Modifying the PYTHONPATH is necessary so the dynamic version in src/ci can be found during the build process
 
 An interactive build will default to '0.0.0.dev0' for its version, which is a relevant marker showcasing that it was 
 produced locally and therefore should not be considered to have sufficient maturity to enter production. It is possible 
