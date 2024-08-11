@@ -46,6 +46,7 @@ mrmat-fullscreen = "mhpython.fullscreen.cli:main"
 mrmat-concurrency-threadpool = "mhpython.concurrency.threadpool_cli:main"
 mrmat-concurrency-processpool = "mhpython.concurrency.processpool_cli:main"
 mrmat-asyncio-app-events = "mhpython.asyncio.app_events:run"
+mrmat-asyncio-proxy = "mhpython.asyncio.proxy:run"
 
 # If you are debugging your tests using PyCharm then comment out the coverage options
 # in addopts
