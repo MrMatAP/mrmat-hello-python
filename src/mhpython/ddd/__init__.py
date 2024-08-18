@@ -28,3 +28,6 @@ from .base_types import (
     DDDAggregateRoot, T_DDDAggregateRoot,
     DDDRepository
 )
+
+from .kaso_cluster import ClusterRepository, ClusterEntity, ClusterModel
+from .kaso_node import NodeRepository, NodeEntity, NodeModel

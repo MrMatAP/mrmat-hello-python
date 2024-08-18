@@ -20,30 +20,38 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import pytest
-
-from mhpython.ddd.ddd_kaso import (
-    ClusterRepository, Cluster, ClusterModel,
-    Node, NodeModel
+from mhpython.ddd import (
+    ClusterEntity, ClusterRepository,
+    NodeEntity, NodeRepository
 )
 
 
 @pytest.mark.asyncio
-async def test_clusters(async_session_maker):
-    cluster_repository = ClusterRepository(session_maker=async_session_maker,
-                                           entity_clazz=Cluster)
-    assert cluster_repository is not None
+async def test_cluster_persistence(async_session_maker):
+    cluster_repository = ClusterRepository(async_session_maker)
     clusters = []
-    for i in range(1, 10):
-        cluster = Cluster(model_clazz=ClusterModel)
+    for i in range(0, 10):
+        cluster = ClusterEntity()
         cluster.name = f'Test Cluster {i}'
         await cluster_repository.create(cluster)
         assert cluster.uid is not None
         clusters.append(cluster)
-
+    assert len(await cluster_repository.list()) == 10
     for cluster in clusters:
-        for i in range(1, 10):
-            node = Node(model_clazz=NodeModel)
-            node.name = f'Test Node {i}'
-            cluster.add_node(node)
-        await cluster_repository.modify(cluster)
-    pass
+        loaded = await cluster_repository.get_by_uid(cluster.uid)
+        assert loaded == cluster
+
+@pytest.mark.asyncio
+async def test_node_persistence(async_session_maker):
+    node_repository = NodeRepository(async_session_maker)
+    nodes = []
+    for i in range(0, 10):
+        node = NodeEntity()
+        node.name = f'Test Node {i}'
+        await node_repository.create(node)
+        assert node.uid is not None
+        nodes.append(node)
+    assert len(await node_repository.list()) == 10
+    for node in nodes:
+        loaded = await node_repository.get_by_uid(node.uid)
+        assert loaded == node
