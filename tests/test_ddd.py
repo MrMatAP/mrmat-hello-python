@@ -31,8 +31,7 @@ async def test_cluster_persistence(async_session_maker):
     cluster_repository = ClusterRepository(async_session_maker)
     clusters = []
     for i in range(0, 10):
-        cluster = ClusterEntity()
-        cluster.name = f'Test Cluster {i}'
+        cluster = ClusterEntity(name=f'Test Cluster {i}')
         await cluster_repository.create(cluster)
         assert cluster.uid is not None
         clusters.append(cluster)
@@ -46,8 +45,7 @@ async def test_node_persistence(async_session_maker):
     node_repository = NodeRepository(async_session_maker)
     nodes = []
     for i in range(0, 10):
-        node = NodeEntity()
-        node.name = f'Test Node {i}'
+        node = NodeEntity(name=f'Test Node {i}')
         await node_repository.create(node)
         assert node.uid is not None
         nodes.append(node)

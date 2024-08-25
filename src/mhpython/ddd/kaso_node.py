@@ -20,7 +20,6 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import typing
-import uuid
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -31,23 +30,10 @@ from mhpython.ddd import DDDEntity, DDDEntityModel, DDDRepository
 class NodeModel(DDDEntityModel):
     __tablename__ = 'nodes'
     name: Mapped[str] = mapped_column(String, unique=True)
-    #cluster_uid: Mapped[str] = mapped_column(UUID(as_uuid=True).with_variant(String(32), "sqlite"))
 
 
 class NodeEntity(DDDEntity[NodeModel]):
     model = NodeModel
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._name = f'Node {uuid.uuid4()}'
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, name: str):
-        self._name = name
 
     @classmethod
     async def from_model(cls, model: NodeModel) -> typing.Self:
@@ -60,11 +46,6 @@ class NodeEntity(DDDEntity[NodeModel]):
         model.name = self._name
         return model
 
-    def __eq__(self, other: typing.Any) -> bool:
-        return any([
-            super.__eq__(self, other),
-            self._name == other.name,
-            ])
 
 class NodeRepository(DDDRepository[NodeEntity]):
     entity = NodeEntity

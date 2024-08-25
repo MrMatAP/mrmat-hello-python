@@ -20,43 +20,24 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import typing
-import uuid
-
-from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
 
 from mhpython.ddd import DDDEntityModel, DDDAggregateRoot, DDDRepository
 
 
 class ClusterModel(DDDEntityModel):
     __tablename__ = 'clusters'
-    name: Mapped[str] = mapped_column(String, unique=True)
 
 
 class ClusterEntity(DDDAggregateRoot[ClusterModel]):
     model = ClusterModel
 
-    def __init__(self) -> None:
-        super().__init__()
-        self._name = f'Cluster {uuid.uuid4()}'
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, name: str):
-        self._name = name
-
     @classmethod
     async def from_model(cls, model: ClusterModel) -> typing.Self:
         entity = await super().from_model(model)
-        entity._name = model.name
         return entity
 
     async def to_model(self) -> ClusterModel:
         model = await super().to_model()
-        model.name = self._name
         return model
 
     def __eq__(self, other: typing.Any) -> bool:

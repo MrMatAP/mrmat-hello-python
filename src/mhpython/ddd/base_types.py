@@ -26,7 +26,6 @@ import uuid
 import sqlalchemy.ext.asyncio
 from sqlalchemy import UUID, String, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 #
 # A type var for a unique identifier
@@ -91,6 +90,7 @@ class DDDEntityModel(DeclarativeBase):
     uid: Mapped[str] = mapped_column(
         UUID(as_uuid=True).with_variant(String(32), "sqlite"), primary_key=True
     )
+    name: Mapped[str] = mapped_column(String(64))
 
 
 T_DDDEntityModel = typing.TypeVar('T_DDDEntityModel', bound=DDDEntityModel)
@@ -107,30 +107,41 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
     model: typing.ClassVar
     repository: 'DDDRepository'
 
-    def __init__(self) -> None:
+    def __init__(self, name: str) -> None:
         if self.model is None:
             raise DDDException(code=500, msg='Misconfigured DDDEntity without model')
         self._uid: UniqueIdentifier = uuid.uuid4()
+        self._name = name
 
     @property
     def uid(self) -> UniqueIdentifier:
         return self._uid
 
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, name: str):
+        self._name = name
+
     @classmethod
     async def from_model(cls, model: T_DDDEntityModel) -> typing.Self:
-        entity = cls()
+        entity = cls(model.name)
         entity._uid = UniqueIdentifier(model.uid)
         return entity
 
     async def to_model(self) -> T_DDDEntityModel:
         model = self.model()
         model.uid = str(self._uid)
+        model.name = self._name
         return model
 
     def __eq__(self, other: typing.Any) -> bool:
         return any([
             self.__class__ == other.__class__,
-            self._uid == other.uid
+            self._uid == other.uid,
+            self._name == other.name
         ])
 
 
