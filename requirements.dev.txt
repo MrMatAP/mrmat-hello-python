@@ -8,4 +8,4 @@ mypy==1.11.1                         # MIT
 pytest==8.3.2                       # GPL-2.0-or-later
 pytest-cov==5.0.0                   # MIT
 pytest-asyncio==0.23.8              # Apache 2.0
-Babel==2.15.0                       # BSD
+Babel==2.16.0                       # BSD
