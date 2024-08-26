@@ -3,5 +3,5 @@
 rich==13.7.1                        # MIT
 cryptography==43.0.0                # MIT
 aiosqlite==0.20.0                   # MIT
-sqlalchemy[asyncio]==2.0.31         # MIT
+sqlalchemy[asyncio]==2.0.32         # MIT
 pydantic==2.8.2                     # MIT
