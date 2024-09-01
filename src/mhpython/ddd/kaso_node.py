@@ -21,19 +21,23 @@
 
 import typing
 
-from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from mhpython.ddd import DDDEntity, DDDEntityModel, DDDRepository
 
 
 class NodeModel(DDDEntityModel):
     __tablename__ = 'nodes'
-    name: Mapped[str] = mapped_column(String, unique=True)
+    cluster_uid: Mapped[str] = mapped_column(ForeignKey("clusters.uid"))
 
 
 class NodeEntity(DDDEntity[NodeModel]):
     model = NodeModel
+
+    def __init__(self, name: str, cluster: 'ClusterEntity') -> None:
+        super().__init__(name)
+        self._cluster = cluster
 
     @classmethod
     async def from_model(cls, model: NodeModel) -> typing.Self:
@@ -44,6 +48,7 @@ class NodeEntity(DDDEntity[NodeModel]):
     async def to_model(self) -> NodeModel:
         model = await super().to_model()
         model.name = self._name
+        model.cluster_uid = self._cluster.uid
         return model
 
 

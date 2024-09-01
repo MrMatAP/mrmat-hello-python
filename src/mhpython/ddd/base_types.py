@@ -106,6 +106,7 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
     """
     model: typing.ClassVar
     repository: 'DDDRepository'
+    is_aggregate_root: bool = False
 
     def __init__(self, name: str) -> None:
         if self.model is None:
@@ -148,14 +149,11 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
 T_DDDEntity = typing.TypeVar("T_DDDEntity", bound=DDDEntity)
 
 
-class DDDAggregateRoot(DDDEntity[T_DDDEntityModel]):
+class DDDAggregateRoot(DDDEntity[typing.Generic[T_DDDEntityModel]]):
     """
-    Base class for all aggregate roots.
-    This is just a subclass of DDDEntity, but allows type checking
+    Marker class for aggregate roots
     """
-
-
-T_DDDAggregateRoot = typing.TypeVar('T_DDDAggregateRoot', bound=DDDAggregateRoot)
+    is_aggregate_root: bool = True
 
 
 class DDDRepository(typing.Generic[T_DDDEntity]):

@@ -21,23 +21,37 @@
 
 import typing
 
+from sqlalchemy.orm import Mapped, relationship
+
 from mhpython.ddd import DDDEntityModel, DDDAggregateRoot, DDDRepository
+from .kaso_node import NodeModel, NodeEntity
 
 
 class ClusterModel(DDDEntityModel):
     __tablename__ = 'clusters'
+    nodes: Mapped[typing.List['NodeModel']] = relationship(cascade='all, delete-orphan')
 
 
 class ClusterEntity(DDDAggregateRoot[ClusterModel]):
     model = ClusterModel
 
+    def __init__(self, name: str) -> None:
+        super().__init__(name)
+        self._nodes = []
+
+    @property
+    def nodes(self) -> typing.List[NodeEntity]:
+        return self._nodes
+
     @classmethod
     async def from_model(cls, model: ClusterModel) -> typing.Self:
         entity = await super().from_model(model)
+        entity._nodes = [await NodeEntity.from_model(n) for n in model.nodes]
         return entity
 
     async def to_model(self) -> ClusterModel:
         model = await super().to_model()
+        model.nodes = [await n.to_model() for n in self._nodes]
         return model
 
     def __eq__(self, other: typing.Any) -> bool:

@@ -25,7 +25,7 @@ from .base_types import (
     DDDValueObject, T_DDDValueObject,
     DDDEntityModel, T_DDDEntityModel,
     DDDEntity, T_DDDEntity,
-    DDDAggregateRoot, T_DDDAggregateRoot,
+    DDDAggregateRoot,
     DDDRepository
 )
 
