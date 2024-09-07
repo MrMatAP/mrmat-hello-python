@@ -108,7 +108,7 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
     repository: 'DDDRepository'
     is_aggregate_root: bool = False
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, *args, **kwargs) -> None:
         if self.model is None:
             raise DDDException(code=500, msg='Misconfigured DDDEntity without model')
         self._uid: UniqueIdentifier = uuid.uuid4()
@@ -127,8 +127,8 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
         self._name = name
 
     @classmethod
-    async def from_model(cls, model: T_DDDEntityModel) -> typing.Self:
-        entity = cls(model.name)
+    async def from_model(cls, model: T_DDDEntityModel, *args, **kwargs) -> typing.Self:
+        entity = cls(model.name, *args, **kwargs)
         entity._uid = UniqueIdentifier(model.uid)
         return entity
 
@@ -149,7 +149,7 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
 T_DDDEntity = typing.TypeVar("T_DDDEntity", bound=DDDEntity)
 
 
-class DDDAggregateRoot(DDDEntity[typing.Generic[T_DDDEntityModel]]):
+class DDDAggregateRoot(DDDEntity[T_DDDEntityModel]):
     """
     Marker class for aggregate roots
     """
@@ -185,7 +185,7 @@ class DDDRepository(typing.Generic[T_DDDEntity]):
 
     async def list(self) -> typing.List[T_DDDEntity]:
         async with self._session_maker() as session:
-            models = await session.scalars(select(self.entity.model))
+            models = (await session.scalars(select(self.entity.model))).all()
             return [await self.entity.from_model(m) for m in models]
 
     async def create(self, entity: T_DDDEntity) -> T_DDDEntity:

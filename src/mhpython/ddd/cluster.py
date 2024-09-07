@@ -23,30 +23,35 @@ import typing
 
 from sqlalchemy.orm import Mapped, relationship
 
-from mhpython.ddd import DDDEntityModel, DDDAggregateRoot, DDDRepository
-from .kaso_node import NodeModel, NodeEntity
+import mhpython.ddd.base
+import mhpython.ddd.node
 
 
-class ClusterModel(DDDEntityModel):
+class ClusterModel(mhpython.ddd.base.DDDEntityModel):
+    """
+    Domain model of a cluster
+    IMPORTANT: Relationships must not be loaded lazily. See
+    https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html#asyncio-orm-avoid-lazyloads
+    """
     __tablename__ = 'clusters'
-    nodes: Mapped[typing.List['NodeModel']] = relationship(cascade='all, delete-orphan')
+    nodes: Mapped[typing.List[mhpython.ddd.node.NodeModel]] = relationship(cascade='all, delete-orphan', lazy='selectin')
 
 
-class ClusterEntity(DDDAggregateRoot[ClusterModel]):
+class ClusterEntity(mhpython.ddd.base.DDDAggregateRoot[ClusterModel]):
     model = ClusterModel
 
-    def __init__(self, name: str) -> None:
-        super().__init__(name)
-        self._nodes = []
+    def __init__(self, name: str, *args, **kwargs) -> None:
+        super().__init__(name, *args, **kwargs)
+        self._nodes: typing.List[mhpython.ddd.node.NodeEntity] = []
 
     @property
-    def nodes(self) -> typing.List[NodeEntity]:
+    def nodes(self) -> typing.List[mhpython.ddd.node.NodeEntity]:
         return self._nodes
 
     @classmethod
-    async def from_model(cls, model: ClusterModel) -> typing.Self:
-        entity = await super().from_model(model)
-        entity._nodes = [await NodeEntity.from_model(n) for n in model.nodes]
+    async def from_model(cls, model: ClusterModel, *args, **kwargs) -> typing.Self:
+        entity = await super().from_model(model, *args, **kwargs)
+        entity._nodes = [await mhpython.ddd.node.NodeEntity.from_model(n, cluster=entity) for n in model.nodes]
         return entity
 
     async def to_model(self) -> ClusterModel:
@@ -60,5 +65,5 @@ class ClusterEntity(DDDAggregateRoot[ClusterModel]):
             self._name == other.name,
         ])
 
-class ClusterRepository(DDDRepository[ClusterEntity]):
+class ClusterRepository(mhpython.ddd.base.DDDRepository[ClusterEntity]):
     entity = ClusterEntity

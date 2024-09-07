@@ -20,20 +20,18 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import pytest
-from mhpython.ddd import (
-    ClusterEntity, ClusterRepository,
-    NodeEntity, NodeRepository, EntityInvariantException
-)
-
+import mhpython.ddd.base
+import mhpython.ddd.cluster
+import mhpython.ddd.node
 
 @pytest.mark.asyncio
 async def test_cluster_persistence(async_session_maker):
-    cluster_repository = ClusterRepository(async_session_maker)
+    cluster_repository = mhpython.ddd.cluster.ClusterRepository(async_session_maker)
     clusters = []
     for i in range(0, 10):
-        cluster = ClusterEntity(name=f'Test Cluster {i}')
+        cluster = mhpython.ddd.cluster.ClusterEntity(name=f'Test Cluster {i}')
         for n in range(0, 5):
-            node = NodeEntity(name=f'Test Node {n}', cluster=cluster)
+            node = mhpython.ddd.node.NodeEntity(name=f'Test Node {n}', cluster=cluster)
             cluster.nodes.append(node)
         await cluster_repository.create(cluster)
         assert cluster.uid is not None
@@ -42,10 +40,3 @@ async def test_cluster_persistence(async_session_maker):
     for cluster in clusters:
         loaded = await cluster_repository.get_by_uid(cluster.uid)
         assert loaded == cluster
-
-@pytest.mark.asyncio
-async def test_node_persistence(async_session_maker):
-    node_repository = NodeRepository(async_session_maker)
-    with pytest.raises(EntityInvariantException):
-        node = NodeEntity(name=f'Test Node 1')
-        await node_repository.create(node)

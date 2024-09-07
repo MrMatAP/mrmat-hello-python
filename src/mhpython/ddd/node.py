@@ -22,35 +22,42 @@
 import typing
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
-from mhpython.ddd import DDDEntity, DDDEntityModel, DDDRepository
+import mhpython.ddd.base
+import mhpython.ddd.cluster
 
 
-class NodeModel(DDDEntityModel):
+class NodeModel(mhpython.ddd.base.DDDEntityModel):
     __tablename__ = 'nodes'
     cluster_uid: Mapped[str] = mapped_column(ForeignKey("clusters.uid"))
 
 
-class NodeEntity(DDDEntity[NodeModel]):
+class NodeEntity(mhpython.ddd.base.DDDEntity[NodeModel]):
     model = NodeModel
 
-    def __init__(self, name: str, cluster: 'ClusterEntity') -> None:
-        super().__init__(name)
-        self._cluster = cluster
+    def __init__(self, name: str, *args, **kwargs) -> None:
+        super().__init__(name, *args, **kwargs)
+        if 'cluster' not in kwargs or kwargs['cluster'] is None:
+            raise mhpython.ddd.base.EntityInvariantException(code=400, msg='All nodes must belong to a cluster')
+        self._cluster: mhpython.ddd.cluster.ClusterEntity = kwargs['cluster']
+
+    @property
+    def cluster(self) -> 'mhpython.ddd.cluster.ClusterEntity':
+        return self._cluster
 
     @classmethod
-    async def from_model(cls, model: NodeModel) -> typing.Self:
-        entity = await super().from_model(model)
+    async def from_model(cls, model: NodeModel, *args, **kwargs) -> typing.Self:
+        entity = await super().from_model(model, *args, **kwargs)
         entity._name = model.name
         return entity
 
     async def to_model(self) -> NodeModel:
         model = await super().to_model()
         model.name = self._name
-        model.cluster_uid = self._cluster.uid
+        model.cluster_uid = str(self._cluster.uid)
         return model
 
 
-class NodeRepository(DDDRepository[NodeEntity]):
+class NodeRepository(mhpython.ddd.base.DDDRepository[NodeEntity]):
     entity = NodeEntity
