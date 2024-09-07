@@ -21,17 +21,18 @@
 
 import pytest
 import mhpython.ddd.base
-import mhpython.ddd.cluster
-import mhpython.ddd.node
+import mhpython.ddd.domain
+import mhpython.ddd.repository
+
 
 @pytest.mark.asyncio
 async def test_cluster_persistence(async_session_maker):
-    cluster_repository = mhpython.ddd.cluster.ClusterRepository(async_session_maker)
+    cluster_repository = mhpython.ddd.repository.ClusterRepository(async_session_maker)
     clusters = []
     for i in range(0, 10):
-        cluster = mhpython.ddd.cluster.ClusterEntity(name=f'Test Cluster {i}')
+        cluster = mhpython.ddd.domain.ClusterEntity(name=f'Test Cluster {i}')
         for n in range(0, 5):
-            node = mhpython.ddd.node.NodeEntity(name=f'Test Node {n}', cluster=cluster)
+            node = mhpython.ddd.domain.NodeEntity(name=f'Test Node {n}', cluster=cluster)
             cluster.nodes.append(node)
         await cluster_repository.create(cluster)
         assert cluster.uid is not None

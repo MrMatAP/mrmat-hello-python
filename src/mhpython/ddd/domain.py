@@ -21,37 +21,25 @@
 
 import typing
 
-from sqlalchemy.orm import Mapped, relationship
-
-import mhpython.ddd.base
-import mhpython.ddd.node
+from mhpython.ddd.base import DDDAggregateRoot, DDDEntity, EntityInvariantException
+from mhpython.ddd.model import ClusterModel, NodeModel
 
 
-class ClusterModel(mhpython.ddd.base.DDDEntityModel):
-    """
-    Domain model of a cluster
-    IMPORTANT: Relationships must not be loaded lazily. See
-    https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html#asyncio-orm-avoid-lazyloads
-    """
-    __tablename__ = 'clusters'
-    nodes: Mapped[typing.List[mhpython.ddd.node.NodeModel]] = relationship(cascade='all, delete-orphan', lazy='selectin')
-
-
-class ClusterEntity(mhpython.ddd.base.DDDAggregateRoot[ClusterModel]):
+class ClusterEntity(DDDAggregateRoot[ClusterModel]):
     model = ClusterModel
 
     def __init__(self, name: str, *args, **kwargs) -> None:
         super().__init__(name, *args, **kwargs)
-        self._nodes: typing.List[mhpython.ddd.node.NodeEntity] = []
+        self._nodes: typing.List[NodeEntity] = []
 
     @property
-    def nodes(self) -> typing.List[mhpython.ddd.node.NodeEntity]:
+    def nodes(self) -> typing.List['NodeEntity']:
         return self._nodes
 
     @classmethod
     async def from_model(cls, model: ClusterModel, *args, **kwargs) -> typing.Self:
         entity = await super().from_model(model, *args, **kwargs)
-        entity._nodes = [await mhpython.ddd.node.NodeEntity.from_model(n, cluster=entity) for n in model.nodes]
+        entity._nodes = [await NodeEntity.from_model(n, cluster=entity) for n in model.nodes]
         return entity
 
     async def to_model(self) -> ClusterModel:
@@ -65,5 +53,28 @@ class ClusterEntity(mhpython.ddd.base.DDDAggregateRoot[ClusterModel]):
             self._name == other.name,
         ])
 
-class ClusterRepository(mhpython.ddd.base.DDDRepository[ClusterEntity]):
-    entity = ClusterEntity
+
+class NodeEntity(DDDEntity[NodeModel]):
+    model = NodeModel
+
+    def __init__(self, name: str, *args, **kwargs) -> None:
+        super().__init__(name, *args, **kwargs)
+        if 'cluster' not in kwargs or kwargs['cluster'] is None:
+            raise EntityInvariantException(code=400, msg='All nodes must belong to a cluster')
+        self._cluster: ClusterEntity = kwargs['cluster']
+
+    @property
+    def cluster(self) -> ClusterEntity:
+        return self._cluster
+
+    @classmethod
+    async def from_model(cls, model: NodeModel, *args, **kwargs) -> typing.Self:
+        entity = await super().from_model(model, *args, **kwargs)
+        entity._name = model.name
+        return entity
+
+    async def to_model(self) -> NodeModel:
+        model = await super().to_model()
+        model.name = self._name
+        model.cluster_uid = str(self._cluster.uid)
+        return model

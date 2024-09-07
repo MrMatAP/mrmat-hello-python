@@ -81,7 +81,7 @@ class DDDValueObject:
 T_DDDValueObject = typing.TypeVar('T_DDDValueObject', bound=DDDValueObject)
 
 
-class DDDEntityModel(DeclarativeBase):
+class DDDModel(DeclarativeBase):
     """
     Base class for all persistent entities. The T_DDDEntityModel type var binds Generics to
     subclasses.
@@ -93,7 +93,7 @@ class DDDEntityModel(DeclarativeBase):
     name: Mapped[str] = mapped_column(String(64))
 
 
-T_DDDEntityModel = typing.TypeVar('T_DDDEntityModel', bound=DDDEntityModel)
+T_DDDEntityModel = typing.TypeVar('T_DDDEntityModel', bound=DDDModel)
 
 
 class DDDEntity(typing.Generic[T_DDDEntityModel]):

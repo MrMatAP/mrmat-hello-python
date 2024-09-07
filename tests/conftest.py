@@ -22,6 +22,6 @@ async def async_session_maker(generics_db) -> sqlalchemy.ext.asyncio.async_sessi
     engine = sqlalchemy.ext.asyncio.create_async_engine(f'sqlite+aiosqlite:///{generics_db}', echo=False)
     asm = sqlalchemy.ext.asyncio.async_sessionmaker(engine, expire_on_commit=False)
     async with engine.begin() as conn:
-        await conn.run_sync(mhpython.ddd.base.DDDEntityModel.metadata.create_all)
+        await conn.run_sync(mhpython.ddd.base.DDDModel.metadata.create_all)
     yield asm
     await engine.dispose()
