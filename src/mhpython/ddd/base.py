@@ -23,9 +23,9 @@ import dataclasses
 import typing
 import uuid
 
+import sqlalchemy.ext.asyncio
 from sqlalchemy import UUID, String, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 #
 # A type var for a unique identifier
@@ -81,7 +81,7 @@ class DDDValueObject:
 T_DDDValueObject = typing.TypeVar('T_DDDValueObject', bound=DDDValueObject)
 
 
-class DDDEntityModel(DeclarativeBase):
+class DDDModel(DeclarativeBase):
     """
     Base class for all persistent entities. The T_DDDEntityModel type var binds Generics to
     subclasses.
@@ -90,38 +90,60 @@ class DDDEntityModel(DeclarativeBase):
     uid: Mapped[str] = mapped_column(
         UUID(as_uuid=True).with_variant(String(32), "sqlite"), primary_key=True
     )
+    name: Mapped[str] = mapped_column(String(64))
 
 
-T_DDDEntityModel = typing.TypeVar('T_DDDEntityModel', bound=DDDEntityModel)
+T_DDDEntityModel = typing.TypeVar('T_DDDEntityModel', bound=DDDModel)
 
 
 class DDDEntity(typing.Generic[T_DDDEntityModel]):
     """
     Base class for all domain entities. It requires a generic entity model as its persisted peer.
-    """
 
-    def __init__(self, model_clazz: typing.Type[T_DDDEntityModel]) -> None:
+    Limitations:
+    * typing.ClassVar does not yet support type variables so we might constrain it on the superclass
+      but that then further confuses the type checker
+    """
+    model: typing.ClassVar
+    repository: 'DDDRepository'
+    is_aggregate_root: bool = False
+
+    def __init__(self, name: str, *args, **kwargs) -> None:
+        if self.model is None:
+            raise DDDException(code=500, msg='Misconfigured DDDEntity without model')
         self._uid: UniqueIdentifier = uuid.uuid4()
-        self._model_clazz: typing.Type[T_DDDEntityModel] = model_clazz
+        self._name = name
 
     @property
     def uid(self) -> UniqueIdentifier:
         return self._uid
 
     @property
-    def model_clazz(self) -> typing.Type[T_DDDEntityModel]:
-        return self._model_clazz
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, name: str):
+        self._name = name
 
     @classmethod
-    async def from_model(cls, model: T_DDDEntityModel) -> typing.Self:
-        entity = cls(model_clazz=model.__class__)
+    async def from_model(cls, model: T_DDDEntityModel, *args, **kwargs) -> typing.Self:
+        entity = cls(model.name, *args, **kwargs)
         entity._uid = UniqueIdentifier(model.uid)
         return entity
 
     async def to_model(self) -> T_DDDEntityModel:
-        model = self._model_clazz()
+        model = self.model()
         model.uid = str(self._uid)
+        model.name = self._name
         return model
+
+    def __eq__(self, other: typing.Any) -> bool:
+        return any([
+            self.__class__ == other.__class__,
+            self._uid == other.uid,
+            self._name == other.name
+        ])
 
 
 T_DDDEntity = typing.TypeVar("T_DDDEntity", bound=DDDEntity)
@@ -129,43 +151,44 @@ T_DDDEntity = typing.TypeVar("T_DDDEntity", bound=DDDEntity)
 
 class DDDAggregateRoot(DDDEntity[T_DDDEntityModel]):
     """
-    Base class for all aggregate roots.
-    This is just a subclass of DDDEntity, but allows type checking
+    Marker class for aggregate roots
     """
+    is_aggregate_root: bool = True
 
 
-T_DDDAggregateRoot = typing.TypeVar('T_DDDAggregateRoot', bound=DDDAggregateRoot)
-
-
-class DDDRepository(typing.Generic[T_DDDAggregateRoot]):
+class DDDRepository(typing.Generic[T_DDDEntity]):
     """
     Base class for all repositories
+
+    Limitations:
+    * typing.ClassVar does not yet support type variables so we might constrain it on the superclass
+      but that then further confuses the type checker
     """
+    entity: typing.ClassVar
 
-    def __init__(self,
-                 session_maker: async_sessionmaker[AsyncSession],
-                 entity_clazz: typing.Type[T_DDDAggregateRoot]) -> None:
+    def __init__(self, session_maker: sqlalchemy.ext.asyncio.async_sessionmaker) -> None:
+        if self.entity is None:
+            raise DDDException(code=500, msg='Misconfigured DDDRepository without entity')
         self._session_maker = session_maker
-        self._entity_clazz: typing.Type[T_DDDAggregateRoot] = entity_clazz
-        self._model_clazz = entity_clazz.model_clazz
-        self._identity_map: typing.Dict[UniqueIdentifier, T_DDDAggregateRoot] = {}
+        self._identity_map: typing.Dict[UniqueIdentifier, T_DDDEntity] = {}
+        self.entity.repository = self
 
-    async def get_by_uid(self, uid: UniqueIdentifier) -> T_DDDAggregateRoot:
+    async def get_by_uid(self, uid: UniqueIdentifier) -> T_DDDEntity:
         if uid in self._identity_map:
             return self._identity_map[uid]
         async with self._session_maker() as session:
-            model = await session.get(self._model_clazz, str(uid))
+            model = await session.get(self.entity.model, str(uid))
             if model is None:
                 raise EntityNotFoundException()
-            self._identity_map[uid] = await self._entity_clazz.from_model(model)
+            self._identity_map[uid] = await self.entity.from_model(model)
             return self._identity_map[uid]
 
-    async def list(self) -> typing.List[T_DDDAggregateRoot]:
+    async def list(self) -> typing.List[T_DDDEntity]:
         async with self._session_maker() as session:
-            models = await session.scalars(select(self._model_clazz))
-            return [await self._model_clazz.from_model(m) for m in models]
+            models = (await session.scalars(select(self.entity.model))).all()
+            return [await self.entity.from_model(m) for m in models]
 
-    async def create(self, entity: T_DDDAggregateRoot) -> T_DDDAggregateRoot:
+    async def create(self, entity: T_DDDEntity) -> T_DDDEntity:
         async with self._session_maker() as session:
             async with session.begin():
                 model = await entity.to_model()
@@ -174,14 +197,14 @@ class DDDRepository(typing.Generic[T_DDDAggregateRoot]):
             self._identity_map[entity.uid] = entity
         return self._identity_map[entity.uid]
 
-    async def modify(self, entity: T_DDDAggregateRoot) -> T_DDDAggregateRoot:
+    async def modify(self, entity: T_DDDEntity) -> T_DDDEntity:
         async with self._session_maker() as session:
             session.add(await entity.to_model())
         return entity
 
     async def remove(self, uid: UniqueIdentifier) -> None:
         async with self._session_maker() as session:
-            model = await session.get(self._model_clazz, str(uid))
+            model = await session.get(self.entity.model, str(uid))
             if model is None:
                 raise EntityNotFoundException()
             await session.delete(model)

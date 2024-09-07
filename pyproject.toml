@@ -2,7 +2,7 @@
 requires = [
     'setuptools==72.1.0',
     'build==1.2.1',
-    'wheel==0.43.0',
+    'wheel==0.44.0',
 ]
 build-backend = 'setuptools.build_meta'
 
@@ -52,10 +52,11 @@ mrmat-asyncio-proxy = "mhpython.asyncio.proxy:run"
 # in addopts
 [tool.pytest.ini_options]
 minversion = "6.0"
-#addopts = "--cov=mhpython --cov-report=term --cov-report=xml:build/coverage.xml --junit-xml=build/junit.xml"
+addopts = "--cov=mhpython --cov-report=term --cov-report=xml:build/coverage.xml --junit-xml=build/junit.xml"
 testpaths = ["tests"]
 junit_family = "xunit2"
 log_cli = 1
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
 log_cli_date_format="%Y-%m-%d %H:%M:%S"
+asyncio_default_fixture_loop_scope='session'

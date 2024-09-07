@@ -19,7 +19,26 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from .base import DDDModel, DDDEntity, DDDRepository
-from .model import ClusterModel, NodeModel
-from .domain import ClusterEntity, NodeEntity
-from .repository import ClusterRepository, NodeRepository
+import typing
+
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, relationship, mapped_column
+
+from mhpython.ddd.base import DDDModel
+
+
+class NodeModel(DDDModel):
+    __tablename__ = 'nodes'
+    cluster_uid: Mapped[str] = mapped_column(ForeignKey("clusters.uid"))
+
+
+class ClusterModel(DDDModel):
+    """
+    Domain model of a cluster
+    IMPORTANT: Relationships must not be loaded lazily. See
+    https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html#asyncio-orm-avoid-lazyloads
+    """
+    __tablename__ = 'clusters'
+    nodes: Mapped[typing.List[NodeModel]] = relationship(cascade='all, delete-orphan', lazy='selectin')
+
+

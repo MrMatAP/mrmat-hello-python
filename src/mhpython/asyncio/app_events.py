@@ -20,6 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import sys
+import typing
 import random
 import asyncio
 
@@ -77,12 +78,12 @@ async def event_emitter(event_q: asyncio.Queue) -> None:
 
 async def main() -> int:
 
-    system_tasks = []
+    system_tasks: typing.List[asyncio.Task] = []
 
     #
     # Start the event system
 
-    event_q = asyncio.Queue()
+    event_q: asyncio.Queue = asyncio.Queue()
     system_tasks.append(asyncio.create_task(event_logger(event_q)))
     system_tasks.append(asyncio.create_task(event_emitter(event_q)))
 
