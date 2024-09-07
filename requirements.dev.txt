@@ -2,7 +2,7 @@
 
 setuptools==72.1.0
 build==1.2.1                        # MIT
-wheel==0.43.0                       # MIT
+wheel==0.44.0                       # MIT
 
 mypy==1.11.1                         # MIT
 pytest==8.3.2                       # GPL-2.0-or-later
