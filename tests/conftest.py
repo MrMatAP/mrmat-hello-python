@@ -20,6 +20,7 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import typing
+import collections
 import pathlib
 import pytest
 import pytest_asyncio
@@ -54,7 +55,7 @@ async def cluster_repository(async_session_maker) -> ClusterRepository:
 
 @pytest.mark.asyncio
 @pytest_asyncio.fixture
-async def seed_clusters(cluster_repository) -> typing.List[ClusterEntity]:
+async def seed_clusters(cluster_repository) -> collections.Iterable[ClusterEntity]:
     clusters: typing.List[ClusterEntity] = []
     for c in range(0, 10):
         cluster = await cluster_repository.create(ClusterEntity(f'Cluster {c}'))
@@ -63,4 +64,4 @@ async def seed_clusters(cluster_repository) -> typing.List[ClusterEntity]:
         clusters.append(cluster)
     yield clusters
     for cluster in clusters:
-        await cluster_repository.remove(cluster.uid)
+        await cluster_repository.remove(cluster)

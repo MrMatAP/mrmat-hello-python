@@ -109,6 +109,30 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
         self._name = name
         self._dirty = True
 
+    async def post_create(self) -> None:
+        """
+        This async hook function is called after the entity is first persisted
+        Raises:
+            EntityInvariantException
+        """
+        pass
+
+    async def post_modify(self) -> None:
+        """
+        This async hook function is called after changes to the entity have been persisted
+        Raises:
+            EntityInvariantException
+        """
+        pass
+
+    async def pre_remove(self) -> None:
+        """
+        This async hook function is called before the entity is removed from persistence
+        Raises:
+            EntityInvariantException
+        """
+        pass
+
     @property
     def dirty(self) -> bool:
         return self._dirty
@@ -167,12 +191,16 @@ class DDDAggregateRoot(DDDEntity[T_DDDEntityModel]):
         if not self._dirty:
             return
         await self.repository.create(self)
+        self._dirty = False
 
     async def remove(self) -> None:
-        await self.repository.remove(self._uid)
+        await self.repository.remove(self)
 
 
-class DDDRepository(typing.Generic[T_DDDEntity]):
+T_DDDAggregateRoot = typing.TypeVar("T_DDDAggregateRoot", bound=DDDAggregateRoot)
+
+
+class DDDRepository(typing.Generic[T_DDDAggregateRoot]):
     """
     Base class for all repositories
 
@@ -180,31 +208,31 @@ class DDDRepository(typing.Generic[T_DDDEntity]):
     * typing.ClassVar does not yet support type variables so we might constrain it on the superclass
       but that then further confuses the type checker
     """
-    entity: typing.ClassVar
+    entity_class: typing.Type[T_DDDAggregateRoot]
 
     def __init__(self, session_maker: sqlalchemy.ext.asyncio.async_sessionmaker) -> None:
-        if self.entity is None:
+        if self.entity_class is None:
             raise DDDException(code=500, msg='Misconfigured DDDRepository without entity')
         self._session_maker = session_maker
-        self._identity_map: typing.Dict[UniqueIdentifier, T_DDDEntity] = {}
-        self.entity.repository = self
+        self._identity_map: typing.Dict[UniqueIdentifier, T_DDDAggregateRoot] = {}
+        self.entity_class.repository = self
 
-    async def get_by_uid(self, uid: UniqueIdentifier) -> T_DDDEntity:
+    async def get_by_uid(self, uid: UniqueIdentifier) -> T_DDDAggregateRoot:
         if uid in self._identity_map:
             return self._identity_map[uid]
         async with self._session_maker() as session:
-            model = await session.get(self.entity.model, str(uid))
+            model = await session.get(self.entity_class.model, str(uid))
             if model is None:
                 raise EntityNotFoundException()
-            self._identity_map[uid] = await self.entity.from_model(model)
+            self._identity_map[uid] = await self.entity_class.from_model(model)
             return self._identity_map[uid]
 
-    async def list(self) -> typing.List[T_DDDEntity]:
+    async def list(self) -> typing.List[T_DDDAggregateRoot]:
         async with self._session_maker() as session:
-            models = (await session.scalars(select(self.entity.model))).all()
-            return [await self.entity.from_model(m) for m in models]
+            models = (await session.scalars(select(self.entity_class.model))).all()
+            return [await self.entity_class.from_model(m) for m in models]
 
-    async def create(self, entity: T_DDDEntity) -> T_DDDEntity:
+    async def create(self, entity: T_DDDAggregateRoot) -> T_DDDAggregateRoot:
         if entity.uid in self._identity_map:
             return await self.modify(entity)
         async with self._session_maker() as session:
@@ -213,16 +241,19 @@ class DDDRepository(typing.Generic[T_DDDEntity]):
                 session.add(model)
             entity._uid = model.uid
             self._identity_map[entity.uid] = entity
+        await entity.post_create()
         return self._identity_map[entity.uid]
 
-    async def modify(self, entity: T_DDDEntity) -> T_DDDEntity:
+    async def modify(self, entity: T_DDDAggregateRoot) -> T_DDDAggregateRoot:
         async with self._session_maker() as session:
             session.add(await entity.to_model())
+        await entity.post_modify()
         return entity
 
-    async def remove(self, uid: UniqueIdentifier) -> None:
+    async def remove(self, entity: T_DDDAggregateRoot) -> None:
+        await entity.pre_remove()
         async with self._session_maker() as session:
-            model = await session.get(self.entity.model, str(uid))
+            model = await session.get(self.entity_class.model, str(entity.uid))
             if model is None:
                 raise EntityNotFoundException()
             await session.delete(model)

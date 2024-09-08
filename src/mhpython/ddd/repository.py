@@ -20,8 +20,8 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from mhpython.ddd.base import DDDRepository
-from mhpython.ddd.domain import ClusterEntity, NodeEntity
+from mhpython.ddd.domain import ClusterEntity
 
 
 class ClusterRepository(DDDRepository[ClusterEntity]):
-    entity = ClusterEntity
+    entity_class = ClusterEntity
