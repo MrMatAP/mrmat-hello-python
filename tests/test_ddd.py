@@ -62,7 +62,7 @@ async def test_cluster_lifecycle_via_repository(cluster_repository):
     loaded = await cluster_repository.get_by_uid(cluster.uid)
     assert loaded == cluster
 
-    await cluster_repository.remove(cluster.uid)
+    await cluster_repository.remove(cluster)
 
 @pytest.mark.asyncio
 async def test_cluster_lifecycle_via_cluster(cluster_repository):

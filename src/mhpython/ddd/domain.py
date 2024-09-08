@@ -24,12 +24,11 @@ import typing
 from mhpython.ddd.base import DDDAggregateRoot, DDDEntity, EntityInvariantException
 from mhpython.ddd.model import ClusterModel, NodeModel
 
-
 class ClusterEntity(DDDAggregateRoot[ClusterModel]):
     model = ClusterModel
 
-    def __init__(self, name: str, *args, **kwargs) -> None:
-        super().__init__(name, *args, **kwargs)
+    def __init__(self, name: str) -> None:
+        super().__init__(name)
         self._nodes: typing.Set[NodeEntity] = set()
 
     @property
@@ -38,16 +37,24 @@ class ClusterEntity(DDDAggregateRoot[ClusterModel]):
 
     async def add_node(self, node: 'NodeEntity'):
         self._nodes.add(node)
-        self._dirty = True
+        self.dirty = True
 
     async def remove_node(self, node: 'NodeEntity'):
         self._nodes.remove(node)
-        self._dirty = True
+        self.dirty = True
+
+    @property
+    def dirty(self) -> bool:
+        return self._dirty
+
+    @dirty.setter
+    def dirty(self, value: bool):
+        self._dirty = value
 
     @classmethod
     async def from_model(cls, model: ClusterModel, *args, **kwargs) -> typing.Self:
-        entity = await super().from_model(model, *args, **kwargs)
-        entity._nodes = [await NodeEntity.from_model(n, cluster=entity) for n in model.nodes]
+        entity = await super().from_model(model)
+        entity._nodes = {await NodeEntity.from_model(n, cluster=entity) for n in model.nodes}
         return entity
 
     async def to_model(self) -> ClusterModel:
@@ -65,11 +72,11 @@ class ClusterEntity(DDDAggregateRoot[ClusterModel]):
 class NodeEntity(DDDEntity[NodeModel]):
     model = NodeModel
 
-    def __init__(self, name: str, *args, **kwargs) -> None:
-        super().__init__(name, *args, **kwargs)
-        if 'cluster' not in kwargs or kwargs['cluster'] is None:
+    def __init__(self, name: str, cluster: ClusterEntity | None = None) -> None:
+        super().__init__(name)
+        if cluster is None:
             raise EntityInvariantException(code=400, msg='All nodes must belong to a cluster')
-        self._cluster: ClusterEntity = kwargs['cluster']
+        self._cluster: ClusterEntity = cluster
 
     @property
     def cluster(self) -> ClusterEntity:
