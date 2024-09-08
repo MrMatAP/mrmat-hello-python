@@ -31,6 +31,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 # A type var for a unique identifier
 
 UniqueIdentifier = uuid.UUID
+null_uuid = uuid.UUID('urn:uuid:00000000-0000-0000-0000-000000000000')
 
 
 class DDDException(Exception):
@@ -55,7 +56,7 @@ class EntityNotFoundException(DDDException):
     Exception thrown when no entity can be found
     """
 
-    def __init__(self, code: int = 400, msg: str = 'The specified entity does not exist') -> None:
+    def __init__(self, code: int = 404, msg: str = 'The specified entity does not exist') -> None:
         super().__init__(code, msg)
 
 
@@ -99,20 +100,21 @@ T_DDDEntityModel = typing.TypeVar('T_DDDEntityModel', bound=DDDModel)
 class DDDEntity(typing.Generic[T_DDDEntityModel]):
     """
     Base class for all domain entities. It requires a generic entity model as its persisted peer.
-
-    Limitations:
-    * typing.ClassVar does not yet support type variables so we might constrain it on the superclass
-      but that then further confuses the type checker
     """
-    model: typing.ClassVar
-    repository: 'DDDRepository'
+    model: typing.Type[T_DDDEntityModel]
+    repository: typing.ClassVar['DDDRepository']
     is_aggregate_root: bool = False
 
     def __init__(self, name: str, *args, **kwargs) -> None:
         if self.model is None:
             raise DDDException(code=500, msg='Misconfigured DDDEntity without model')
-        self._uid: UniqueIdentifier = uuid.uuid4()
+        self._uid: UniqueIdentifier = null_uuid
         self._name = name
+        self._dirty = True
+
+    @property
+    def dirty(self) -> bool:
+        return self._dirty
 
     @property
     def uid(self) -> UniqueIdentifier:
@@ -125,6 +127,20 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
     @name.setter
     def name(self, name: str):
         self._name = name
+        self._dirty = True
+
+    async def save(self) -> None:
+        if not self._dirty:
+            return
+        if self._uid == null_uuid:
+            await self.repository.create(self)
+        else:
+            await self.repository.modify(self)
+
+    async def remove(self) -> None:
+        if self._uid is None:
+            return
+        await self.repository.remove(self._uid)
 
     @classmethod
     async def from_model(cls, model: T_DDDEntityModel, *args, **kwargs) -> typing.Self:
@@ -144,6 +160,9 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
             self._uid == other.uid,
             self._name == other.name
         ])
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}(uid={self._uid}, name={self._name})'
 
 
 T_DDDEntity = typing.TypeVar("T_DDDEntity", bound=DDDEntity)
@@ -189,6 +208,9 @@ class DDDRepository(typing.Generic[T_DDDEntity]):
             return [await self.entity.from_model(m) for m in models]
 
     async def create(self, entity: T_DDDEntity) -> T_DDDEntity:
+        if entity.uid != null_uuid:
+            raise EntityInvariantException(code=400, msg='Cannot create entities with self-defined uuids')
+        entity._uid = uuid.uuid4()
         async with self._session_maker() as session:
             async with session.begin():
                 model = await entity.to_model()

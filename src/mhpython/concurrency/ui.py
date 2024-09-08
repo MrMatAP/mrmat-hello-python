@@ -73,7 +73,7 @@ class ResultsPanel:
     A results UI panel
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._results: typing.List[WorkerMessage] = []
 
     def update(self, msg: WorkerMessage):
