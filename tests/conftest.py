@@ -6,6 +6,7 @@ import sqlalchemy.orm
 import sqlalchemy.ext.asyncio
 
 import mhpython.ddd.base
+from mhpython.ddd import ClusterRepository, NodeRepository
 
 
 @pytest.fixture(scope='session')
@@ -25,3 +26,13 @@ async def async_session_maker(generics_db) -> sqlalchemy.ext.asyncio.async_sessi
         await conn.run_sync(mhpython.ddd.base.DDDModel.metadata.create_all)
     yield asm
     await engine.dispose()
+
+@pytest.mark.asyncio
+@pytest_asyncio.fixture
+async def cluster_repository(async_session_maker) -> ClusterRepository:
+    yield ClusterRepository(async_session_maker)
+
+@pytest.mark.asyncio
+@pytest_asyncio.fixture
+async def node_repository(async_session_maker) -> NodeRepository:
+    yield NodeRepository(async_session_maker)

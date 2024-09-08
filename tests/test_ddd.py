@@ -20,19 +20,25 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import pytest
-import mhpython.ddd.base
-import mhpython.ddd.domain
-import mhpython.ddd.repository
+from mhpython.ddd import (
+    EntityInvariantException,
+    ClusterEntity, NodeEntity
+)
+
+@pytest.mark.asyncio
+async def test_node_needs_cluster():
+    with pytest.raises(EntityInvariantException, match='\[400\] All nodes must belong to a cluster'):
+        NodeEntity(name="test")
+        assert False
 
 
 @pytest.mark.asyncio
-async def test_cluster_persistence(async_session_maker):
-    cluster_repository = mhpython.ddd.repository.ClusterRepository(async_session_maker)
+async def test_cluster_persistence(cluster_repository):
     clusters = []
     for i in range(0, 10):
-        cluster = mhpython.ddd.domain.ClusterEntity(name=f'Test Cluster {i}')
+        cluster = ClusterEntity(name=f'Test Cluster {i}')
         for n in range(0, 5):
-            node = mhpython.ddd.domain.NodeEntity(name=f'Test Node {n}', cluster=cluster)
+            node = NodeEntity(name=f'Test Node {n}', cluster=cluster)
             cluster.nodes.append(node)
         await cluster_repository.create(cluster)
         assert cluster.uid is not None
