@@ -52,6 +52,8 @@ async def test_cluster_persistence(seed_clusters, cluster_repository):
 @pytest.mark.asyncio
 async def test_cluster_lifecycle_via_repository(cluster_repository):
     cluster = await cluster_repository.create(ClusterEntity(name='Test Cluster'))
+    for n in range(0, 3):
+        await cluster.add_node(NodeEntity(name=f'Node {n}', cluster=cluster))
     assert cluster.uid is not None
 
     cluster.name = 'I changed my name'
@@ -65,6 +67,8 @@ async def test_cluster_lifecycle_via_repository(cluster_repository):
 @pytest.mark.asyncio
 async def test_cluster_lifecycle_via_cluster(cluster_repository):
     cluster = ClusterEntity(name='Test Cluster')
+    for n in range(0, 3):
+        await cluster.add_node(NodeEntity(name=f'Node {n}', cluster=cluster))
     await cluster.save()
 
     cluster.name = 'I changed my name'

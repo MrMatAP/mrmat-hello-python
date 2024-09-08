@@ -31,7 +31,6 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 # A type var for a unique identifier
 
 UniqueIdentifier = uuid.UUID
-null_uuid = uuid.UUID('urn:uuid:00000000-0000-0000-0000-000000000000')
 
 
 class DDDException(Exception):
@@ -102,13 +101,11 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
     Base class for all domain entities. It requires a generic entity model as its persisted peer.
     """
     model: typing.Type[T_DDDEntityModel]
-    repository: typing.ClassVar['DDDRepository']
-    is_aggregate_root: bool = False
 
     def __init__(self, name: str, *args, **kwargs) -> None:
         if self.model is None:
             raise DDDException(code=500, msg='Misconfigured DDDEntity without model')
-        self._uid: UniqueIdentifier = null_uuid
+        self._uid: UniqueIdentifier = uuid.uuid4()
         self._name = name
         self._dirty = True
 
@@ -129,19 +126,6 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
         self._name = name
         self._dirty = True
 
-    async def save(self) -> None:
-        if not self._dirty:
-            return
-        if self._uid == null_uuid:
-            await self.repository.create(self)
-        else:
-            await self.repository.modify(self)
-
-    async def remove(self) -> None:
-        if self._uid is None:
-            return
-        await self.repository.remove(self._uid)
-
     @classmethod
     async def from_model(cls, model: T_DDDEntityModel, *args, **kwargs) -> typing.Self:
         entity = cls(model.name, *args, **kwargs)
@@ -153,6 +137,9 @@ class DDDEntity(typing.Generic[T_DDDEntityModel]):
         model.uid = str(self._uid)
         model.name = self._name
         return model
+
+    def __hash__(self) -> int:
+        return hash(self._uid)
 
     def __eq__(self, other: typing.Any) -> bool:
         return any([
@@ -170,9 +157,19 @@ T_DDDEntity = typing.TypeVar("T_DDDEntity", bound=DDDEntity)
 
 class DDDAggregateRoot(DDDEntity[T_DDDEntityModel]):
     """
-    Marker class for aggregate roots
+    An aggregate root class.
+
+    Only aggregate roots have corresponding repositories
     """
-    is_aggregate_root: bool = True
+    repository: typing.ClassVar['DDDRepository']
+
+    async def save(self) -> None:
+        if not self._dirty:
+            return
+        await self.repository.create(self)
+
+    async def remove(self) -> None:
+        await self.repository.remove(self._uid)
 
 
 class DDDRepository(typing.Generic[T_DDDEntity]):
@@ -208,13 +205,12 @@ class DDDRepository(typing.Generic[T_DDDEntity]):
             return [await self.entity.from_model(m) for m in models]
 
     async def create(self, entity: T_DDDEntity) -> T_DDDEntity:
-        if entity.uid != null_uuid:
-            raise EntityInvariantException(code=400, msg='Cannot create entities with self-defined uuids')
-        entity._uid = uuid.uuid4()
+        if entity.uid in self._identity_map:
+            return await self.modify(entity)
         async with self._session_maker() as session:
             async with session.begin():
                 model = await entity.to_model()
-                session.add(await entity.to_model())
+                session.add(model)
             entity._uid = model.uid
             self._identity_map[entity.uid] = entity
         return self._identity_map[entity.uid]

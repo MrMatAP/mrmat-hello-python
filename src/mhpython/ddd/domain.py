@@ -30,11 +30,19 @@ class ClusterEntity(DDDAggregateRoot[ClusterModel]):
 
     def __init__(self, name: str, *args, **kwargs) -> None:
         super().__init__(name, *args, **kwargs)
-        self._nodes: typing.List[NodeEntity] = []
+        self._nodes: typing.Set[NodeEntity] = set()
 
     @property
-    def nodes(self) -> typing.List['NodeEntity']:
+    def nodes(self) -> typing.Set['NodeEntity']:
         return self._nodes
+
+    async def add_node(self, node: 'NodeEntity'):
+        self._nodes.add(node)
+        self._dirty = True
+
+    async def remove_node(self, node: 'NodeEntity'):
+        self._nodes.remove(node)
+        self._dirty = True
 
     @classmethod
     async def from_model(cls, model: ClusterModel, *args, **kwargs) -> typing.Self:

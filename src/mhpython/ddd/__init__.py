@@ -24,4 +24,4 @@ from .base import (
 )
 from .model import ClusterModel, NodeModel
 from .domain import ClusterEntity, NodeEntity
-from .repository import ClusterRepository, NodeRepository
+from .repository import ClusterRepository
