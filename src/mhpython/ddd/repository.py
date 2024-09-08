@@ -25,7 +25,3 @@ from mhpython.ddd.domain import ClusterEntity, NodeEntity
 
 class ClusterRepository(DDDRepository[ClusterEntity]):
     entity = ClusterEntity
-
-
-class NodeRepository(DDDRepository[NodeEntity]):
-    entity = NodeEntity

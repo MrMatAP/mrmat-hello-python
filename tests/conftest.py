@@ -28,11 +28,11 @@ import sqlalchemy.orm
 import sqlalchemy.ext.asyncio
 
 import mhpython.ddd.base
-from mhpython.ddd import ClusterRepository, NodeRepository, ClusterEntity, NodeEntity
+from mhpython.ddd import ClusterRepository, ClusterEntity, NodeEntity
 
 @pytest.fixture(scope='session')
 def generics_db() -> pathlib.Path:
-    db = pathlib.Path(__file__).parent.joinpath('build/ddd_repositories.sqlite')
+    db = pathlib.Path(__file__).parent.parent.joinpath('build/ddd_repositories.sqlite')
     db.parent.mkdir(parents=True, exist_ok=True)
     yield db
     db.unlink(missing_ok=True)
@@ -54,17 +54,12 @@ async def cluster_repository(async_session_maker) -> ClusterRepository:
 
 @pytest.mark.asyncio
 @pytest_asyncio.fixture
-async def node_repository(async_session_maker) -> NodeRepository:
-    yield NodeRepository(async_session_maker)
-
-@pytest.mark.asyncio
-@pytest_asyncio.fixture
 async def seed_clusters(cluster_repository) -> typing.List[ClusterEntity]:
     clusters: typing.List[ClusterEntity] = []
     for c in range(0, 10):
         cluster = await cluster_repository.create(ClusterEntity(f'Cluster {c}'))
         for n in range(0, 3):
-            cluster.nodes.append(NodeEntity(name=f'Node {n}', cluster=cluster))
+            await cluster.add_node(NodeEntity(name=f'Node {n}', cluster=cluster))
         clusters.append(cluster)
     yield clusters
     for cluster in clusters:
