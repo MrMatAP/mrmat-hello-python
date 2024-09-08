@@ -20,30 +20,57 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import pytest
+import uuid
 from mhpython.ddd import (
     EntityInvariantException,
-    ClusterEntity, NodeEntity
+    NodeEntity, EntityNotFoundException, ClusterEntity
 )
 
 @pytest.mark.asyncio
-async def test_node_needs_cluster():
+async def test_entity_invariant_exception():
     with pytest.raises(EntityInvariantException, match='\[400\] All nodes must belong to a cluster'):
         NodeEntity(name="test")
         assert False
 
+@pytest.mark.asyncio
+async def test_entity_notfound_exception(cluster_repository):
+    with pytest.raises(EntityNotFoundException, match='\[404\] The specified entity does not exist'):
+        await cluster_repository.get_by_uid(uuid.uuid4())
+        assert False
 
 @pytest.mark.asyncio
-async def test_cluster_persistence(cluster_repository):
-    clusters = []
-    for i in range(0, 10):
-        cluster = ClusterEntity(name=f'Test Cluster {i}')
-        for n in range(0, 5):
-            node = NodeEntity(name=f'Test Node {n}', cluster=cluster)
-            cluster.nodes.append(node)
-        await cluster_repository.create(cluster)
-        assert cluster.uid is not None
-        clusters.append(cluster)
+async def test_cluster_persistence(seed_clusters, cluster_repository):
     assert len(await cluster_repository.list()) == 10
-    for cluster in clusters:
+    for cluster in seed_clusters:
         loaded = await cluster_repository.get_by_uid(cluster.uid)
+        assert cluster.repository is not None
         assert loaded == cluster
+        assert len(cluster.nodes) == 3
+        for node in cluster.nodes:
+            assert node.cluster == cluster
+
+@pytest.mark.asyncio
+async def test_cluster_lifecycle_via_repository(cluster_repository):
+    cluster = await cluster_repository.create(ClusterEntity(name='Test Cluster'))
+    assert cluster.uid is not None
+
+    cluster.name = 'I changed my name'
+    await cluster_repository.modify(cluster)
+
+    loaded = await cluster_repository.get_by_uid(cluster.uid)
+    assert loaded == cluster
+
+    await cluster_repository.remove(cluster.uid)
+
+@pytest.mark.asyncio
+async def test_cluster_lifecycle_via_cluster(cluster_repository):
+    cluster = ClusterEntity(name='Test Cluster')
+    await cluster.save()
+
+    cluster.name = 'I changed my name'
+    await cluster.save()
+
+    loaded = await cluster_repository.get_by_uid(cluster.uid)
+    assert loaded == cluster
+
+    await cluster.remove()
