@@ -39,7 +39,7 @@ jobs:
     steps:
 
     - name: Checkout out our code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Calculate Build Context
       run: |
@@ -77,7 +77,7 @@ jobs:
         python -m mypy --no-incremental --non-interactive --junit-xml ${GITHUB_WORKSPACE}/build/mypy.xml ${GITHUB_WORKSPACE}/src/mhpython || true
 
     - name: Upload test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:
         name: Test and Coverage
