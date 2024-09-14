@@ -50,6 +50,84 @@ in the top-level `__init__.py` for relaying the version into the runtime.
 
 ## How to hack on this
 
+### DDD
+
+This is a study on [Domain-driven Design](https://en.wikipedia.org/wiki/Domain-driven_design). I am aware that this here
+is not a pure implementation.
+
+```mermaid
+---
+title: DDD Base Classes
+---
+classDiagram
+  class DDDException {
+      +int code
+      +str msg
+  }
+  DDDException <|-- EntityNotFoundException
+  DDDException <|-- EntityInvariantException
+  
+  class DDDValueObject
+  class DDDModel {
+      +uid: str
+      +name: str
+  }
+  
+  class DDDEntity~DDDModel~ {
+      DDDRepository repository$
+      +bool dirty
+      +UniqueIdentifier uid
+      +str name
+
+      +post_create()
+      +post_modify()
+      +pre_remove()
+  }
+  
+  class DDDAggregateRoot~DDDEntity~ {
+      +save() DDDAggregateRoot
+      +remove()
+  }
+  DDDEntity <|-- DDDAggregateRoot
+  
+  class DDDRepository~DDDEntity DDDModel~ {
+      DDDEntity entity_class$
+      DDDModel model_class$
+      
+      +get_by_uid(uid: UniqueIdentifier) DDDEntity
+      +list() List[DDDEntity]
+      +create(entity: DDDEntity) DDDEntity
+      +modify(entity: DDDEntity) DDDEntity
+      +remove(entity: DDDEntity)
+      
+      +from_model(model: DDDModel)* DDDEntity
+      +to_model(entity: DDDEntity, persisted: DDDModel)* DDDModel
+  }
+  
+  DDDModel --> DDDEntity
+  DDDEntity --> DDDRepository
+  DDDAggregateRoot --> DDDRepository
+```
+
+A few principles:
+
+* DDDModel declares the persistence model for SQLAlchemy. All models have a uid and a name.
+* DDDRepository is the interface between the persistence layer and the DDDEntity. This is where domain operations happen. Type erasure and the behaviour of SQLAlchemy require that we store the DDDModel class as a static class variable, which is easiest to do right in the subclass of DDDRepository. All DDDRepository implementations require `from_model` and `to_model` which transform the entity into its model and vice versa. The abstract implementation of to_model will refresh a new model from the persistence layer when an existing entity is modified and pass it on as the `persisted` parameter to downstream implementations. `persisted` will be None for entities that are created for the first time.
+* DDDEntities are meant to be subclassed. They maintain a tie to their repository via the `repository` static class variable. Since this requires to be an initialised object, it cannot be statically set when the DDDEntity subclass is declared. It is set on the entity class by the `__init__` of the corresponding DDDRepository instead.
+* DDDAggregateRoots support `save()` and `remove()`.
+
+```mermaid
+sequenceDiagram
+    NodeEntity->>NodeEntity: __init__
+    NodeEntity->>AggregateRoot: save()
+    AggregateRoot->>NodeRepository: create(self)
+    NodeRepository->>NodeRepository: to_model(entity)
+    NodeRepository->>NodeEntity: post_create()
+    NodeEntity->>NodeEntity: dirty = False (self and sub-entities)
+    AggregateRoot->>AggregateRoot: dirty = False
+    AggregateRoot->>NodeEntity: self
+```
+
 ### Localisation
 
 We use [Babel](https://babel.pocoo.org/en/latest/index.html) **at build-time** to localise Python modules and apps.

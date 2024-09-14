@@ -19,26 +19,32 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import typing
-
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from mhpython.ddd.base import DDDModel
 
 
-class NodeModel(DDDModel):
-    __tablename__ = 'nodes'
-    cluster_uid: Mapped[str] = mapped_column(ForeignKey("clusters.uid"))
+class NetworkModel(DDDModel):
+    __tablename__ = 'networks'
+    network: Mapped[str] = mapped_column(String(15))
+    netmask: Mapped[str] = mapped_column(String(15))
+    router: Mapped[str] = mapped_column(String(15))
 
+class ImageModel(DDDModel):
+    __tablename__ = 'images'
+    url: Mapped[str] = mapped_column(String(15))
+    path: Mapped[str] = mapped_column(String(15))
 
 class ClusterModel(DDDModel):
-    """
-    Domain model of a cluster
-    IMPORTANT: Relationships must not be loaded lazily. See
-    https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html#asyncio-orm-avoid-lazyloads
-    """
     __tablename__ = 'clusters'
-    nodes: Mapped[typing.List[NodeModel]] = relationship(cascade='all, delete-orphan', lazy='selectin')
 
+class NodeModel(DDDModel):
+    __tablename__ = 'nodes'
+    network_uid: Mapped[str] = mapped_column(ForeignKey("networks.uid"))
+    image_uid: Mapped[str] = mapped_column(ForeignKey("images.uid"))
+    cluster_uid: Mapped[str] = mapped_column(ForeignKey("clusters.uid"), nullable=True)
 
+    network: Mapped[NetworkModel] = relationship(lazy='selectin')
+    image: Mapped[ImageModel] = relationship(lazy='selectin')
+    cluster: Mapped[ClusterModel] = relationship(lazy='selectin')
