@@ -39,7 +39,7 @@ class ImageRepository(DDDRepository[ImageEntity, ImageModel]):
 
     @classmethod
     async def to_model(cls, entity: ImageEntity, persisted: ImageModel | None = None) -> ImageModel:
-        model = await super().to_model(entity)
+        model = await super().to_model(entity, persisted)
         model.url = entity.url
         model.path = str(entity.path)
         return model
