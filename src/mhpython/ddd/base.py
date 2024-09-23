@@ -98,7 +98,9 @@ class DDDModel(DeclarativeBase):
     """
     __abstract__ = True
     uid: Mapped[str] = mapped_column(
-        UUID(as_uuid=True).with_variant(String(32), "sqlite"), primary_key=True
+        UUID(as_uuid=True).with_variant(String(32), "sqlite"),
+        primary_key=True,
+        sort_order=-1       # Make sure uid is the first column
     )
     name: Mapped[str] = mapped_column(String(64))
 
