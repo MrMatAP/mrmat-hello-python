@@ -98,7 +98,9 @@ class DDDModel(DeclarativeBase):
     """
     __abstract__ = True
     uid: Mapped[str] = mapped_column(
-        UUID(as_uuid=True).with_variant(String(32), "sqlite"), primary_key=True
+        UUID(as_uuid=True).with_variant(String(32), "sqlite"),
+        primary_key=True,
+        sort_order=-1       # Make sure uid is the first column
     )
     name: Mapped[str] = mapped_column(String(64))
 
@@ -244,16 +246,16 @@ class DDDRepository(typing.Generic[T_DDDEntity, T_DDDModel], abc.ABC):
 
     async def create(self, entity: T_DDDEntity) -> T_DDDEntity:
         try:
-            if not issubclass(entity.__class__, DDDAggregateRoot):
+            if not issubclass(type(entity), DDDAggregateRoot):
                 raise EntityInvariantException(code=400, msg='Only aggregate roots can be created')
             if entity.uid in self._identity_map:
                 return await self.modify(entity)
             async with self._session_maker() as session, session.begin():
                 model = await self.to_model(entity)
                 session.add(model)
-            entity._uid = UniqueIdentifier(model.uid)
-            self._identity_map[entity.uid] = entity
-            await entity.post_create()
+                entity._uid = UniqueIdentifier(model.uid)
+                self._identity_map[entity.uid] = entity
+                await entity.post_create()
             return self._identity_map[entity.uid]
         except SQLAlchemyError as sae:
             raise DDDException(code=500, msg='Failure persisting the entities') from sae
@@ -266,7 +268,7 @@ class DDDRepository(typing.Generic[T_DDDEntity, T_DDDModel], abc.ABC):
                 persisted = await session.get(self.model_class, str(entity.uid))
                 model = await self.to_model(entity, persisted)
                 session.add(model)
-            await entity.post_modify()
+                await entity.post_modify()
             return entity
         except SQLAlchemyError as sae:
             raise DDDException(code=500, msg='Failure persisting the entities') from sae
