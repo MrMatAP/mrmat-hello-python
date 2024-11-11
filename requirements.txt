@@ -1,6 +1,6 @@
 # Runtime requirements
 
-rich==13.8.0                        # MIT
+rich==13.9.4                        # MIT
 cryptography==43.0.1                # MIT
 aiosqlite==0.20.0                   # MIT
 sqlalchemy[asyncio]==2.0.34         # MIT
