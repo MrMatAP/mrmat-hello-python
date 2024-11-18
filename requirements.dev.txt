@@ -1,6 +1,6 @@
 # Build-time requirements
 
-setuptools==74.1.2
+setuptools==75.5.0
 build==1.2.2                        # MIT
 wheel==0.44.0                       # MIT
 
