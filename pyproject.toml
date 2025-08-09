@@ -12,7 +12,7 @@ description = "Small Python projects that don't warrant their own repository"
 urls = { "Sources" = "https://github.com/MrMatAP/mrmat-hello-python" }
 keywords = ["experimental"]
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 authors = [
     { "name" = "Mathieu Imfeld", "email" = "imfeldma+9jqerw@gmail.com" }
 ]
