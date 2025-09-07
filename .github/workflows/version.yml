@@ -33,7 +33,7 @@ jobs:
           echo "::notice ::Building release ${VERSION}"
           echo "IS_RELEASE=true" >> $GITHUB_OUTPUT
         else
-          VERSION="${VERSION}-SNAPSHOT"
+          VERSION="${VERSION}.dev0"
           echo "::notice ::Building version ${VERSION}"
         fi
         echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
