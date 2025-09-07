@@ -13,7 +13,7 @@ work out of the box.
 
 ### Interactively
 
-The project uses the [uv build tool](https://docs.astral.sh/uv/). Install it first, then simply run `uv build`.
+The project uses the [uv build tool](https://docs.astral.sh/uv/). Install it first, then simply run `uv build --wheel`.
 
 All interactive builds default their version to '0.0.0.dev0', which we use as a marker that this is a locally produced
 build which should not go into production. You can override this behaviour by setting the 'MRMAT_VERSION' environment 
