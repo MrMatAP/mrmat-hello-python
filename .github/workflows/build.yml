@@ -32,19 +32,14 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: Test
-      run: |
-        uv run --frozen pytest
-        python -m mypy --no-incremental --non-interactive --junit-xml ${GITHUB_WORKSPACE}/build/mypy.xml ${GITHUB_WORKSPACE}/src/mhpython || true 
+      run: uv run --frozen pytest
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: ${{ always() }}
       with:
-        name: Test and Coverage
-        path: |
-          build/mypy.xml
-          build/junit.xml
-          build/coverage.xml
+        name: Test
+        path: build/junit.xml
 
     - name: Build
       run: |
