@@ -77,8 +77,8 @@ class Account(BaseModel):
     statements: typing.List[Statement] = Field(description="Statements", default_factory=list)
 
 
-class ORMTransaction(ORMBase):
-    __tablename__ = 'transactions'
+class PDFTransaction(ORMBase):
+    __tablename__ = 'pdf_transactions'
     id: Mapped[int] = mapped_column(primary_key=True)
     valuta: Mapped[datetime.datetime] = mapped_column(DateTime)
     counterparty: Mapped[str] = mapped_column(String(4000))
@@ -88,8 +88,8 @@ class ORMTransaction(ORMBase):
     iban: Mapped[str] = mapped_column(String)
 
     @staticmethod
-    def from_parsed(iban: str, tx: Transaction) -> "ORMTransaction":
-        return ORMTransaction(valuta=tx.valuta,
+    def from_parsed(iban: str, tx: Transaction) -> "PDFTransaction":
+        return PDFTransaction(valuta=tx.valuta,
                               counterparty=tx.counterparty,
                               debit=tx.debit,
                               credit=tx.credit,
@@ -158,7 +158,7 @@ def main() -> int:
             parsed = response['parsed']
             with Session(engine) as session:
                 for tx in parsed.transactions:
-                    ormtx = ORMTransaction.from_parsed(parsed.iban, tx)
+                    ormtx = PDFTransaction.from_parsed(parsed.iban, tx)
                     session.add(ormtx)
                 session.commit()
         except ValidationError as ve:
