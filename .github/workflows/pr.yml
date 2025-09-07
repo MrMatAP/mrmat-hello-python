@@ -39,7 +39,7 @@ jobs:
 
     - name: Test
       run: |
-        uv run --frozen pytest
+        uv run --frozen pytest --cov-report=markdown-append:${GITHUB_STEP_SUMMARY}
         python -m mypy --no-incremental --non-interactive --junit-xml ${GITHUB_WORKSPACE}/build/mypy.xml ${GITHUB_WORKSPACE}/src/mhpython || true 
 
     - name: Report on unit tests
@@ -49,14 +49,3 @@ jobs:
         check_name: "Unit Tests"
         comment_title: "Unit Tests"
         files: "./build/junit.xml"
-
-    - name: Report on code coverage
-      uses: irongut/CodeCoverageSummary@v1.3.0
-      with:
-        filename: ${{ github.workspace }}/build/coverage.xml
-        badge: true
-        fail_below_min: true
-        format: markdown
-        indicators: true
-        output: both
-        thresholds: '60 80'
