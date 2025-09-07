@@ -25,27 +25,24 @@ import pathlib
 import argparse
 import datetime
 
-import pydantic
-from langchain_core.documents import Document
-from pydantic import BaseModel, Field
-from sqlalchemy import String, DateTime, Float, ForeignKey
-
-from sqlalchemy import create_engine, Engine
+from pydantic import BaseModel, Field, ValidationError
+from sqlalchemy import String, DateTime, Float
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
+from sqlalchemy.orm import Mapped, mapped_column, Session
 
-from langchain_core.exceptions import OutputParserException
-from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.documents import Document
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_ollama import ChatOllama
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 
 from mhpython import __version__
+from mhpython.finance.db import ORMBase, db
+
 
 class Transaction(BaseModel):
     """
-    An individual transaction. Ignore any transaction that has an empty 'Datum' or where the 'Information'
-    field only contains 'Anfangssaldo'. Note that the 'Information' field has multiple lines.
+    A single transaction consists of the following fields. Do not extract the transaction when its 'Informationen' field contains 'Anfangssaldo' or 'Schlusssaldo'.
+    Do not extract any transaction that has no 'Datum'.
     """
     date: typing.Optional[datetime.datetime] = Field(description="The 'Datum' date of the transaction")
     counterparty: typing.Optional[str] = Field(description="The 'Information' of the transaction, as a multiline string")
@@ -55,13 +52,23 @@ class Transaction(BaseModel):
     value: typing.Optional[float] = Field(description="The 'Kontostand' of the transaction", default=0)
 
 class Statement(BaseModel):
-    """Information about a statement"""
-    iban: str = Field(description="The value of the IBAN field on the first page of the document")
-    created_at: typing.Optional[datetime.datetime] = Field(description="The value of the 'Erstellt am' field on the first page of the document")
-    value_start: typing.Optional[float] = Field(description="The 'Anfangssaldo' in the 'Ihr Konto auf einen Blick' section")
-    total_credit: typing.Optional[float] = Field(description="The 'Gutschriften' in the 'Ihr Konto auf einen Blick' section")
-    total_debit: typing.Optional[float] = Field(description="The 'Belastungen' in the 'Ihr Konto auf einen Blick' section")
-    value_end: typing.Optional[float] = Field(description="The 'Schlusssaldo' in the 'Ihr Konto auf einen Blick' section")
+    """
+    A financial statement consists of three relevant sections:
+    * A section at the top of the document on the right, containing the IBAN, Konto-Nr., Kunden-Nr., BIC and the 'Erstellt am' date
+    * The 'Ihr Konto auf einen Blick' section, containing the Anfangssaldo, Gutschriften, Belastungen and Schlusssaldo
+    * Multiple pages of individual transactions, each with a 'Datum', 'Belastungen', 'Gutschriften', 'Valuta' and 'Kontostand'.
+      The 'Information' field is multi-line text and must be extracted as a whole, single string with the same line-breaks.
+    """
+    iban: str = Field(description="The value of the IBAN field on the first page")
+    account_number: str = Field(description="The value of the 'Konto-Nr.' field on the first page")
+    customer_number: str = Field(description="The value of the 'Kunden-Nr.' field on the first page")
+    bic: str = Field(description="The value of the 'BIC' field on the first page")
+    created_at: typing.Optional[datetime.datetime] = Field(description="The value of the 'Erstellt am' field on the first page")
+    value_start: typing.Optional[float] = Field(description="The 'Anfangssaldo' in the 'Ihr Konto auf einen Blick' section on the first page")
+    total_credit: typing.Optional[float] = Field(description="The 'Gutschriften' in the 'Ihr Konto auf einen Blick' section on the first page")
+    total_debit: typing.Optional[float] = Field(description="The 'Belastungen' in the 'Ihr Konto auf einen Blick' section on the first page")
+    value_end: typing.Optional[float] = Field(description="The 'Schlusssaldo' in the 'Ihr Konto auf einen Blick' section on the first page")
+
     transactions: typing.List[Transaction] = Field(default_factory=list, title="One entry for each transaction following the 'Ihr Konto auf einen Blick' section")
 
 class Account(BaseModel):
@@ -69,8 +76,6 @@ class Account(BaseModel):
     iban: str = Field(description="IBAN")
     statements: typing.List[Statement] = Field(description="Statements", default_factory=list)
 
-class ORMBase(DeclarativeBase):
-    pass
 
 class ORMTransaction(ORMBase):
     __tablename__ = 'transactions'
@@ -94,20 +99,16 @@ class ORMTransaction(ORMBase):
     def __repr__(self):
         return f'Transaction(id={self.id}, valuta={self.valuta}, debit={self.debit}, credit={self.credit}, value={self.value})'
 
-def db(url: str) -> Engine:
+
+def load_docs(path: pathlib.Path) -> typing.List[Document]:
     """
-    Connect to the database and ensure all tables are created
+    Load the PDF documents at the specified path
     Args:
-        url: The database URL in the format postgresql+psycopg2://USER:PASSWORD@HOST/DATABASE
+        path (pathlib.Path): The path to the folder containing the PDF documents
 
     Returns:
-        The database engine
+        A list of Langchain Document objects
     """
-    engine = create_engine(url, echo=True)
-    ORMBase.metadata.create_all(engine)
-    return engine
-
-def docs(path: pathlib.Path) -> typing.List[Document]:
     loader = PyPDFDirectoryLoader(path,
                                   glob="**/*.pdf",
                                   mode='single',
@@ -115,7 +116,7 @@ def docs(path: pathlib.Path) -> typing.List[Document]:
     return loader.load()
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=f'mrmat-finance - {__version__}')
+    parser = argparse.ArgumentParser(description=f'mrmat-finance-pdf-parser - {__version__}')
     parser.add_argument('--path',
                         type=pathlib.Path,
                         required=True,
@@ -126,34 +127,42 @@ def main() -> int:
                         required=True,
                         dest='db_url',
                         help='The database URL, in the format postgresql+psycopg2://USER:PASS@HOST/DB')
+    parser.add_argument('--model',
+                        type=str,
+                        required=False,
+                        choices=['gpt-oss:20b', 'gemma3:27b'],
+                        default='gpt-oss:20b',
+                        dest='model',
+                        help='The model to use for the LLM')
     args = parser.parse_args()
     engine = db(args.db_url)
 
-    statements = docs(args.path)
-    pydantic_parser = PydanticOutputParser(pydantic_object=Statement)
+    pdfs = load_docs(args.path)
     system_prompt = f"""
     You are an expert extraction algorithm for financial documents written in German. Only
     extract relevant information from the text.
-    
-    Wrap the output in JSON \n{pydantic_parser.get_format_instructions()}
     """
-    # This fails with 'dict object has no attributed 'content''. there's somee incompatibility here
-    #llm = ChatOllama(model="gpt-oss:20b",
-    #                validate_model_on_init=True).with_structured_output(schema=Statement, include_raw=True)
-    llm = ChatOllama(model="gpt-oss:20b", validate_model_on_init=True)
-    for statement in statements:
-        print(f"- Parsing document {statement.metadata.get('source')}")
-        response = llm.invoke([SystemMessage(content=system_prompt),
-                               HumanMessage(content=statement.page_content)])
+    llm = ChatOllama(model=args.model,
+                     validate_model_on_init=True,
+                     temperature=0.0).with_structured_output(schema=Statement,
+                                                             method='json_schema',
+                                                             include_raw=True)
+    for pdf in pdfs:
         try:
-            parsed = pydantic_parser.parse(response.content)
+            print(f"- Parsing document {pdf.metadata.get('source')}")
+            response = llm.invoke([SystemMessage(content=system_prompt),
+                                   HumanMessage(content=pdf.page_content)])
+            if response['parsing_error']:
+                print(f"ERROR: Failed to parse document {pdf.metadata.get('source')}: {response['parsing_error']}")
+                continue
+            parsed = response['parsed']
             with Session(engine) as session:
                 for tx in parsed.transactions:
                     ormtx = ORMTransaction.from_parsed(parsed.iban, tx)
                     session.add(ormtx)
                 session.commit()
-        except pydantic.ValidationError | ValueError as ve:
-            print(f"ERROR: Failed to parse document {statement.metadata.get('source')}: {ve}")
+        except ValidationError as ve:
+            print(f"ERROR: Failed to parse document {pdf.metadata.get('source')}: {ve}")
         except SQLAlchemyError as se:
             print(f"Database error: Failed to update database: {se}")
     return 0

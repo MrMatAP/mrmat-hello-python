@@ -30,7 +30,7 @@ dependencies = [
     "cryptography==45.0.6",
     "langchain-community==0.3.29",
     "langchain-ollama==0.3.7",
-    "psycopg-binary==3.2.9",
+    "psycopg2-binary>=2.9.10",
     "pydantic==2.11.7",
     "pypdf==6.0.0",
     "rich==14.1.0",
@@ -66,7 +66,8 @@ mrmat-concurrency-threadpool = "mhpython.concurrency.threadpool_cli:main"
 mrmat-concurrency-processpool = "mhpython.concurrency.processpool_cli:main"
 mrmat-asyncio-app-events = "mhpython.asyncio.app_events:run"
 mrmat-asyncio-proxy = "mhpython.asyncio.proxy:run"
-mrmat-finance = "mhpython.finance.app:main"
+mrmat-finance-pdf-parser = "mhpython.finance.pdf_parser:main"
+mrmat-finance-csv-parser = "mhpython.finance.csv_parser:main"
 
 # If you are debugging your tests using PyCharm then comment out the coverage options
 # in addopts
