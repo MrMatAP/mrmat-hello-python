@@ -54,27 +54,15 @@ jobs:
         fi
         echo "MRMAT_VERSION=${MRMAT_VERSION}" >> $GITHUB_ENV
 
-    - name: Set up Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v2
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v6
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Establish a cache for dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}
-
-    - name: Build
-      run: |
-        pip install --user -r requirements.dev.txt
-        python -m build --wheel -n
+        enable-cache: true
 
     - name: Test
       run: |
-        pip install --user -r requirements.txt
-        PYTHONPATH=${GITHUB_WORKSPACE}/src python -m pytest
-        python -m mypy --no-incremental --non-interactive --junit-xml ${GITHUB_WORKSPACE}/build/mypy.xml ${GITHUB_WORKSPACE}/src/mhpython || true
+        uv run --frozen pytest
+        python -m mypy --no-incremental --non-interactive --junit-xml ${GITHUB_WORKSPACE}/build/mypy.xml ${GITHUB_WORKSPACE}/src/mhpython || true 
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -85,6 +73,10 @@ jobs:
           build/mypy.xml
           build/junit.xml
           build/coverage.xml
+
+    - name: Build
+      run: |
+        uv build --wheel
 
     - name: Conditional Release
       uses: marvinpinto/action-automatic-releases@latest
