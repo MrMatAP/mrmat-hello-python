@@ -1,0 +1,42 @@
+#
+# Generate a version for this build
+# This differs when building for the main branch (as part of a pull request) or for any other branch.concurrency.
+# All versions consist of the MAJOR and MINOR number, with the MICRO version being the GitHub buuild. '.dev0'
+# is appended for all builds that do not occur on the main branch. Outputs are IS_RELEASE and VERSION
+
+name: version
+
+env:
+  MAJOR: 0
+  MINOR: 0
+
+on:
+  workflow_call:
+    outputs:
+      version:
+        description: The calculated version for this build
+        value: ${{ jobs.version.outputs.version }}
+      is_release:
+        description: Whether this is a release build
+        value: ${{ jobs.version.outputs.is_release }}
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Generate a build version
+      id: generate
+      run: |
+        VERSION="${MAJOR}.${MINOR}.${GITHUB_RUN_NUMBER}"
+        if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
+          IS_RELEASE=true
+          echo "::notice ::Building release ${VERSION}"
+          echo "IS_RELEASE=true" >> $GITHUB_OUTPUT
+        else
+          VERSION="${VERSION}-SNAPSHOT"
+          echo "::notice ::Building version ${VERSION}"
+        fi
+        echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+    outputs:
+      version: ${{ steps.generate.outputs.VERSION }}
+      is_release: ${{ steps.generate.outputs.IS_RELEASE }}

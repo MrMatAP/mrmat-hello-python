@@ -1,0 +1,60 @@
+#
+# Perform a PR check build
+
+name: pr
+
+on:
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+
+permissions:
+  checks: write
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: 3.13.7
+
+#
+# Workflow
+
+jobs:
+  version:
+    uses: ./.github/workflows/version.yml
+
+  checks:
+    runs-on: ubuntu-latest
+    needs: version
+    env:
+      MRMAT_VERSION: "${{ needs.version.outputs.version }}"
+    steps:
+
+    - name: Checkout out our code
+      uses: actions/checkout@v4
+
+    - name: Set up uv and Python
+      uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Test
+      run: |
+        uv run --frozen pytest
+        python -m mypy --no-incremental --non-interactive --junit-xml ${GITHUB_WORKSPACE}/build/mypy.xml ${GITHUB_WORKSPACE}/src/mhpython || true 
+
+    - name: Report on unit tests
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: (!cancelled())
+      with:
+        check_name: "Unit Tests"
+        comment_title: "Unit Tests"
+        files: "./build/junit.xml"
+
+    - name: Report on code coverage
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: |
+          ${{ github.workspace }}/build/coverage.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: 40
+        min-coverage-changed-files: 60
