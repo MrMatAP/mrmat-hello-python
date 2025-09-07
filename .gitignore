@@ -143,3 +143,8 @@ ChangeLog
 doc/source/api
 mhpython/py_io/py-io-output.txt
 !/.pytest_cache/
+
+#
+# uv
+
+.venv
