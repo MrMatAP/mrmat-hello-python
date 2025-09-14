@@ -56,7 +56,7 @@ jobs:
         path: build/coverage.xml
     - name: Lint
       if: ${{ github.event_name == 'pull_request' }}
-      run: python -m mypy --no-incremental --junit-xml=${GITHUB_WORKSPACE}/build/lint.xml ${GITHUB_WORKSPACE}/src/mhpython || true
+      run: uv run --frozen mypy --no-incremental --junit-xml=${GITHUB_WORKSPACE}/build/lint.xml ${GITHUB_WORKSPACE}/src/mhpython || true
     - name: Upload linting results
       if: ${{ github.event_name == 'pull_request' }}
       uses: actions/upload-artifact@v4
