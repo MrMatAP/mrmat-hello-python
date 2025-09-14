@@ -12,12 +12,8 @@ env:
   PYTHON_VERSION: 3.13.7
 
 jobs:
-  version:
-    uses: ./.github/workflows/version.yml
-
   build:
     runs-on: ubuntu-latest
-    needs: version
     env:
       MRMAT_VERSION: ${{ needs.version.outputs.version }}
     steps:
@@ -31,6 +27,14 @@ jobs:
         enable-cache: true
         python-version: ${{ env.PYTHON_VERSION }}
 
+    - name: Version the project
+      id: version
+      uses: MrMatAP/mrmat-versioning-action@1.0.7
+      with:
+        ecosystem: python
+        major: 1
+        minor: 1
+
     - name: Test
       run: uv run --frozen pytest
 
@@ -42,5 +46,7 @@ jobs:
         path: build/junit.xml
 
     - name: Build
+      env:
+        MRMAT_VERSION: ${{ steps.version.outputs.version }}
       run: |
         uv build --wheel
