@@ -41,19 +41,32 @@ jobs:
     - name: Build
       run: uv build --wheel
     - name: Test
-      run: uv run --frozen pytest --junit-xml=${GITHUB_WORKSPACE}/build/junit.xml --cov-report=json:${GITHUB_WORKSPACE}/build/coverage.json
+      run: uv run --frozen pytest --junit-xml=${GITHUB_WORKSPACE}/build/junit.xml --cov-report=xml:${GITHUB_WORKSPACE}/build/coverage.xml
     - name: Upload unit test results
       if: ${{ github.event_name == 'pull_request' }}
       uses: actions/upload-artifact@v4
       with:
         name: Unit Test Results
         path: build/junit.xml
+    - name: Report on unit tests
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        check_name: "Unit Tests"
+        comment_title: "Unit Test Results"
+        files: build/junit.xml
     - name: Upload coverage results
       if: ${{ github.event_name == 'pull_request' }}
       uses: actions/upload-artifact@v4
       with:
         name: Coverage Results
         path: build/coverage.xml
+    - name: Report on code coverage
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: ${{ github.workspace }}/build/coverage.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Lint
       if: ${{ github.event_name == 'pull_request' }}
       run: uv run --frozen mypy --no-incremental --junit-xml=${GITHUB_WORKSPACE}/build/lint.xml ${GITHUB_WORKSPACE}/src/mhpython || true
