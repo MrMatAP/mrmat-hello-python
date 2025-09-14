@@ -9,6 +9,7 @@ on:
     types: [assigned, opened, synchronize, reopened]
 
 jobs:
+  # Dynamically calculate the version of this build
   version:
     runs-on: ubuntu-latest
     permissions:
@@ -40,16 +41,28 @@ jobs:
     - name: Build
       run: uv build --wheel
     - name: Test
-      run: uv run --frozen pytest --cov-report=markdown-append:${GITHUB_STEP_SUMMARY}
-    - name: Lint
-      if: ${{ github.event_name == 'pull_request' }}
-      run: python -m mypy --no-incremental --non-interactive --junit-xml ${GITHUB_WORKSPACE}/build/mypy.xml ${GITHUB_WORKSPACE}/src/mhpython || true
-    - name: Upload test results
+      run: uv run --frozen pytest --junit-xml=${GITHUB_WORKSPACE}/build/junit.xml --cov-report=json:${GITHUB_WORKSPACE}/build/coverage.json
+    - name: Upload unit test results
       if: ${{ github.event_name == 'pull_request' }}
       uses: actions/upload-artifact@v4
       with:
-        name: Test
+        name: Unit Test Results
         path: build/junit.xml
+    - name: Upload coverage results
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: Coverage Results
+        path: build/coverage.xml
+    - name: Lint
+      if: ${{ github.event_name == 'pull_request' }}
+      run: python -m mypy --no-incremental --junit-xml=${GITHUB_WORKSPACE}/build/lint.xml ${GITHUB_WORKSPACE}/src/mhpython || true
+    - name: Upload linting results
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: Lint Results
+        path: build/lint.xml
 
   # The release job only executes when pushing to the main branch
   release:
