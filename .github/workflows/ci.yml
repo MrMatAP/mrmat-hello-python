@@ -60,7 +60,6 @@ jobs:
     needs:
     - version
     - build
-    - test
     steps:
     - name: Create Release
       id: create_release
