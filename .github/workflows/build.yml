@@ -13,7 +13,11 @@ env:
 
 jobs:
   version:
-    uses: ./.github/workflows/version.yml
+    uses: MrMatAP/mrmat-versioning-action@1.0.7
+    with:
+      ecosystem: python
+      major: 1
+      minor: 1
 
   build:
     runs-on: ubuntu-latest
