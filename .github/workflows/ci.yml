@@ -62,7 +62,8 @@ jobs:
       build
     permissions:
       pull-requests: write
-      contents: write
+      checks: write
+      contents: read
     steps:
     - name: Lint
       run: uv run --frozen mypy --no-incremental --junit-xml=${GITHUB_WORKSPACE}/build/lint.xml ${GITHUB_WORKSPACE}/src/mhpython || true
