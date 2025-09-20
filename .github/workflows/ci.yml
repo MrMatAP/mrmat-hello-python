@@ -16,6 +16,7 @@ jobs:
       contents: read
     steps:
     - name: Version the project
+      id: version
       uses: MrMatAP/mrmat-versioning-action@1.0.7
       with:
         ecosystem: python
@@ -38,6 +39,8 @@ jobs:
       with:
         enable-cache: true
         python-version: 3.13.7
+    - name: Debug
+      run: echo "Version is ${{ needs.version.outputs.version }}"
     - name: Build
       run: uv build --wheel
     - name: Test
