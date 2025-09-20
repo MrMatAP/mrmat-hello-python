@@ -40,7 +40,7 @@ dependencies = [
 dev = [
     "babel==2.17.0",
     "build==1.3.0",
-    "mypy==1.18.1",
+    "mypy==1.18.2",
     "pytest==8.4.2",
     "pytest-asyncio==1.2.0",
     "pytest-cov==7.0.0",
