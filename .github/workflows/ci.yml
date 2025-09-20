@@ -40,7 +40,7 @@ jobs:
         enable-cache: true
         python-version: 3.13.7
     - name: Debug
-      run: echo "Version is ${{ needs.version.version.outputs.version }}"
+      run: echo "Version is ${{ jobs.version.outputs.version }}"
     - name: Build
       run: uv build --wheel
     - name: Test
