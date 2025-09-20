@@ -14,8 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
     - name: Version the project
+      id: version
       uses: MrMatAP/mrmat-versioning-action@1.0.7
       with:
         ecosystem: python
