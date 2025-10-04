@@ -6,14 +6,40 @@ name: build
 on:
   push:
   pull_request:
-    types: [assigned, opened, synchronize, reopened]
+    types: [opened, synchronize]
 
 jobs:
+  #
+  # Do not build on push when there is an open PR for the same ref
+  abort-push-on-pr:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    outputs:
+      abort: ${{ steps.pr-check.output.abort }}
+    steps:
+    - name: Check whether we have a PR for the same ref
+      id: pr-check
+      shell: pwsh
+      env:
+        repository: ${{ github.repository }}
+        triggeringBranch: ${{ github.ref }}
+        GH_TOKEN: ${{ github.token }}
+      run:
+        $outstandingPrBranches = & gh pr list --json headRefName --repo $env:repository | ConvertFrom-Json
+        $triggeringBranch = $env:triggeringBranch
+        if (($outstandingPrBranches | ?{ "refs/heads/$($_.headRefName)" -eq "$triggeringBranch" }).count -gt 0)
+        {
+            "abort=true" >> $env:GITHUB_OUTPUT
+        }
+
   # Dynamically calculate the version of this build
   version:
+    if: ${{ needs.abort-push-on-pr.outputs.abort != 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    needs:
+      abort-push-on-pr
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -55,18 +81,21 @@ jobs:
       with:
         name: Lint Results
         path: build/lint.xml
+        retention-days: 1
     - name: Upload unit test results
       if: ${{ github.event_name == 'pull_request' }}
       uses: actions/upload-artifact@v4
       with:
         name: Unit Test Results
         path: build/junit.xml
+        retention-days: 1
     - name: Upload coverage results
       if: ${{ github.event_name == 'pull_request' }}
       uses: actions/upload-artifact@v4
       with:
         name: Coverage Results
         path: build/coverage.xml
+        retention-days: 1
     - name: Report on unit tests
       if: ${{ github.event_name == 'pull_request' }}
       uses: EnricoMi/publish-unit-test-result-action@v2
