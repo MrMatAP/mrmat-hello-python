@@ -57,6 +57,17 @@ jobs:
       with:
         name: Coverage Results
         path: build/coverage.xml
+    - name: Report on unit tests
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      with:
+        check_name: "Unit Tests"
+        comment_title: "Unit Test Results"
+        files: build/junit.xml
+    - name: Report on code coverage
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: ${{ github.workspace }}/build/coverage.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
 
   report:
     if: ${{ github.event_name == 'pull_request' }}
@@ -75,17 +86,6 @@ jobs:
       with:
         name: Lint Results
         path: build/lint.xml
-    - name: Report on unit tests
-      uses: EnricoMi/publish-unit-test-result-action@v2
-      with:
-        check_name: "Unit Tests"
-        comment_title: "Unit Test Results"
-        files: build/junit.xml
-    - name: Report on code coverage
-      uses: madrapps/jacoco-report@v1.7.2
-      with:
-        paths: ${{ github.workspace }}/build/coverage.xml
-        token: ${{ secrets.GITHUB_TOKEN }}
 
   # The release job only executes when pushing to the main branch
   release:
