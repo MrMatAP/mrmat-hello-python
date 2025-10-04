@@ -78,7 +78,7 @@ jobs:
       if: ${{ github.event_name == 'pull_request' }}
       uses: irongut/CodeCoverageSummary@v1.3.0
       with:
-        filename: ${{ github.workspace }}/build/coverage.xml
+        filename: build/coverage.xml
 
   # The release job only executes when pushing to the main branch
   release:
