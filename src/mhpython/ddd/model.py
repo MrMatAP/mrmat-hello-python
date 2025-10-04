@@ -26,25 +26,30 @@ from mhpython.ddd.base import DDDModel
 
 
 class NetworkModel(DDDModel):
-    __tablename__ = 'networks'
+    __tablename__ = "networks"
     network: Mapped[str] = mapped_column(String(15))
     netmask: Mapped[str] = mapped_column(String(15))
     router: Mapped[str] = mapped_column(String(15))
 
+
 class ImageModel(DDDModel):
-    __tablename__ = 'images'
+    __tablename__ = "images"
     url: Mapped[str] = mapped_column(String(15))
     path: Mapped[str] = mapped_column(String(15))
 
+
 class ClusterModel(DDDModel):
-    __tablename__ = 'clusters'
+    __tablename__ = "clusters"
+
 
 class NodeModel(DDDModel):
-    __tablename__ = 'nodes'
+    __tablename__ = "nodes"
     network_uid: Mapped[str] = mapped_column(ForeignKey("networks.uid"))
     image_uid: Mapped[str] = mapped_column(ForeignKey("images.uid"))
-    cluster_uid: Mapped[str] = mapped_column(ForeignKey("clusters.uid"), nullable=True)
+    cluster_uid: Mapped[str] = mapped_column(
+        ForeignKey("clusters.uid"), nullable=True
+    )
 
-    network: Mapped[NetworkModel] = relationship(lazy='selectin')
-    image: Mapped[ImageModel] = relationship(lazy='selectin')
-    cluster: Mapped[ClusterModel] = relationship(lazy='selectin')
+    network: Mapped[NetworkModel] = relationship(lazy="selectin")
+    image: Mapped[ImageModel] = relationship(lazy="selectin")
+    cluster: Mapped[ClusterModel] = relationship(lazy="selectin")

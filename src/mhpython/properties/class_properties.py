@@ -21,6 +21,7 @@
 #  SOFTWARE.
 #
 
+
 class Person:
     """
     A simple class to hold the first and last name of a Person. The first_name only has a read-only property.

@@ -32,10 +32,11 @@ class WorkerMessage:
     """
     A message to be passed between workers
     """
+
     worker_id: int
     iteration: int
     result: typing.Optional[str] = None
-    message: typing.Optional[str] = 'OK'
+    message: typing.Optional[str] = "OK"
 
 
 class Work(abc.ABC):
@@ -43,7 +44,12 @@ class Work(abc.ABC):
     An abstract worker base class
     """
 
-    def __init__(self, worker_id: int, q: queue.Queue, iterations: typing.Optional[int] = 100):
+    def __init__(
+        self,
+        worker_id: int,
+        q: queue.Queue,
+        iterations: typing.Optional[int] = 100,
+    ):
         self._worker_id = worker_id
         self._q = q
         self._iterations = iterations
@@ -66,16 +72,26 @@ class CPUIntensiveWorkThreaded(Work):
     def work(self):
         for iteration in range(0, self._iterations):
             try:
-                key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-                self._q.put(WorkerMessage(worker_id=self._worker_id,
-                                          iteration=iteration,
-                                          result=str(key)),
-                            block=True)
-            except Exception as e:      # pylint: disable=broad-except
-                self._q.put(WorkerMessage(worker_id=self._worker_id,
-                                          iteration=iteration,
-                                          message=f'Exception: {e}'),
-                            block=True)
+                key = rsa.generate_private_key(
+                    public_exponent=65537, key_size=2048
+                )
+                self._q.put(
+                    WorkerMessage(
+                        worker_id=self._worker_id,
+                        iteration=iteration,
+                        result=str(key),
+                    ),
+                    block=True,
+                )
+            except Exception as e:  # pylint: disable=broad-except
+                self._q.put(
+                    WorkerMessage(
+                        worker_id=self._worker_id,
+                        iteration=iteration,
+                        message=f"Exception: {e}",
+                    ),
+                    block=True,
+                )
 
 
 def cpu_intensive_work(worker_id: int, iterations: int) -> WorkerMessage:
@@ -89,8 +105,12 @@ def cpu_intensive_work(worker_id: int, iterations: int) -> WorkerMessage:
     """
     keys = []
     for _ in range(0, iterations):
-        keys.append(rsa.generate_private_key(public_exponent=65537, key_size=2048))
-    return WorkerMessage(worker_id, iterations, f'Number of keys {len(keys)}', 'OK')
+        keys.append(
+            rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        )
+    return WorkerMessage(
+        worker_id, iterations, f"Number of keys {len(keys)}", "OK"
+    )
 
 
 class Execution(abc.ABC):
@@ -98,10 +118,12 @@ class Execution(abc.ABC):
     An abstract execution base class
     """
 
-    def __init__(self,
-                 worker_class: typing.Type[Work],
-                 worker_count: typing.Optional[int] = 4,
-                 iterations: typing.Optional[int] = 100):
+    def __init__(
+        self,
+        worker_class: typing.Type[Work],
+        worker_count: typing.Optional[int] = 4,
+        iterations: typing.Optional[int] = 100,
+    ):
         self._worker_class = worker_class
         self._worker_count = worker_count
         self._iterations = iterations
@@ -128,12 +150,16 @@ class ConcurrentFuturesThreadExecution(Execution):
     """
 
     def start(self):
-        with concurrent.futures.ThreadPoolExecutor(thread_name_prefix='worker') as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            thread_name_prefix="worker"
+        ) as executor:
             for i in range(0, self._worker_count):
-                worker = self._worker_class(worker_id=i,
-                                            q=self._q,
-                                            iterations=self._iterations)
+                worker = self._worker_class(
+                    worker_id=i, q=self._q, iterations=self._iterations
+                )
                 self._jobs.append(executor.submit(worker.work))
             # concurrent.futures.wait returns a status tuple that can be evaluated in detail
-            concurrent.futures.wait(self._jobs, return_when=concurrent.futures.ALL_COMPLETED)
+            concurrent.futures.wait(
+                self._jobs, return_when=concurrent.futures.ALL_COMPLETED
+            )
             self._done = True

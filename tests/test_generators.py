@@ -21,6 +21,7 @@
 #  SOFTWARE.
 #
 
+
 def gen():
     yield 1
     yield 2
@@ -30,7 +31,7 @@ def gen():
 def test_generator_function():
     last_value = 0
     for i in gen():
-        assert last_value < i, 'Generator returns sequential values'
+        assert last_value < i, "Generator returns sequential values"
         last_value = i
 
 

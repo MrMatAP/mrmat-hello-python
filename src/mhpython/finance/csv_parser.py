@@ -34,10 +34,13 @@ from sqlalchemy.orm import Mapped, mapped_column, Session
 from mhpython import __version__
 from mhpython.finance.db import db, ORMBase
 
+
 class CSVTransaction(ORMBase):
-    __tablename__ = 'csv_transactions'
+    __tablename__ = "csv_transactions"
     txid: Mapped[str] = mapped_column(String(16), primary_key=True)
-    settlement: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=True)
+    settlement: Mapped[datetime.datetime] = mapped_column(
+        DateTime, nullable=True
+    )
     booking: Mapped[datetime.date] = mapped_column(Date, nullable=True)
     valuta: Mapped[datetime.date] = mapped_column(Date)
     currency: Mapped[str] = mapped_column(String(3))
@@ -57,44 +60,57 @@ class CSVTransaction(ORMBase):
     @staticmethod
     def from_csv(tx: typing.Dict) -> "CSVTransaction":
         t = CSVTransaction(
-                txid=tx['Transaktions-Nr.'],
-                valuta=datetime.datetime.strptime(tx['Valutadatum'], '%Y-%m-%d'),
-                currency=tx['Währung'],
-                debit = CSVTransaction.parse_float(tx['Belastung']),
-                credit = CSVTransaction.parse_float(tx['Gutschrift']),
-                saldo=float(tx['Saldo']),
-                description=f"{tx['Beschreibung1']}\n{tx['Beschreibung2']}\n{tx['Beschreibung3']}",
-                notes=tx['Fussnoten'])
+            txid=tx["Transaktions-Nr."],
+            valuta=datetime.datetime.strptime(tx["Valutadatum"], "%Y-%m-%d"),
+            currency=tx["Währung"],
+            debit=CSVTransaction.parse_float(tx["Belastung"]),
+            credit=CSVTransaction.parse_float(tx["Gutschrift"]),
+            saldo=float(tx["Saldo"]),
+            description=f"{tx['Beschreibung1']}\n{tx['Beschreibung2']}\n{tx['Beschreibung3']}",
+            notes=tx["Fussnoten"],
+        )
         try:
-            t.booking = datetime.datetime.strptime(tx['Buchungsdatum'], '%Y-%m-%d')
+            t.booking = datetime.datetime.strptime(
+                tx["Buchungsdatum"], "%Y-%m-%d"
+            )
         except ValueError:
-            print(f'WARNING: Transaction {t.txid} has no booking date')
+            print(f"WARNING: Transaction {t.txid} has no booking date")
         try:
-            t.settlement = datetime.datetime.strptime(f"{tx['\ufeffAbschlussdatum']} {tx['Abschlusszeit']}", '%Y-%m-%d %H:%M:%S')
+            t.settlement = datetime.datetime.strptime(
+                f"{tx['\ufeffAbschlussdatum']} {tx['Abschlusszeit']}",
+                "%Y-%m-%d %H:%M:%S",
+            )
         except ValueError:
-            print(f'WARNING: Transaction {t.txid} has no settlement date')
+            print(f"WARNING: Transaction {t.txid} has no settlement date")
         return t
 
 
 def read_csv(path: pathlib.Path) -> Generator[CSVTransaction]:
-    csv_dialect = csv.Sniffer().sniff(path.read_text(encoding='utf-8'))
-    with open(path, 'r', encoding='utf-8') as f:
+    csv_dialect = csv.Sniffer().sniff(path.read_text(encoding="utf-8"))
+    with open(path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f, dialect=csv_dialect)
         for row in reader:
             yield CSVTransaction.from_csv(row)
 
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description=f'mrmat-finance-csv-parser - {__version__}')
-    parser.add_argument('--path',
-                        type=pathlib.Path,
-                        required=True,
-                        dest='path',
-                        help='Path to the folder containing a CSV export')
-    parser.add_argument('--db-url',
-                        type=str,
-                        required=True,
-                        dest='db_url',
-                        help='The database URL, in the format postgresql+psycopg2://USER:PASS@HOST/DB')
+    parser = argparse.ArgumentParser(
+        description=f"mrmat-finance-csv-parser - {__version__}"
+    )
+    parser.add_argument(
+        "--path",
+        type=pathlib.Path,
+        required=True,
+        dest="path",
+        help="Path to the folder containing a CSV export",
+    )
+    parser.add_argument(
+        "--db-url",
+        type=str,
+        required=True,
+        dest="db_url",
+        help="The database URL, in the format postgresql+psycopg2://USER:PASS@HOST/DB",
+    )
     args = parser.parse_args()
     engine = db(args.db_url)
     try:
@@ -102,9 +118,11 @@ def main() -> int:
             for tx in read_csv(args.path):
                 session.add(tx)
             session.commit()
+        return 0
     except SQLAlchemyError as se:
         print(f"Database error: Failed to update database: {se}")
+        return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

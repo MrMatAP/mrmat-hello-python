@@ -38,15 +38,18 @@ class Greeting:
 
 
 def test_greeting_decorator():
-    greeting = Greeting('MrMat')
-    assert greeting.greet() == 'Hello MrMat'
+    greeting = Greeting("MrMat")
+    assert greeting.greet() == "Hello MrMat"
 
 
 def test_greeting_typeerror():
     with pytest.raises(TypeError):
+
         @can_greet
         class BadGreeting:
             def greet(self):
                 pass
 
-        assert False, "We expect a TypeError of the decorator would overwrite an existing method"
+        assert (
+            False
+        ), "We expect a TypeError of the decorator would overwrite an existing method"

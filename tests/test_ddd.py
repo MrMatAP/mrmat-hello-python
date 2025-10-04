@@ -24,7 +24,11 @@ import uuid
 import pytest
 
 from conftest import node_repository
-from mhpython.ddd import EntityNotFoundException, ClusterEntity, EntityInvariantException
+from mhpython.ddd import (
+    EntityNotFoundException,
+    ClusterEntity,
+    EntityInvariantException,
+)
 
 
 @pytest.mark.asyncio
@@ -32,9 +36,13 @@ async def test_entity_not_found_exception(node_repository):
     """
     Test whether an attempt to get an entity that doesn't exist raises
     """
-    with pytest.raises(EntityNotFoundException, match='\[404\] The specified entity does not exist'):
+    with pytest.raises(
+        EntityNotFoundException,
+        match="\[404\] The specified entity does not exist",
+    ):
         await node_repository.get_by_uid(uuid.uuid4())
         assert False
+
 
 @pytest.mark.asyncio
 async def test_node_persistence(seed_nodes, node_repository):
@@ -49,15 +57,18 @@ async def test_node_persistence(seed_nodes, node_repository):
         assert node.network is not None
         assert node.image is not None
 
+
 @pytest.mark.asyncio
-async def test_add_set_cluster_on_node(seed_nodes, node_repository, cluster_repository):
+async def test_add_set_cluster_on_node(
+    seed_nodes, node_repository, cluster_repository
+):
     """
     Test whether we can set a cluster on a node
     """
     loaded_node = await node_repository.get_by_uid(seed_nodes[0].uid)
     assert loaded_node.cluster is None
 
-    cluster = await ClusterEntity(name='Test Cluster').save()
+    cluster = await ClusterEntity(name="Test Cluster").save()
     loaded_node.cluster = cluster
     assert cluster.dirty
     assert loaded_node.dirty
@@ -75,13 +86,16 @@ async def test_add_set_cluster_on_node(seed_nodes, node_repository, cluster_repo
     assert updated_node in updated_cluster.nodes
     assert not updated_cluster.dirty
 
+
 @pytest.mark.asyncio
-async def test_add_node_to_cluster(seed_nodes, node_repository, cluster_repository):
+async def test_add_node_to_cluster(
+    seed_nodes, node_repository, cluster_repository
+):
     """
     Test whether we can add a node to a cluster
     """
     node = seed_nodes[0]
-    cluster = await ClusterEntity(name='Test Cluster').save()
+    cluster = await ClusterEntity(name="Test Cluster").save()
     cluster.add_node(node)
     assert cluster.dirty
     assert node.dirty
@@ -89,24 +103,33 @@ async def test_add_node_to_cluster(seed_nodes, node_repository, cluster_reposito
     assert not cluster.dirty
     assert not node.dirty
 
+
 @pytest.mark.asyncio
-async def test_move_node_to_another_cluster(seed_nodes, node_repository, cluster_repository):
+async def test_move_node_to_another_cluster(
+    seed_nodes, node_repository, cluster_repository
+):
     """
     Test whether we can move a node from one cluster to another
     """
     node = await node_repository.get_by_uid(seed_nodes[0].uid)
     assert node.cluster is None
 
-    cluster1 = await ClusterEntity(name='Test Cluster 1').save()
+    cluster1 = await ClusterEntity(name="Test Cluster 1").save()
     node.cluster = cluster1
     await node.save()
 
-    cluster2 = await ClusterEntity(name='Test Cluster 2').save()
-    with pytest.raises(EntityInvariantException, match='\[400\] This node is already a member of another cluster'):
+    cluster2 = await ClusterEntity(name="Test Cluster 2").save()
+    with pytest.raises(
+        EntityInvariantException,
+        match="\[400\] This node is already a member of another cluster",
+    ):
         node.cluster = cluster2
 
+
 @pytest.mark.asyncio
-async def test_add_node_to_dirty_cluster(seed_nodes, node_repository, cluster_repository):
+async def test_add_node_to_dirty_cluster(
+    seed_nodes, node_repository, cluster_repository
+):
     """
     Test whether adding a node to a dirty cluster raises
     """
@@ -114,18 +137,22 @@ async def test_add_node_to_dirty_cluster(seed_nodes, node_repository, cluster_re
     assert node.cluster is None
     assert not node.dirty
 
-    cluster = ClusterEntity(name='Test Cluster')
+    cluster = ClusterEntity(name="Test Cluster")
     assert cluster.dirty
-    with pytest.raises(EntityInvariantException, match='\[400\] You must save the cluster before adding nodes'):
+    with pytest.raises(
+        EntityInvariantException,
+        match="\[400\] You must save the cluster before adding nodes",
+    ):
         cluster.add_node(node)
+
 
 @pytest.mark.asyncio
 async def test_rename_cluster(cluster_repository):
     """
     Test whether a cluster can be renamed
     """
-    cluster = await ClusterEntity(name='Test Cluster').save()
-    cluster.name = 'I renamed myself'
+    cluster = await ClusterEntity(name="Test Cluster").save()
+    cluster.name = "I renamed myself"
     assert cluster.dirty
     await cluster.save()
     assert not cluster.dirty

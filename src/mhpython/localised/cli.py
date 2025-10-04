@@ -27,18 +27,21 @@ from mhpython.localised import Language, Greeting
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(f'mrmat-localised - {__version__}')
-    parser.add_argument('-l', '--language',
-                        dest='lang',
-                        choices=[lang.name for lang in list(Language)],
-                        required=False,
-                        default=Language.EN.name)
+    parser = argparse.ArgumentParser(f"mrmat-localised - {__version__}")
+    parser.add_argument(
+        "-l",
+        "--language",
+        dest="lang",
+        choices=[lang.name for lang in list(Language)],
+        required=False,
+        default=Language.EN.name,
+    )
     args = parser.parse_args()
 
     greeting = Greeting(language=Language[args.lang])
-    print(f'{greeting.greet()}\n')
+    print(f"{greeting.greet()}\n")
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -30,9 +30,11 @@ from .workers import WorkerMessage, cpu_intensive_work
 from .ui import ProgressPanel, ResultsPanel, InfoPanel
 
 
-def ui_update(msg: WorkerMessage,
-              progress_panel: ProgressPanel,
-              results_panel: ResultsPanel):
+def ui_update(
+    msg: WorkerMessage,
+    progress_panel: ProgressPanel,
+    results_panel: ResultsPanel,
+):
     progress_panel.update(msg)
     results_panel.update(msg)
 
@@ -40,23 +42,30 @@ def ui_update(msg: WorkerMessage,
 def main() -> int:
     worker_count = 4
     iterations = 100
-    progress_panel = ProgressPanel(worker_count=worker_count,
-                                   iterations=iterations)
+    progress_panel = ProgressPanel(
+        worker_count=worker_count, iterations=iterations
+    )
     results_panel = ResultsPanel()
     layout = Layout()
     layout.split_column(
-        Layout(name='upper'),
-        Layout(results_panel, name='lower')
+        Layout(name="upper"), Layout(results_panel, name="lower")
     )
-    layout['upper'].split_row(
-        Layout(InfoPanel(info='Using concurrent.futures with ProcessPoolExecutor'), name='info'),
-        Layout(progress_panel, name='progress')
+    layout["upper"].split_row(
+        Layout(
+            InfoPanel(info="Using concurrent.futures with ProcessPoolExecutor"),
+            name="info",
+        ),
+        Layout(progress_panel, name="progress"),
     )
-    with (Live(layout, refresh_per_second=4, screen=False),
-          concurrent.futures.ProcessPoolExecutor() as executor):
+    with (
+        Live(layout, refresh_per_second=4, screen=False),
+        concurrent.futures.ProcessPoolExecutor() as executor,
+    ):
         workers = []
         for worker_id in range(0, worker_count):
-            workers.append(executor.submit(cpu_intensive_work, worker_id, iterations))
+            workers.append(
+                executor.submit(cpu_intensive_work, worker_id, iterations)
+            )
         try:
             for worker in concurrent.futures.as_completed(workers):
                 ui_update(worker.result(), progress_panel, results_panel)
@@ -65,5 +74,5 @@ def main() -> int:
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

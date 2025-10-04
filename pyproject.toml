@@ -46,6 +46,7 @@ dev = [
     "pytest-cov==7.0.0",
     "setuptools==80.9.0",
     "wheel==0.45.1",
+    "black>=25.9.0",
 ]
 
 [tool.setuptools.dynamic]
@@ -82,3 +83,6 @@ log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(linen
 log_cli_date_format="%Y-%m-%d %H:%M:%S"
 asyncio_default_fixture_loop_scope='session'
 
+[tool.black]
+line-length = 80
+target-version = ['py311', 'py312', 'py313']

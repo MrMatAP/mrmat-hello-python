@@ -33,7 +33,7 @@ class ImageEntity(DDDAggregateRoot[ImageModel]):
     def __init__(self, name: str, url: str) -> None:
         super().__init__(name)
         self._url = url
-        self._path = pathlib.Path(__file__).parent.joinpath(f'{name}.img')
+        self._path = pathlib.Path(__file__).parent.joinpath(f"{name}.img")
 
     @property
     def url(self) -> str:
@@ -44,11 +44,13 @@ class ImageEntity(DDDAggregateRoot[ImageModel]):
         return self._path
 
     def __eq__(self, other: typing.Any) -> bool:
-        return all([
-            super().__eq__(other),
-            self._url == other.url,
-            self._path == other.path,
-        ])
+        return all(
+            [
+                super().__eq__(other),
+                self._url == other.url,
+                self._path == other.path,
+            ]
+        )
 
 
 class NetworkEntity(DDDAggregateRoot[NetworkModel]):
@@ -73,12 +75,14 @@ class NetworkEntity(DDDAggregateRoot[NetworkModel]):
         return self._router
 
     def __eq__(self, other: typing.Any) -> bool:
-        return all([
-            super().__eq__(other),
-            self._network == other.network,
-            self._netmask == other.netmask,
-            self._router == other.router
-        ])
+        return all(
+            [
+                super().__eq__(other),
+                self._network == other.network,
+                self._netmask == other.netmask,
+                self._router == other.router,
+            ]
+        )
 
 
 class ClusterEntity(DDDAggregateRoot[ClusterModel]):
@@ -89,24 +93,30 @@ class ClusterEntity(DDDAggregateRoot[ClusterModel]):
         self._nodes: typing.List[NodeEntity] = []
 
     @property
-    def nodes(self) -> typing.List['NodeEntity']:
+    def nodes(self) -> typing.List["NodeEntity"]:
         return self._nodes
 
-    def add_node(self, node: 'NodeEntity') -> None:
+    def add_node(self, node: "NodeEntity") -> None:
         if self.dirty:
-            raise EntityInvariantException(code=400, msg='You must save the cluster before adding nodes')
+            raise EntityInvariantException(
+                code=400, msg="You must save the cluster before adding nodes"
+            )
         if node in self._nodes:
             return
         if node.cluster is not None and node.cluster != self:
             # TODO: We may remove the node from the other cluster here instead of raising
-            raise EntityInvariantException(code=400, msg='Node is a member of another cluster')
+            raise EntityInvariantException(
+                code=400, msg="Node is a member of another cluster"
+            )
         node.cluster = self
         self._nodes.append(node)
         self._dirty = True
 
-    def remove_node(self, node: 'NodeEntity') -> None:
+    def remove_node(self, node: "NodeEntity") -> None:
         if node not in self._nodes or node.cluster != self:
-            raise EntityInvariantException(code=400, msg='Node is not a member of this cluster')
+            raise EntityInvariantException(
+                code=400, msg="Node is not a member of this cluster"
+            )
         self._nodes.remove(node)
         self._dirty = True
 
@@ -121,20 +131,24 @@ class ClusterEntity(DDDAggregateRoot[ClusterModel]):
         return await super().post_modify()
 
     def __eq__(self, other: typing.Any) -> bool:
-        return all([
-            super().__eq__(other),
-            self._nodes == other.nodes,
-            ])
+        return all(
+            [
+                super().__eq__(other),
+                self._nodes == other.nodes,
+            ]
+        )
 
 
 class NodeEntity(DDDAggregateRoot[NodeModel]):
     model = NodeModel
 
-    def __init__(self,
-                 name: str,
-                 network: NetworkEntity,
-                 image: ImageEntity,
-                 cluster: ClusterEntity | None = None) -> None:
+    def __init__(
+        self,
+        name: str,
+        network: NetworkEntity,
+        image: ImageEntity,
+        cluster: ClusterEntity | None = None,
+    ) -> None:
         super().__init__(name)
         self._network = network
         self._image = image
@@ -161,12 +175,22 @@ class NodeEntity(DDDAggregateRoot[NodeModel]):
             # We must remove ourselves from the cluster
             self._cluster.remove_node(self)
             self._cluster = None
-        elif cluster is not None and self._cluster is not None and cluster.uid == self._cluster.uid:
+        elif (
+            cluster is not None
+            and self._cluster is not None
+            and cluster.uid == self._cluster.uid
+        ):
             # We are already a member of this cluster
             return
-        elif cluster is not None and self._cluster is not None and cluster.uid != self._cluster.uid:
+        elif (
+            cluster is not None
+            and self._cluster is not None
+            and cluster.uid != self._cluster.uid
+        ):
             # We are a member of another cluster, which is currently not supported
-            raise EntityInvariantException(code=400, msg='This node is already a member of another cluster')
+            raise EntityInvariantException(
+                code=400, msg="This node is already a member of another cluster"
+            )
         elif cluster is not None and self._cluster is None:
             # We will join this cluster
             self._cluster = cluster
@@ -184,9 +208,11 @@ class NodeEntity(DDDAggregateRoot[NodeModel]):
         return await super().post_modify()
 
     def __eq__(self, other: typing.Any) -> bool:
-        return all([
-            super().__eq__(other),
-            self._network == other.network,
-            self._image == other.image,
-            self._cluster == other.cluster
-            ])
+        return all(
+            [
+                super().__eq__(other),
+                self._network == other.network,
+                self._image == other.image,
+                self._cluster == other.cluster,
+            ]
+        )

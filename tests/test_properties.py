@@ -25,20 +25,20 @@ from mhpython.properties import Person
 
 
 def test_property_ro():
-    person = Person('Eelyn', 'Chen')
-    assert person.first_name == 'Eelyn'
-    assert person.last_name == 'Chen'
+    person = Person("Eelyn", "Chen")
+    assert person.first_name == "Eelyn"
+    assert person.last_name == "Chen"
 
     # Now Eelyn gets married
 
-    person.last_name = 'Chen-Imfeld'
-    assert person.last_name == 'Chen-Imfeld'
+    person.last_name = "Chen-Imfeld"
+    assert person.last_name == "Chen-Imfeld"
 
     # Can we change Eelyn's first name via the ro property indirectly?
 
-    first_name = person.first_name      # pylint: disable=W0612
-    first_name = 'Jerome'
+    first_name = person.first_name  # pylint: disable=W0612
+    first_name = "Jerome"
 
     # No, we cannot
 
-    assert person.first_name == 'Eelyn'
+    assert person.first_name == "Eelyn"

@@ -27,23 +27,27 @@ import pytest
 from mhpython.async_tasks.base import TaskService, TaskState
 
 
-async def churn(progress: typing.Callable[[int, str], None],
-                done: typing.Callable[[str], None],
-                failed: typing.Callable[[str], None]):
+async def churn(
+    progress: typing.Callable[[int, str], None],
+    done: typing.Callable[[str], None],
+    failed: typing.Callable[[str], None],
+):
     i = 0
     while i < 5:
-        progress(i / 5 * 100, f'Iteration {i}')
+        progress(i / 5 * 100, f"Iteration {i}")
         i += 1
         await asyncio.sleep(1)
-    done('Task finished')
+    done("Task finished")
 
 
-async def fail(progress: typing.Callable[[int, str], None],
-               done: typing.Callable[[str], None],
-               failed: typing.Callable[[str], None]):
-    progress(20, 'failed')
+async def fail(
+    progress: typing.Callable[[int, str], None],
+    done: typing.Callable[[str], None],
+    failed: typing.Callable[[str], None],
+):
+    progress(20, "failed")
     await asyncio.sleep(3)
-    failed('We deliberately failed')
+    failed("We deliberately failed")
 
 
 @pytest.mark.asyncio
