@@ -35,14 +35,21 @@ class ValuePanel:
     A base class for holding a counter, a queue for concurrent data exchange and a UI panel for display
     """
 
-    def __init__(self, title: str, q: queue.Queue, period: typing.Optional[int] = 1):
+    def __init__(
+        self, title: str, q: queue.Queue, period: typing.Optional[int] = 1
+    ):
         self._title = title
         self._current = 0
         self._q = q
         self._period = period
 
     def __rich__(self) -> Panel:
-        panel = Panel(f'Value: [red]{self._current}', title=self._title, expand=True, height=3)
+        panel = Panel(
+            f"Value: [red]{self._current}",
+            title=self._title,
+            expand=True,
+            height=3,
+        )
         return panel
 
 
@@ -75,14 +82,16 @@ class ConsumerPanel(ValuePanel):
 def main() -> int:
     q: queue.Queue = queue.Queue()
     layout = Layout()
-    producer_panel = ProducerPanel('Producer', q)
-    consumer_panel = ConsumerPanel('Consumer', q)
+    producer_panel = ProducerPanel("Producer", q)
+    consumer_panel = ConsumerPanel("Consumer", q)
     layout.split_row(
-        Layout(producer_panel, name='producer'),
-        Layout(consumer_panel, name='consumer')
+        Layout(producer_panel, name="producer"),
+        Layout(consumer_panel, name="consumer"),
     )
-    with (Live(layout, refresh_per_second=4, screen=False),
-          concurrent.futures.ThreadPoolExecutor() as executor):
+    with (
+        Live(layout, refresh_per_second=4, screen=False),
+        concurrent.futures.ThreadPoolExecutor() as executor,
+    ):
         executor.submit(producer_panel.work)
         c_job = executor.submit(consumer_panel.work)
         try:
@@ -93,5 +102,5 @@ def main() -> int:
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

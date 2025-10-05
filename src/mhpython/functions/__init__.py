@@ -22,5 +22,5 @@
 from .functions import (
     function_with_extra_args,
     function_with_extra_kwargs,
-    function_with_all_three
+    function_with_all_three,
 )

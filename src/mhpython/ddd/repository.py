@@ -22,7 +22,12 @@
 import pathlib
 
 from mhpython.ddd.base import DDDRepository
-from mhpython.ddd.domain import ImageEntity, NetworkEntity, ClusterEntity, NodeEntity
+from mhpython.ddd.domain import (
+    ImageEntity,
+    NetworkEntity,
+    ClusterEntity,
+    NodeEntity,
+)
 from mhpython.ddd.model import ImageModel, NetworkModel, ClusterModel, NodeModel
 
 
@@ -31,14 +36,18 @@ class ImageRepository(DDDRepository[ImageEntity, ImageModel]):
     model_class = ImageModel
 
     @classmethod
-    async def from_model(cls, model: ImageModel, *args, **kwargs) -> ImageEntity:
-        kwargs['url'] = model.url
+    async def from_model(
+        cls, model: ImageModel, *args, **kwargs
+    ) -> ImageEntity:
+        kwargs["url"] = model.url
         entity = await super().from_model(model, *args, **kwargs)
         entity._path = pathlib.Path(model.path)
         return entity
 
     @classmethod
-    async def to_model(cls, entity: ImageEntity, persisted: ImageModel | None = None) -> ImageModel:
+    async def to_model(
+        cls, entity: ImageEntity, persisted: ImageModel | None = None
+    ) -> ImageModel:
         model = await super().to_model(entity, persisted)
         model.url = entity.url
         model.path = str(entity.path)
@@ -50,15 +59,19 @@ class NetworkRepository(DDDRepository[NetworkEntity, NetworkModel]):
     model_class = NetworkModel
 
     @classmethod
-    async def from_model(cls, model: NetworkModel, *args, **kwargs) -> NetworkEntity:
-        kwargs['network'] = model.network
-        kwargs['netmask'] = model.netmask
-        kwargs['router'] = model.router
+    async def from_model(
+        cls, model: NetworkModel, *args, **kwargs
+    ) -> NetworkEntity:
+        kwargs["network"] = model.network
+        kwargs["netmask"] = model.netmask
+        kwargs["router"] = model.router
         entity = await super().from_model(model, *args, **kwargs)
         return entity
 
     @classmethod
-    async def to_model(cls, entity: NetworkEntity, persisted: NetworkModel | None = None) -> NetworkModel:
+    async def to_model(
+        cls, entity: NetworkEntity, persisted: NetworkModel | None = None
+    ) -> NetworkModel:
         model = await super().to_model(entity, persisted)
         model.network = entity.network
         model.netmask = entity.netmask
@@ -71,12 +84,16 @@ class ClusterRepository(DDDRepository[ClusterEntity, ClusterModel]):
     model_class = ClusterModel
 
     @classmethod
-    async def from_model(cls, model: ClusterModel, *args, **kwargs) -> ClusterEntity:
+    async def from_model(
+        cls, model: ClusterModel, *args, **kwargs
+    ) -> ClusterEntity:
         entity = await super().from_model(model, *args, **kwargs)
         return entity
 
     @classmethod
-    async def to_model(cls, entity: ClusterEntity, persisted: ClusterModel | None = None) -> ClusterModel:
+    async def to_model(
+        cls, entity: ClusterEntity, persisted: ClusterModel | None = None
+    ) -> ClusterModel:
         model = await super().to_model(entity, persisted)
         return model
 
@@ -87,8 +104,8 @@ class NodeRepository(DDDRepository[NodeEntity, NodeModel]):
 
     @classmethod
     async def from_model(cls, model: NodeModel, *args, **kwargs) -> NodeEntity:
-        kwargs['network'] = await NetworkRepository.from_model(model.network)
-        kwargs['image'] = await ImageRepository.from_model(model.image)
+        kwargs["network"] = await NetworkRepository.from_model(model.network)
+        kwargs["image"] = await ImageRepository.from_model(model.image)
         entity = await super().from_model(model, *args, **kwargs)
         entity._network = await NetworkRepository.from_model(model.network)
         if model.cluster_uid is not None:
@@ -96,7 +113,9 @@ class NodeRepository(DDDRepository[NodeEntity, NodeModel]):
         return entity
 
     @classmethod
-    async def to_model(cls, entity: NodeEntity, persisted: NodeModel | None = None) -> NodeModel:
+    async def to_model(
+        cls, entity: NodeEntity, persisted: NodeModel | None = None
+    ) -> NodeModel:
         model = await super().to_model(entity, persisted)
         model.network_uid = str(entity.network.uid)
         model.image_uid = str(entity.image.uid)

@@ -27,12 +27,12 @@ requires-python = ">=3.13"
 dynamic = ["version"]
 dependencies = [
     "aiosqlite==0.21.0",
-    "cryptography==45.0.7",
-    "langchain-community==0.3.29",
+    "cryptography==46.0.1",
+    "langchain-community==0.3.30",
     "langchain-ollama==0.3.8",
     "psycopg2-binary>=2.9.10",
     "pydantic==2.11.9",
-    "pypdf==6.0.0",
+    "pypdf==6.1.1",
     "rich==14.1.0",
     "sqlalchemy[asyncio]==2.0.43",
 ]
@@ -40,12 +40,13 @@ dependencies = [
 dev = [
     "babel==2.17.0",
     "build==1.3.0",
-    "mypy==1.18.1",
+    "mypy==1.18.2",
     "pytest==8.4.2",
     "pytest-asyncio==1.2.0",
     "pytest-cov==7.0.0",
     "setuptools==80.9.0",
     "wheel==0.45.1",
+    "black>=25.9.0",
 ]
 
 [tool.setuptools.dynamic]
@@ -73,7 +74,7 @@ mrmat-finance-csv-parser = "mhpython.finance.csv_parser:main"
 # in addopts
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov=src/mhpython --cov-report=term --cov-report=xml:build/coverage.xml --junit-xml=build/junit.xml"
+addopts = "--cov=src/mhpython --cov-branch --cov-report=term --cov-report=xml:build/coverage.xml --junit-xml=build/junit.xml"
 testpaths = ["tests"]
 junit_family = "xunit2"
 log_cli = 1
@@ -82,3 +83,6 @@ log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(linen
 log_cli_date_format="%Y-%m-%d %H:%M:%S"
 asyncio_default_fixture_loop_scope='session'
 
+[tool.black]
+line-length = 80
+target-version = ['py311', 'py312', 'py313']

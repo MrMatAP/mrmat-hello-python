@@ -27,13 +27,19 @@ import concurrent.futures
 from rich.layout import Layout
 from rich.live import Live
 
-from .workers import Execution, CPUIntensiveWorkThreaded, ConcurrentFuturesThreadExecution
+from .workers import (
+    Execution,
+    CPUIntensiveWorkThreaded,
+    ConcurrentFuturesThreadExecution,
+)
 from .ui import ProgressPanel, ResultsPanel, InfoPanel
 
 
-def ui_update(execution: Execution,
-              progress_panel: ProgressPanel,
-              results_panel: ResultsPanel):
+def ui_update(
+    execution: Execution,
+    progress_panel: ProgressPanel,
+    results_panel: ResultsPanel,
+):
     try:
         while execution.queue.not_empty and not execution.done:
             msg = execution.queue.get(block=True, timeout=1)
@@ -46,31 +52,42 @@ def ui_update(execution: Execution,
 def main() -> int:
     worker_count = 4
     iterations = 100
-    progress_panel = ProgressPanel(worker_count=worker_count,
-                                   iterations=iterations)
+    progress_panel = ProgressPanel(
+        worker_count=worker_count, iterations=iterations
+    )
     results_panel = ResultsPanel()
     layout = Layout()
     layout.split_column(
-        Layout(name='upper'),
-        Layout(results_panel, name='lower')
+        Layout(name="upper"), Layout(results_panel, name="lower")
     )
-    layout['upper'].split_row(
-        Layout(InfoPanel(info='Using concurrent.futures with ThreadPoolExecutor'), name='info'),
-        Layout(progress_panel, name='progress')
+    layout["upper"].split_row(
+        Layout(
+            InfoPanel(info="Using concurrent.futures with ThreadPoolExecutor"),
+            name="info",
+        ),
+        Layout(progress_panel, name="progress"),
     )
-    execution = ConcurrentFuturesThreadExecution(worker_class=CPUIntensiveWorkThreaded,
-                                                 worker_count=worker_count,
-                                                 iterations=iterations)
-    with (Live(layout, refresh_per_second=4, screen=False),
-          concurrent.futures.ThreadPoolExecutor() as executor):
+    execution = ConcurrentFuturesThreadExecution(
+        worker_class=CPUIntensiveWorkThreaded,
+        worker_count=worker_count,
+        iterations=iterations,
+    )
+    with (
+        Live(layout, refresh_per_second=4, screen=False),
+        concurrent.futures.ThreadPoolExecutor() as executor,
+    ):
         work_job = executor.submit(execution.start)
-        ui_job = executor.submit(ui_update, execution, progress_panel, results_panel)
+        ui_job = executor.submit(
+            ui_update, execution, progress_panel, results_panel
+        )
         try:
-            concurrent.futures.wait([work_job, ui_job], return_when=concurrent.futures.ALL_COMPLETED)
+            concurrent.futures.wait(
+                [work_job, ui_job], return_when=concurrent.futures.ALL_COMPLETED
+            )
         except KeyboardInterrupt:
             return 0
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

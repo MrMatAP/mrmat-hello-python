@@ -20,17 +20,19 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+
 def can_greet(cls):
     """
     A class decorator injecting a greet method. Can be used for something interface-like (although that goes against
     the original Python Zen, which favours duck-typing
     """
-    if 'greet' in vars(cls):
-        raise TypeError(f'{cls.__name__} already defines ''greet()''')
+    if "greet" in vars(cls):
+        raise TypeError(f"{cls.__name__} already defines " "greet()" "")
 
     def greet(self):
-        return f'Hello {self.name}'
+        return f"Hello {self.name}"
+
     # This works, cls.greet = greet
-    setattr(cls, 'greet', greet)        # But this appears to be recommended
+    setattr(cls, "greet", greet)  # But this appears to be recommended
 
     return cls

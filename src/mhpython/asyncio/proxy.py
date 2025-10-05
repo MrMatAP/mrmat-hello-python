@@ -22,24 +22,26 @@
 import sys
 import asyncio
 
-unix_socket = '/tmp/mrmat-asyncio-proxy.sock'
+unix_socket = "/tmp/mrmat-asyncio-proxy.sock"
 
 
-async def unix_server_handle_connection(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+async def unix_server_handle_connection(
+    reader: asyncio.StreamReader, writer: asyncio.StreamWriter
+):
     try:
         print("UNIX server handling client connection")
         while True:
             data_raw = await reader.readline()
             data_in = data_raw.decode()
             if data_in.startswith("exit"):
-                data_out = 'Goodbye'
+                data_out = "Goodbye"
                 writer.write(data_out.encode())
                 await writer.drain()
                 writer.close()
                 await writer.wait_closed()
                 return
             else:
-                data_out = f'Echo: {data_in}'
+                data_out = f"Echo: {data_in}"
                 writer.write(data_out.encode())
                 await writer.drain()
 
@@ -52,9 +54,9 @@ async def unix_server_handle_connection(reader: asyncio.StreamReader, writer: as
 async def unix_server():
     try:
         print("UNIX server starting")
-        server = await asyncio.start_unix_server(unix_server_handle_connection,
-                                                 path=unix_socket,
-                                                 ssl=None)
+        server = await asyncio.start_unix_server(
+            unix_server_handle_connection, path=unix_socket, ssl=None
+        )
         async with server:
             print("UNIX server started")
             await server.serve_forever()
@@ -64,12 +66,14 @@ async def unix_server():
         print("UNIX server shut down")
 
 
-async def inet_proxy_handle_connection(inet_reader: asyncio.StreamReader,
-                                       inet_writer: asyncio.StreamWriter):
+async def inet_proxy_handle_connection(
+    inet_reader: asyncio.StreamReader, inet_writer: asyncio.StreamWriter
+):
     try:
         print("INET server handling client connection")
-        unix_reader, unix_writer = await asyncio.open_unix_connection(path=unix_socket,
-                                                                      ssl=None)
+        unix_reader, unix_writer = await asyncio.open_unix_connection(
+            path=unix_socket, ssl=None
+        )
         while True:
             data_in = await inet_reader.readline()
             unix_writer.write(data_in)
@@ -91,10 +95,9 @@ async def inet_proxy_handle_connection(inet_reader: asyncio.StreamReader,
 async def inet_proxy():
     try:
         print("INET server starting")
-        server = await asyncio.start_server(inet_proxy_handle_connection,
-                                            host='127.0.0.1',
-                                            port=8000,
-                                            ssl=None)
+        server = await asyncio.start_server(
+            inet_proxy_handle_connection, host="127.0.0.1", port=8000, ssl=None
+        )
         async with server:
             print("INET server started")
             await server.serve_forever()
@@ -108,11 +111,13 @@ async def main() -> int:
     try:
         unix_server_task = asyncio.create_task(unix_server())
         inet_proxy_task = asyncio.create_task(inet_proxy())
-        await asyncio.gather(*[unix_server_task, inet_proxy_task], return_exceptions=False)
+        await asyncio.gather(
+            *[unix_server_task, inet_proxy_task], return_exceptions=False
+        )
     except asyncio.CancelledError:
-        print('Shutting down')
+        print("Shutting down")
     finally:
-        print('Shut down')
+        print("Shut down")
     return 0
 
 
@@ -125,5 +130,5 @@ def run():
     sys.exit(asyncio.run(main()))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()
