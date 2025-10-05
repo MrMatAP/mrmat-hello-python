@@ -2,7 +2,7 @@
 
 Python Experiments
 
-[![Build](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/build.yml/badge.svg)](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/build.yml)
+[![Build](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/ci.yml/badge.svg)](https://github.com/MrMatAP/mrmat-hello-python/actions/workflows/ci.yml)
 
 ## How to use this
 
