@@ -19,4 +19,5 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from .greeting import Greeting, Language
+from .greeting import Greeting as Greeting
+from .greeting import Language as Language

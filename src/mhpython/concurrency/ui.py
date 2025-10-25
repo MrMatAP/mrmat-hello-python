@@ -40,7 +40,7 @@ class InfoPanel:
         self._info = info
 
     def __rich__(self) -> Panel:
-        return Panel(f"{self._info}", title="Info")
+        return Panel(f'{self._info}', title='Info')
 
 
 class ProgressPanel:
@@ -54,9 +54,9 @@ class ProgressPanel:
         self._worker_status: typing.Dict[int, str | None] = {}
         for i in range(0, worker_count):
             self._worker_tasks[i] = self._progress.add_task(
-                f"Worker {i}", total=iterations - 1
+                f'Worker {i}', total=iterations - 1
             )
-            self._worker_status[i] = "OK"
+            self._worker_status[i] = 'OK'
 
     def update(self, msg: WorkerMessage):
         self._progress.update(
@@ -68,8 +68,8 @@ class ProgressPanel:
         grid = Table.grid()
         grid.add_row(self._progress)
         for worker_id, status in self._worker_status.items():
-            grid.add_row(f"Status {worker_id}: {status}")
-        return Panel(grid, title="Progress")
+            grid.add_row(f'Status {worker_id}: {status}')
+        return Panel(grid, title='Progress')
 
 
 class ResultsPanel:
@@ -89,8 +89,8 @@ class ResultsPanel:
 
     def __rich__(self) -> Panel:
         table = Table(show_edge=False)
-        table.add_column("Worker ID")
-        table.add_column("Result")
+        table.add_column('Worker ID')
+        table.add_column('Result')
         for msg in self._results:
             table.add_row(str(msg.worker_id), str(msg.result))
-        return Panel(table, title=f"Results: {len(self._results)}")
+        return Panel(table, title=f'Results: {len(self._results)}')

@@ -34,8 +34,7 @@ class TaskState(enum.Enum):
 
 
 class Task:
-
-    def __init__(self, coro: typing.Any, msg: str = "Task Created"):
+    def __init__(self, coro: typing.Any, msg: str = 'Task Created'):
         self._uid = uuid.uuid4()
         self._percent_complete: int = 0
         self._state = TaskState.INITIALISED
@@ -62,25 +61,22 @@ class Task:
         self._state = TaskState.CREATED
         await self._task
 
-    def progress(
-        self, percent_complete: int, msg: str = "Task executing"
-    ) -> None:
+    def progress(self, percent_complete: int, msg: str = 'Task executing') -> None:
         self._state = TaskState.RUNNING
         self._percent_complete = percent_complete
         self._msg = msg
 
-    def done(self, msg: str = "Task completed") -> None:
+    def done(self, msg: str = 'Task completed') -> None:
         self._state = TaskState.DONE
         self._percent_complete = 100
         self._msg = msg
 
-    def failed(self, msg: str = "Task failed") -> None:
+    def failed(self, msg: str = 'Task failed') -> None:
         self._state = TaskState.FAILED
         self._msg = msg
 
 
 class TaskService:
-
     def __init__(self) -> None:
         self._tasks: typing.Set[Task] = set()
 

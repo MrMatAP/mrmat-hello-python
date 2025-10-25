@@ -21,25 +21,24 @@
 
 import os
 import enum
-import typing
 import gettext
 
 
 class Language(enum.Enum):
     EN = gettext.translation(
-        "messages",
-        languages=["en"],
-        localedir=os.path.join(os.path.dirname(__file__), "locale"),
+        'messages',
+        languages=['en'],
+        localedir=os.path.join(os.path.dirname(__file__), 'locale'),
     )
     DE = gettext.translation(
-        "messages",
-        languages=["de"],
-        localedir=os.path.join(os.path.dirname(__file__), "locale"),
+        'messages',
+        languages=['de'],
+        localedir=os.path.join(os.path.dirname(__file__), 'locale'),
     )
     FR = gettext.translation(
-        "messages",
-        languages=["fr"],
-        localedir=os.path.join(os.path.dirname(__file__), "locale"),
+        'messages',
+        languages=['fr'],
+        localedir=os.path.join(os.path.dirname(__file__), 'locale'),
     )
 
 
@@ -56,4 +55,4 @@ class Greeting:
         Return a localised string
         :return: A localised string
         """
-        return self._("greeting")
+        return self._('greeting')

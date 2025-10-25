@@ -26,13 +26,12 @@ import asyncio
 
 
 class AppEvent(asyncio.Event):
-
     def __init__(self, msg: str):
         super().__init__()
         self._msg = msg
 
     def __repr__(self):
-        return f"AppEvent: {self._msg}"
+        return f'AppEvent: {self._msg}'
 
 
 async def event_logger(event_q: asyncio.Queue) -> None:
@@ -44,15 +43,15 @@ async def event_logger(event_q: asyncio.Queue) -> None:
         Nothing
     """
     try:
-        print("Starting event logger task")
+        print('Starting event logger task')
         while True:
             event = await event_q.get()
             print(repr(event))
             event_q.task_done()
     except asyncio.CancelledError:
-        print("Shutting down event logger task")
+        print('Shutting down event logger task')
     finally:
-        print("Event logger task has shut down")
+        print('Event logger task has shut down')
 
 
 async def event_emitter(event_q: asyncio.Queue) -> None:
@@ -65,19 +64,18 @@ async def event_emitter(event_q: asyncio.Queue) -> None:
         Nothing
     """
     try:
-        print("Starting event emitter task")
+        print('Starting event emitter task')
         while True:
             seconds_to_wait = random.randint(1, 5)
             await asyncio.sleep(seconds_to_wait)
-            event_q.put_nowait(AppEvent(f"Event after {seconds_to_wait}s"))
+            event_q.put_nowait(AppEvent(f'Event after {seconds_to_wait}s'))
     except asyncio.CancelledError:
-        print("Shutting down event emitter task")
+        print('Shutting down event emitter task')
     finally:
-        print("Event emitter task has shut down")
+        print('Event emitter task has shut down')
 
 
 async def main() -> int:
-
     system_tasks: typing.List[asyncio.Task] = []
 
     #
@@ -93,9 +91,9 @@ async def main() -> int:
     try:
         await asyncio.gather(*system_tasks, return_exceptions=False)
     except asyncio.CancelledError:
-        print("Shutting down")
+        print('Shutting down')
     finally:
-        print("Shut down")
+        print('Shut down')
     return 0
 
 
@@ -108,5 +106,5 @@ def run():
     sys.exit(asyncio.run(main()))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run()

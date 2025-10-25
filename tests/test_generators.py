@@ -31,10 +31,11 @@ def gen():
 def test_generator_function():
     last_value = 0
     for i in gen():
-        assert last_value < i, "Generator returns sequential values"
+        assert last_value < i, 'Generator returns sequential values'
         last_value = i
 
 
 def test_generator_expression():
-    sqrt_generator = (x for x in range(1, 100))
+    for e in (x for x in range(1, 100)):
+        assert e < 100, 'Generator expression returns sequential values'
     # Creates a generator, consumes no memory

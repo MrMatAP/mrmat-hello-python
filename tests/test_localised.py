@@ -24,14 +24,14 @@ from mhpython.localised import Language, Greeting
 
 def test_en_localisation():
     greeting = Greeting(language=Language.EN)
-    assert greeting.greet() == "Hello World"
+    assert greeting.greet() == 'Hello World'
 
 
 def test_de_localisation():
     greeting = Greeting(language=Language.DE)
-    assert greeting.greet() == "Hallo Welt"
+    assert greeting.greet() == 'Hallo Welt'
 
 
 def test_fr_localisation():
     greeting = Greeting(language=Language.FR)
-    assert greeting.greet() == "Bonjour Monde"
+    assert greeting.greet() == 'Bonjour Monde'

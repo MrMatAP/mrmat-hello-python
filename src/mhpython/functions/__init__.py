@@ -19,8 +19,6 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from .functions import (
-    function_with_extra_args,
-    function_with_extra_kwargs,
-    function_with_all_three,
-)
+from .functions import function_with_extra_args as function_with_extra_args
+from .functions import function_with_extra_kwargs as function_with_extra_kwargs
+from .functions import function_with_all_three as function_with_all_three

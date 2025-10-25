@@ -24,4 +24,4 @@
 #
 # You can execute this module via python mhpython.executable_module
 
-print("Hello, I am also an executable")
+print('Hello, I am also an executable')

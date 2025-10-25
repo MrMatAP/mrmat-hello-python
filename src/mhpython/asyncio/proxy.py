@@ -22,55 +22,55 @@
 import sys
 import asyncio
 
-unix_socket = "/tmp/mrmat-asyncio-proxy.sock"
+unix_socket = '/tmp/mrmat-asyncio-proxy.sock'
 
 
 async def unix_server_handle_connection(
     reader: asyncio.StreamReader, writer: asyncio.StreamWriter
 ):
     try:
-        print("UNIX server handling client connection")
+        print('UNIX server handling client connection')
         while True:
             data_raw = await reader.readline()
             data_in = data_raw.decode()
-            if data_in.startswith("exit"):
-                data_out = "Goodbye"
+            if data_in.startswith('exit'):
+                data_out = 'Goodbye'
                 writer.write(data_out.encode())
                 await writer.drain()
                 writer.close()
                 await writer.wait_closed()
                 return
             else:
-                data_out = f"Echo: {data_in}"
+                data_out = f'Echo: {data_in}'
                 writer.write(data_out.encode())
                 await writer.drain()
 
     except asyncio.CancelledError:
-        print("UNIX server client connection shutting down")
+        print('UNIX server client connection shutting down')
     finally:
-        print("UNIX server client connection shut down")
+        print('UNIX server client connection shut down')
 
 
 async def unix_server():
     try:
-        print("UNIX server starting")
+        print('UNIX server starting')
         server = await asyncio.start_unix_server(
             unix_server_handle_connection, path=unix_socket, ssl=None
         )
         async with server:
-            print("UNIX server started")
+            print('UNIX server started')
             await server.serve_forever()
     except asyncio.CancelledError:
-        print("UNIX Server shutting down")
+        print('UNIX Server shutting down')
     finally:
-        print("UNIX server shut down")
+        print('UNIX server shut down')
 
 
 async def inet_proxy_handle_connection(
     inet_reader: asyncio.StreamReader, inet_writer: asyncio.StreamWriter
 ):
     try:
-        print("INET server handling client connection")
+        print('INET server handling client connection')
         unix_reader, unix_writer = await asyncio.open_unix_connection(
             path=unix_socket, ssl=None
         )
@@ -83,28 +83,28 @@ async def inet_proxy_handle_connection(
             inet_writer.write(data_out)
             await inet_writer.drain()
     except ConnectionResetError:
-        print("INET server client connection reset")
+        print('INET server client connection reset')
         inet_writer.close()
         await inet_writer.wait_closed()
     except asyncio.CancelledError:
-        print("INET server client connection shutting down")
+        print('INET server client connection shutting down')
     finally:
-        print("INET server client connection shut down")
+        print('INET server client connection shut down')
 
 
 async def inet_proxy():
     try:
-        print("INET server starting")
+        print('INET server starting')
         server = await asyncio.start_server(
-            inet_proxy_handle_connection, host="127.0.0.1", port=8000, ssl=None
+            inet_proxy_handle_connection, host='127.0.0.1', port=8000, ssl=None
         )
         async with server:
-            print("INET server started")
+            print('INET server started')
             await server.serve_forever()
     except asyncio.CancelledError:
-        print("INET server shutting down")
+        print('INET server shutting down')
     finally:
-        print("INET server shut down")
+        print('INET server shut down')
 
 
 async def main() -> int:
@@ -115,9 +115,9 @@ async def main() -> int:
             *[unix_server_task, inet_proxy_task], return_exceptions=False
         )
     except asyncio.CancelledError:
-        print("Shutting down")
+        print('Shutting down')
     finally:
-        print("Shut down")
+        print('Shut down')
     return 0
 
 
@@ -130,5 +130,5 @@ def run():
     sys.exit(asyncio.run(main()))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     run()

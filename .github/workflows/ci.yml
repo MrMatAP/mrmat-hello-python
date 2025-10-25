@@ -51,18 +51,11 @@ jobs:
         enable-cache: true
         python-version: 3.13.7
     - name: Lint
-      run: uv run --frozen mypy --no-incremental --junit-xml=${GITHUB_WORKSPACE}/build/lint.xml ${GITHUB_WORKSPACE}/src/mhpython || true
+      run: uvx ruff check --output-format=github
     - name: Build
       run: uv build --wheel
     - name: Test
       run: uv run --frozen pytest --junit-xml=${GITHUB_WORKSPACE}/build/junit.xml --cov-report=xml:${GITHUB_WORKSPACE}/build/coverage.xml
-    - name: Upload linting results
-      if: ${{ github.event_name == 'pull_request' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: Lint Results
-        path: build/lint.xml
-        retention-days: 1
     - name: Upload unit test results
       if: ${{ github.event_name == 'pull_request' }}
       uses: actions/upload-artifact@v4

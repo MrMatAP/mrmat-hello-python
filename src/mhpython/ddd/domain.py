@@ -22,8 +22,7 @@
 import pathlib
 import typing
 
-from mhpython.ddd import EntityInvariantException
-from mhpython.ddd.base import DDDAggregateRoot
+from mhpython.ddd.base import EntityInvariantException, DDDAggregateRoot
 from mhpython.ddd.model import ClusterModel, NodeModel, NetworkModel, ImageModel
 
 
@@ -33,7 +32,7 @@ class ImageEntity(DDDAggregateRoot[ImageModel]):
     def __init__(self, name: str, url: str) -> None:
         super().__init__(name)
         self._url = url
-        self._path = pathlib.Path(__file__).parent.joinpath(f"{name}.img")
+        self._path = pathlib.Path(__file__).parent.joinpath(f'{name}.img')
 
     @property
     def url(self) -> str:
@@ -93,29 +92,29 @@ class ClusterEntity(DDDAggregateRoot[ClusterModel]):
         self._nodes: typing.List[NodeEntity] = []
 
     @property
-    def nodes(self) -> typing.List["NodeEntity"]:
+    def nodes(self) -> typing.List['NodeEntity']:
         return self._nodes
 
-    def add_node(self, node: "NodeEntity") -> None:
+    def add_node(self, node: 'NodeEntity') -> None:
         if self.dirty:
             raise EntityInvariantException(
-                code=400, msg="You must save the cluster before adding nodes"
+                code=400, msg='You must save the cluster before adding nodes'
             )
         if node in self._nodes:
             return
         if node.cluster is not None and node.cluster != self:
             # TODO: We may remove the node from the other cluster here instead of raising
             raise EntityInvariantException(
-                code=400, msg="Node is a member of another cluster"
+                code=400, msg='Node is a member of another cluster'
             )
         node.cluster = self
         self._nodes.append(node)
         self._dirty = True
 
-    def remove_node(self, node: "NodeEntity") -> None:
+    def remove_node(self, node: 'NodeEntity') -> None:
         if node not in self._nodes or node.cluster != self:
             raise EntityInvariantException(
-                code=400, msg="Node is not a member of this cluster"
+                code=400, msg='Node is not a member of this cluster'
             )
         self._nodes.remove(node)
         self._dirty = True
@@ -189,7 +188,7 @@ class NodeEntity(DDDAggregateRoot[NodeModel]):
         ):
             # We are a member of another cluster, which is currently not supported
             raise EntityInvariantException(
-                code=400, msg="This node is already a member of another cluster"
+                code=400, msg='This node is already a member of another cluster'
             )
         elif cluster is not None and self._cluster is None:
             # We will join this cluster
