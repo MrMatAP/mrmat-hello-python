@@ -27,35 +27,25 @@ from mhpython.functions import (
 
 
 def test_function_extra_args():
-    (out_simple, out_args) = function_with_extra_args("foo", 1, 2, 3, "baz")
-    assert out_simple == "foo"
-    assert isinstance(
-        out_args, tuple
-    ), "*args arrives as a tuple in the function"
-    assert out_args == (1, 2, 3, "baz")
+    (out_simple, out_args) = function_with_extra_args('foo', 1, 2, 3, 'baz')
+    assert out_simple == 'foo'
+    assert isinstance(out_args, tuple), '*args arrives as a tuple in the function'
+    assert out_args == (1, 2, 3, 'baz')
 
 
 def test_function_extra_kwargs():
-    (out_simple, out_kwargs) = function_with_extra_kwargs(
-        "foo", bar=1, qux="quuz"
-    )
-    assert out_simple == "foo"
-    assert isinstance(
-        out_kwargs, dict
-    ), "**kwargs arrives as a dict in the function"
-    assert out_kwargs == dict(bar=1, qux="quuz")
+    (out_simple, out_kwargs) = function_with_extra_kwargs('foo', bar=1, qux='quuz')
+    assert out_simple == 'foo'
+    assert isinstance(out_kwargs, dict), '**kwargs arrives as a dict in the function'
+    assert out_kwargs == dict(bar=1, qux='quuz')
 
 
 def test_function_with_all_three():
     (out_simple, out_args, out_kwargs) = function_with_all_three(
-        "foo", 1, 2, 3, "baz", bar=1, qux="quuz"
+        'foo', 1, 2, 3, 'baz', bar=1, qux='quuz'
     )
-    assert out_simple == "foo"
-    assert isinstance(
-        out_args, tuple
-    ), "*args arrives as a tuple in the function"
-    assert isinstance(
-        out_kwargs, dict
-    ), "**kwargs arrives as a dict in the function"
-    assert out_args == (1, 2, 3, "baz")
-    assert out_kwargs == dict(bar=1, qux="quuz")
+    assert out_simple == 'foo'
+    assert isinstance(out_args, tuple), '*args arrives as a tuple in the function'
+    assert isinstance(out_kwargs, dict), '**kwargs arrives as a dict in the function'
+    assert out_args == (1, 2, 3, 'baz')
+    assert out_kwargs == dict(bar=1, qux='quuz')

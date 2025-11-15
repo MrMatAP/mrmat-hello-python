@@ -76,18 +76,14 @@ class Statement(BaseModel):
       The 'Information' field is multi-line text and must be extracted as a whole, single string with the same line-breaks.
     """
 
-    iban: str = Field(
-        description="The value of the IBAN field on the first page"
-    )
+    iban: str = Field(description='The value of the IBAN field on the first page')
     account_number: str = Field(
         description="The value of the 'Konto-Nr.' field on the first page"
     )
     customer_number: str = Field(
         description="The value of the 'Kunden-Nr.' field on the first page"
     )
-    bic: str = Field(
-        description="The value of the 'BIC' field on the first page"
-    )
+    bic: str = Field(description="The value of the 'BIC' field on the first page")
     created_at: typing.Optional[datetime.datetime] = Field(
         description="The value of the 'Erstellt am' field on the first page"
     )
@@ -113,14 +109,14 @@ class Statement(BaseModel):
 class Account(BaseModel):
     """Information about an accoun"""
 
-    iban: str = Field(description="IBAN")
+    iban: str = Field(description='IBAN')
     statements: typing.List[Statement] = Field(
-        description="Statements", default_factory=list
+        description='Statements', default_factory=list
     )
 
 
 class PDFTransaction(ORMBase):
-    __tablename__ = "pdf_transactions"
+    __tablename__ = 'pdf_transactions'
     id: Mapped[int] = mapped_column(primary_key=True)
     valuta: Mapped[datetime.datetime] = mapped_column(DateTime)
     counterparty: Mapped[str] = mapped_column(String(4000))
@@ -130,7 +126,7 @@ class PDFTransaction(ORMBase):
     iban: Mapped[str] = mapped_column(String)
 
     @staticmethod
-    def from_parsed(iban: str, tx: Transaction) -> "PDFTransaction":
+    def from_parsed(iban: str, tx: Transaction) -> 'PDFTransaction':
         return PDFTransaction(
             valuta=tx.valuta,
             counterparty=tx.counterparty,
@@ -141,7 +137,7 @@ class PDFTransaction(ORMBase):
         )
 
     def __repr__(self):
-        return f"Transaction(id={self.id}, valuta={self.valuta}, debit={self.debit}, credit={self.credit}, value={self.value})"
+        return f'Transaction(id={self.id}, valuta={self.valuta}, debit={self.debit}, credit={self.credit}, value={self.value})'
 
 
 def load_docs(path: pathlib.Path) -> typing.List[Document]:
@@ -154,79 +150,75 @@ def load_docs(path: pathlib.Path) -> typing.List[Document]:
         A list of Langchain Document objects
     """
     loader = PyPDFDirectoryLoader(
-        path, glob="**/*.pdf", mode="single", extraction_mode="layout"
+        path, glob='**/*.pdf', mode='single', extraction_mode='layout'
     )
     return loader.load()
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description=f"mrmat-finance-pdf-parser - {__version__}"
+        description=f'mrmat-finance-pdf-parser - {__version__}'
     )
     parser.add_argument(
-        "--path",
+        '--path',
         type=pathlib.Path,
         required=True,
-        dest="path",
-        help="Path to the folder containing financial statements",
+        dest='path',
+        help='Path to the folder containing financial statements',
     )
     parser.add_argument(
-        "--db-url",
+        '--db-url',
         type=str,
         required=True,
-        dest="db_url",
-        help="The database URL, in the format postgresql+psycopg2://USER:PASS@HOST/DB",
+        dest='db_url',
+        help='The database URL, in the format postgresql+psycopg2://USER:PASS@HOST/DB',
     )
     parser.add_argument(
-        "--model",
+        '--model',
         type=str,
         required=False,
-        choices=["gpt-oss:20b", "gemma3:27b"],
-        default="gpt-oss:20b",
-        dest="model",
-        help="The model to use for the LLM",
+        choices=['gpt-oss:20b', 'gemma3:27b'],
+        default='gpt-oss:20b',
+        dest='model',
+        help='The model to use for the LLM',
     )
     args = parser.parse_args()
     engine = db(args.db_url)
 
     pdfs = load_docs(args.path)
-    system_prompt = f"""
+    system_prompt = """
     You are an expert extraction algorithm for financial documents written in German. Only
     extract relevant information from the text.
     """
     llm = ChatOllama(
         model=args.model, validate_model_on_init=True, temperature=0.0
-    ).with_structured_output(
-        schema=Statement, method="json_schema", include_raw=True
-    )
+    ).with_structured_output(schema=Statement, method='json_schema', include_raw=True)
     for pdf in pdfs:
         try:
-            print(f"- Parsing document {pdf.metadata.get('source')}")
+            print(f'- Parsing document {pdf.metadata.get("source")}')
             response = llm.invoke(
                 [
                     SystemMessage(content=system_prompt),
                     HumanMessage(content=pdf.page_content),
                 ]
             )
-            if response["parsing_error"]:
+            if response['parsing_error']:
                 print(
-                    f"ERROR: Failed to parse document {pdf.metadata.get('source')}: {response['parsing_error']}"
+                    f'ERROR: Failed to parse document {pdf.metadata.get("source")}: {response["parsing_error"]}'
                 )
                 continue
-            parsed = response["parsed"]
+            parsed = response['parsed']
             with Session(engine) as session:
                 for tx in parsed.transactions:
                     ormtx = PDFTransaction.from_parsed(parsed.iban, tx)
                     session.add(ormtx)
                 session.commit()
         except ValidationError as ve:
-            print(
-                f"ERROR: Failed to parse document {pdf.metadata.get('source')}: {ve}"
-            )
+            print(f'ERROR: Failed to parse document {pdf.metadata.get("source")}: {ve}')
         except SQLAlchemyError as se:
-            print(f"Database error: Failed to update database: {se}")
+            print(f'Database error: Failed to update database: {se}')
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

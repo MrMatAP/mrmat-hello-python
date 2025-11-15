@@ -27,12 +27,12 @@ Tests for builtin Python functions
 
 int_array = [1, 2, 3, 101, 102, 103]
 dict_array = [
-    dict(id=1, name="one"),
-    dict(id=2, name="two"),
-    dict(id=3, name="three"),
-    dict(id=101, name="one-hundred-and-one"),
-    dict(id=102, name="one-hundred-and-two"),
-    dict(id=103, name="one-hundred-and-three"),
+    dict(id=1, name='one'),
+    dict(id=2, name='two'),
+    dict(id=3, name='three'),
+    dict(id=101, name='one-hundred-and-one'),
+    dict(id=102, name='one-hundred-and-two'),
+    dict(id=103, name='one-hundred-and-three'),
 ]
 
 
@@ -55,5 +55,5 @@ def test_filter_generator():
 
 
 def test_filter_complex():
-    filtered_list = list(filter(lambda _: _.get("id") < 100, dict_array))
+    filtered_list = list(filter(lambda _: _.get('id') < 100, dict_array))
     assert len(filtered_list) == 3

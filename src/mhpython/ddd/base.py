@@ -54,10 +54,10 @@ class DDDException(Exception):
         return self._msg
 
     def __str__(self) -> str:
-        return f"[{self._code}] {self._msg}"
+        return f'[{self._code}] {self._msg}'
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(code={self._code}, msg={self._msg})"
+        return f'{self.__class__.__name__}(code={self._code}, msg={self._msg})'
 
 
 class EntityNotFoundException(DDDException):
@@ -66,7 +66,7 @@ class EntityNotFoundException(DDDException):
     """
 
     def __init__(
-        self, code: int = 404, msg: str = "The specified entity does not exist"
+        self, code: int = 404, msg: str = 'The specified entity does not exist'
     ) -> None:
         super().__init__(code, msg)
 
@@ -92,7 +92,7 @@ class DDDValueObject:
     pass
 
 
-T_DDDValueObject = typing.TypeVar("T_DDDValueObject", bound=DDDValueObject)
+T_DDDValueObject = typing.TypeVar('T_DDDValueObject', bound=DDDValueObject)
 
 
 class DDDModel(DeclarativeBase):
@@ -103,17 +103,17 @@ class DDDModel(DeclarativeBase):
 
     __abstract__ = True
     uid: Mapped[str] = mapped_column(
-        UUID(as_uuid=True).with_variant(String(32), "sqlite"),
+        UUID(as_uuid=True).with_variant(String(32), 'sqlite'),
         primary_key=True,
         sort_order=-1,  # Make sure uid is the first column
     )
     name: Mapped[str] = mapped_column(String(64))
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(uid={self.uid}, name={self.name})"
+        return f'{self.__class__.__name__}(uid={self.uid}, name={self.name})'
 
 
-T_DDDModel = typing.TypeVar("T_DDDModel", bound=DDDModel)
+T_DDDModel = typing.TypeVar('T_DDDModel', bound=DDDModel)
 
 
 class DDDEntity(typing.Generic[T_DDDModel]):
@@ -121,7 +121,7 @@ class DDDEntity(typing.Generic[T_DDDModel]):
     Base class for all domain entities. It requires a generic entity model as its persisted peer.
     """
 
-    repository: typing.ClassVar["DDDRepository"]
+    repository: typing.ClassVar['DDDRepository']
 
     def __init__(self, name: str, *args, **kwargs) -> None:
         self._uid: UniqueIdentifier = uuid.uuid4()
@@ -187,10 +187,10 @@ class DDDEntity(typing.Generic[T_DDDModel]):
         )
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(uid={self._uid}, name={self._name})"
+        return f'{self.__class__.__name__}(uid={self._uid}, name={self._name})'
 
 
-T_DDDEntity = typing.TypeVar("T_DDDEntity", bound=DDDEntity)
+T_DDDEntity = typing.TypeVar('T_DDDEntity', bound=DDDEntity)
 
 
 class DDDAggregateRoot(DDDEntity[T_DDDModel]):
@@ -209,9 +209,7 @@ class DDDAggregateRoot(DDDEntity[T_DDDModel]):
         await self.repository.remove(self)
 
 
-T_DDDAggregateRoot = typing.TypeVar(
-    "T_DDDAggregateRoot", bound=DDDAggregateRoot
-)
+T_DDDAggregateRoot = typing.TypeVar('T_DDDAggregateRoot', bound=DDDAggregateRoot)
 
 
 class DDDRepository(typing.Generic[T_DDDEntity, T_DDDModel], abc.ABC):
@@ -231,11 +229,11 @@ class DDDRepository(typing.Generic[T_DDDEntity, T_DDDModel], abc.ABC):
     ) -> None:
         if self.entity_class is None:
             raise DDDException(
-                code=500, msg="Misconfigured DDDRepository without entity"
+                code=500, msg='Misconfigured DDDRepository without entity'
             )
         if self.model_class is None:
             raise DDDException(
-                code=500, msg="Misconfigured DDDRepository without model"
+                code=500, msg='Misconfigured DDDRepository without model'
             )
         self._session_maker = session_maker
         self._identity_map: typing.Dict[UniqueIdentifier, T_DDDEntity] = {}
@@ -252,9 +250,7 @@ class DDDRepository(typing.Generic[T_DDDEntity, T_DDDModel], abc.ABC):
                 self._identity_map[uid] = await self.from_model(model)
                 return self._identity_map[uid]
         except SQLAlchemyError as sae:
-            raise DDDException(
-                code=500, msg="Failure getting the entities"
-            ) from sae
+            raise DDDException(code=500, msg='Failure getting the entities') from sae
 
     async def list(self) -> typing.List[T_DDDEntity]:
         try:
@@ -263,14 +259,14 @@ class DDDRepository(typing.Generic[T_DDDEntity, T_DDDModel], abc.ABC):
                 return [await self.from_model(m) for m in models]
         except SQLAlchemyError as sae:
             raise DDDException(
-                code=500, msg="Failure listing entities from persistence"
+                code=500, msg='Failure listing entities from persistence'
             ) from sae
 
     async def create(self, entity: T_DDDEntity) -> T_DDDEntity:
         try:
             if not issubclass(type(entity), DDDAggregateRoot):
                 raise EntityInvariantException(
-                    code=400, msg="Only aggregate roots can be created"
+                    code=400, msg='Only aggregate roots can be created'
                 )
             if entity.uid in self._identity_map:
                 return await self.modify(entity)
@@ -282,15 +278,13 @@ class DDDRepository(typing.Generic[T_DDDEntity, T_DDDModel], abc.ABC):
                 await entity.post_create()
             return self._identity_map[entity.uid]
         except SQLAlchemyError as sae:
-            raise DDDException(
-                code=500, msg="Failure persisting the entities"
-            ) from sae
+            raise DDDException(code=500, msg='Failure persisting the entities') from sae
 
     async def modify(self, entity: T_DDDEntity) -> T_DDDEntity:
         try:
-            if not entity.uid in self._identity_map:
+            if entity.uid not in self._identity_map:
                 raise EntityInvariantException(
-                    code=400, msg="This entity is unknown to the repository"
+                    code=400, msg='This entity is unknown to the repository'
                 )
             async with self._session_maker() as session, session.begin():
                 persisted = await session.get(self.model_class, str(entity.uid))
@@ -299,9 +293,7 @@ class DDDRepository(typing.Generic[T_DDDEntity, T_DDDModel], abc.ABC):
                 await entity.post_modify()
             return entity
         except SQLAlchemyError as sae:
-            raise DDDException(
-                code=500, msg="Failure persisting the entities"
-            ) from sae
+            raise DDDException(code=500, msg='Failure persisting the entities') from sae
 
     async def remove(self, entity: T_DDDEntity) -> None:
         try:
@@ -314,14 +306,12 @@ class DDDRepository(typing.Generic[T_DDDEntity, T_DDDModel], abc.ABC):
         except SQLAlchemyError as sae:
             raise DDDException(
                 code=500,
-                msg="Failure removing the entities in persistent store",
+                msg='Failure removing the entities in persistent store',
             ) from sae
 
     @classmethod
     @abc.abstractmethod
-    async def from_model(
-        cls, model: T_DDDModel, *args, **kwargs
-    ) -> T_DDDEntity:
+    async def from_model(cls, model: T_DDDModel, *args, **kwargs) -> T_DDDEntity:
         entity = cls.entity_class(name=model.name, *args, **kwargs)
         entity._uid = UniqueIdentifier(str(model.uid))
         return entity
@@ -340,4 +330,4 @@ class DDDRepository(typing.Generic[T_DDDEntity, T_DDDModel], abc.ABC):
         return model
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.entity_class})"
+        return f'{self.__class__.__name__}({self.entity_class})'

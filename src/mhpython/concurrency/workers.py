@@ -36,7 +36,7 @@ class WorkerMessage:
     worker_id: int
     iteration: int
     result: typing.Optional[str] = None
-    message: typing.Optional[str] = "OK"
+    message: typing.Optional[str] = 'OK'
 
 
 class Work(abc.ABC):
@@ -72,9 +72,7 @@ class CPUIntensiveWorkThreaded(Work):
     def work(self):
         for iteration in range(0, self._iterations):
             try:
-                key = rsa.generate_private_key(
-                    public_exponent=65537, key_size=2048
-                )
+                key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
                 self._q.put(
                     WorkerMessage(
                         worker_id=self._worker_id,
@@ -88,7 +86,7 @@ class CPUIntensiveWorkThreaded(Work):
                     WorkerMessage(
                         worker_id=self._worker_id,
                         iteration=iteration,
-                        message=f"Exception: {e}",
+                        message=f'Exception: {e}',
                     ),
                     block=True,
                 )
@@ -105,12 +103,8 @@ def cpu_intensive_work(worker_id: int, iterations: int) -> WorkerMessage:
     """
     keys = []
     for _ in range(0, iterations):
-        keys.append(
-            rsa.generate_private_key(public_exponent=65537, key_size=2048)
-        )
-    return WorkerMessage(
-        worker_id, iterations, f"Number of keys {len(keys)}", "OK"
-    )
+        keys.append(rsa.generate_private_key(public_exponent=65537, key_size=2048))
+    return WorkerMessage(worker_id, iterations, f'Number of keys {len(keys)}', 'OK')
 
 
 class Execution(abc.ABC):
@@ -151,7 +145,7 @@ class ConcurrentFuturesThreadExecution(Execution):
 
     def start(self):
         with concurrent.futures.ThreadPoolExecutor(
-            thread_name_prefix="worker"
+            thread_name_prefix='worker'
         ) as executor:
             for i in range(0, self._worker_count):
                 worker = self._worker_class(

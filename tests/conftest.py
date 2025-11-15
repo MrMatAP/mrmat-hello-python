@@ -28,8 +28,7 @@ import sqlalchemy.ext.asyncio
 import sqlalchemy.orm
 
 import mhpython.ddd.base
-from mhpython.ddd import NodeEntity
-from mhpython.ddd.domain import ImageEntity, NetworkEntity
+from mhpython.ddd.domain import NodeEntity, ImageEntity, NetworkEntity
 from mhpython.ddd.repository import (
     ImageRepository,
     NetworkRepository,
@@ -38,11 +37,14 @@ from mhpython.ddd.repository import (
 )
 
 
-@pytest.fixture(scope="session")
-def generics_db() -> pathlib.Path:
-    db = pathlib.Path(__file__).parent.parent.joinpath(
-        "build/ddd_repositories.sqlite"
-    )
+@pytest.fixture(scope='session')
+def generics_db():
+    """
+    Create a path for the SQLite database
+    Yields:
+        A path to an SQLite database (not the database itself)
+    """
+    db = pathlib.Path(__file__).parent.parent.joinpath('build/ddd_repositories.sqlite')
     db.parent.mkdir(parents=True, exist_ok=True)
     yield db
     db.unlink(missing_ok=True)
@@ -51,15 +53,11 @@ def generics_db() -> pathlib.Path:
 @pytest_asyncio.fixture
 async def async_session_maker(
     generics_db,
-) -> sqlalchemy.ext.asyncio.async_sessionmaker[
-    sqlalchemy.ext.asyncio.AsyncSession
-]:
+) -> sqlalchemy.ext.asyncio.async_sessionmaker[sqlalchemy.ext.asyncio.AsyncSession]:
     engine = sqlalchemy.ext.asyncio.create_async_engine(
-        f"sqlite+aiosqlite:///{generics_db}", echo=False
+        f'sqlite+aiosqlite:///{generics_db}', echo=False
     )
-    asm = sqlalchemy.ext.asyncio.async_sessionmaker(
-        engine, expire_on_commit=False
-    )
+    asm = sqlalchemy.ext.asyncio.async_sessionmaker(engine, expire_on_commit=False)
     async with engine.begin() as conn:
         await conn.run_sync(mhpython.ddd.base.DDDModel.metadata.create_all)
     yield asm
@@ -91,7 +89,7 @@ async def seed_images(image_repository) -> typing.List[ImageEntity]:
     images: typing.List[ImageEntity] = []
     for i in range(0, 3):
         image = await image_repository.create(
-            ImageEntity(f"Image {i}", url="https://image.url/{i}.img")
+            ImageEntity(f'Image {i}', url='https://image.url/{i}.img')
         )
         images.append(image)
     yield images
@@ -99,26 +97,26 @@ async def seed_images(image_repository) -> typing.List[ImageEntity]:
         await image_repository.remove(image)
 
 
-@pytest_asyncio.fixture(scope="function")
+@pytest_asyncio.fixture(scope='function')
 async def seed_networks(network_repository) -> typing.List[NetworkEntity]:
     networks: typing.List[NetworkEntity] = [
         await NetworkEntity(
-            name="Host-only Network",
-            network="172.16.0.0",
-            netmask="255.255.255.0",
-            router="172.16.0.1",
+            name='Host-only Network',
+            network='172.16.0.0',
+            netmask='255.255.255.0',
+            router='172.16.0.1',
         ).save(),
         await NetworkEntity(
-            name="NAT Network",
-            network="172.16.1.0",
-            netmask="255.255.255.0",
-            router="172.16.1.1",
+            name='NAT Network',
+            network='172.16.1.0',
+            netmask='255.255.255.0',
+            router='172.16.1.1',
         ).save(),
         await NetworkEntity(
-            name="Bridged Network",
-            network="172.16.2.0",
-            netmask="255.255.255.0",
-            router="172.16.2.1",
+            name='Bridged Network',
+            network='172.16.2.0',
+            netmask='255.255.255.0',
+            router='172.16.2.1',
         ).save(),
     ]
     yield networks
@@ -126,16 +124,14 @@ async def seed_networks(network_repository) -> typing.List[NetworkEntity]:
         await network_repository.remove(network)
 
 
-@pytest_asyncio.fixture(scope="function")
+@pytest_asyncio.fixture(scope='function')
 async def seed_nodes(
     node_repository, seed_images, seed_networks
 ) -> typing.List[NodeEntity]:
     nodes: typing.List[NodeEntity] = []
     for i in range(0, 3):
         node = await node_repository.create(
-            NodeEntity(
-                name=f"Node-{i}", network=seed_networks[0], image=seed_images[0]
-            )
+            NodeEntity(name=f'Node-{i}', network=seed_networks[0], image=seed_images[0])
         )
         nodes.append(node)
     yield nodes

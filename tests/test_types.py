@@ -21,6 +21,7 @@
 #  SOFTWARE.
 #
 
+import typing
 from dataclasses import dataclass, FrozenInstanceError
 
 
@@ -47,25 +48,25 @@ class EqName(Name):
 
 
 def test_sets():
-    s1 = {"foo", "bar", "baz"}
-    assert s1 == {"foo", "bar", "baz"}
+    s1: typing.Set[str] = {'foo', 'bar', 'baz'}
+    assert s1 == {'foo', 'bar', 'baz'}
 
     try:
-        e1 = s1[0]
+        e1 = s1[0]  # noqa: F841
     except TypeError:
-        assert True, "sets cannot be iterated over"
+        assert True, 'sets cannot be iterated over'
 
     # Sets can contain objects that are ignorant about their hash equality
     try:
-        s2 = {Name(n) for n in ["Mat", "Eelyn", "Mr Tree", "Badgie"]}
+        s2 = {Name(n) for n in ['Mat', 'Eelyn', 'Mr Tree', 'Badgie']}
         for e in s2:
-            e.name = "Someone"
+            e.name = 'Someone'
     except ValueError:
-        assert (
-            False
-        ), "sets should be able to contain objects that are ignorant about equality"
+        assert False, (
+            'sets should be able to contain objects that are ignorant about equality'
+        )
     else:
-        assert True, "sets can contain objects that are ignorant about equality"
+        assert True, 'sets can contain objects that are ignorant about equality'
 
     # TODO: Don't understand why this is possible. It ignores equality
     # try:
@@ -79,16 +80,14 @@ def test_sets():
 
     try:
         s4 = {
-            ImmutableName("Mat"),
-            ImmutableName("Eelyn"),
-            ImmutableName("Mr Tree"),
-            ImmutableName("Badgie"),
+            ImmutableName('Mat'),
+            ImmutableName('Eelyn'),
+            ImmutableName('Mr Tree'),
+            ImmutableName('Badgie'),
         }
         for e in s4:
-            e.name = "Jerome"
+            e.name = 'Jerome'
     except FrozenInstanceError:
-        assert True, "set elements must not be mutable"
+        assert True, 'set elements must not be mutable'
     else:
-        assert (
-            False
-        ), "set elements cannot have objects aware about hash equality"
+        assert False, 'set elements cannot have objects aware about hash equality'

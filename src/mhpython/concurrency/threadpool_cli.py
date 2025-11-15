@@ -52,20 +52,16 @@ def ui_update(
 def main() -> int:
     worker_count = 4
     iterations = 100
-    progress_panel = ProgressPanel(
-        worker_count=worker_count, iterations=iterations
-    )
+    progress_panel = ProgressPanel(worker_count=worker_count, iterations=iterations)
     results_panel = ResultsPanel()
     layout = Layout()
-    layout.split_column(
-        Layout(name="upper"), Layout(results_panel, name="lower")
-    )
-    layout["upper"].split_row(
+    layout.split_column(Layout(name='upper'), Layout(results_panel, name='lower'))
+    layout['upper'].split_row(
         Layout(
-            InfoPanel(info="Using concurrent.futures with ThreadPoolExecutor"),
-            name="info",
+            InfoPanel(info='Using concurrent.futures with ThreadPoolExecutor'),
+            name='info',
         ),
-        Layout(progress_panel, name="progress"),
+        Layout(progress_panel, name='progress'),
     )
     execution = ConcurrentFuturesThreadExecution(
         worker_class=CPUIntensiveWorkThreaded,
@@ -77,9 +73,7 @@ def main() -> int:
         concurrent.futures.ThreadPoolExecutor() as executor,
     ):
         work_job = executor.submit(execution.start)
-        ui_job = executor.submit(
-            ui_update, execution, progress_panel, results_panel
-        )
+        ui_job = executor.submit(ui_update, execution, progress_panel, results_panel)
         try:
             concurrent.futures.wait(
                 [work_job, ui_job], return_when=concurrent.futures.ALL_COMPLETED
@@ -89,5 +83,5 @@ def main() -> int:
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())
