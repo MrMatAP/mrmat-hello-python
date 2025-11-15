@@ -80,4 +80,4 @@ jobs:
         release_version: ${{ needs.prep.outputs.version }}
         release_description: |
           Release ${{ needs.prep.outputs.version }}
-        update_latest: true
+        update_latest: false
