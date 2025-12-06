@@ -19,29 +19,3 @@
 #  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import logging
-from mhpython.indexable_classes import IndexableClass
-
-logging.basicConfig(level=logging.DEBUG)
-
-
-def test_single_indexable_class():
-    IndexableClass.clear()
-    person = IndexableClass('MrMat')
-    assert person._uid is not None, 'Person has an UUID'
-    assert person.name == 'MrMat', 'Person has a name'
-
-
-def test_multiple_indexable_classes():
-    IndexableClass.clear()
-    people = ['MrMat', 'Eelyn', 'Jerome', 'Milena']
-    for name in people:
-        IndexableClass(name)
-
-    assert IndexableClass.len() == len(people), f'There are {len(people)} people'
-    assert IndexableClass['MrMat'] is not None, 'MrMat is a person'
-    assert IndexableClass['MrMat'].name == 'MrMat', 'MrMat has a name'
-    assert IndexableClass['Eelyn'].name == 'Eelyn', 'Eelyn has a name'
-
-    for person in IndexableClass.iter():
-        assert person.name in people, f'{person.name} is a person'

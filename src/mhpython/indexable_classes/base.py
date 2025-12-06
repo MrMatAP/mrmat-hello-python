@@ -24,6 +24,7 @@ import uuid
 import typing
 import logging
 
+
 class IndexableBaseClass(abc.ABC):
     """
     A base class providing indexing and management of class instances.
@@ -34,6 +35,7 @@ class IndexableBaseClass(abc.ABC):
     the need for external data structures.
 
     """
+
     _data: typing.MutableSet[typing.Self]
     _log: logging.Logger = logging.getLogger(__name__)
 
@@ -75,7 +77,6 @@ class IndexableBaseClass(abc.ABC):
         pass
 
 
-
 class IndexableClass(IndexableBaseClass):
     """
     An implementation
@@ -109,4 +110,3 @@ class IndexableClass(IndexableBaseClass):
             hash over the unique identifier
         """
         return hash(self._uid)
-
