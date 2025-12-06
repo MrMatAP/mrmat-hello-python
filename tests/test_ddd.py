@@ -36,7 +36,7 @@ async def test_entity_not_found_exception(node_repository):
     """
     with pytest.raises(
         EntityNotFoundException,
-        match='\[404\] The specified entity does not exist',
+        match='\\[404\\] The specified entity does not exist',
     ):
         await node_repository.get_by_uid(uuid.uuid4())
         assert False
@@ -115,7 +115,7 @@ async def test_move_node_to_another_cluster(
     cluster2 = await ClusterEntity(name='Test Cluster 2').save()
     with pytest.raises(
         EntityInvariantException,
-        match='\[400\] This node is already a member of another cluster',
+        match='\\[400\\] This node is already a member of another cluster',
     ):
         node.cluster = cluster2
 
@@ -135,7 +135,7 @@ async def test_add_node_to_dirty_cluster(
     assert cluster.dirty
     with pytest.raises(
         EntityInvariantException,
-        match='\[400\] You must save the cluster before adding nodes',
+        match='\\[400\\] You must save the cluster before adding nodes',
     ):
         cluster.add_node(node)
 
