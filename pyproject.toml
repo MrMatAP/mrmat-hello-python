@@ -28,6 +28,7 @@ dynamic = ["version"]
 dependencies = [
     "aiosqlite==0.21.0",
     "cryptography==46.0.3",
+    "kafka-python>=2.3.0",
     "langchain==1.0.7",
     "langchain-community==0.4.1",
     "langchain-ollama>=0.3.8",
@@ -70,6 +71,8 @@ mrmat-asyncio-app-events = "mhpython.asyncio.app_events:run"
 mrmat-asyncio-proxy = "mhpython.asyncio.proxy:run"
 mrmat-finance-pdf-parser = "mhpython.finance.pdf_parser:main"
 mrmat-finance-csv-parser = "mhpython.finance.csv_parser:main"
+mrmat-kafka-producer = "mhpython.kafka.producer:main"
+mrmat-kafka-consumer = "mhpython.kafka.consumer:main"
 
 # If you are debugging your tests using PyCharm then comment out the coverage options
 # in addopts
