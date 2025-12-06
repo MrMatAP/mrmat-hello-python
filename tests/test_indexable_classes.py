@@ -24,11 +24,13 @@ from mhpython.indexable_classes import IndexableClass
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 def test_single_indexable_class():
     IndexableClass.clear()
     person = IndexableClass('MrMat')
     assert person._uid is not None, 'Person has an UUID'
     assert person.name == 'MrMat', 'Person has a name'
+
 
 def test_multiple_indexable_classes():
     IndexableClass.clear()
