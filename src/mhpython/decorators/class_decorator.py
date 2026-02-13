@@ -20,7 +20,6 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-
 def can_greet(cls):
     """
     A class decorator injecting a greet method. Can be used for something interface-like (although that goes against
@@ -36,3 +35,17 @@ def can_greet(cls):
     setattr(cls, 'greet', greet)  # But this appears to be recommended
 
     return cls
+
+
+@can_greet
+class Greeting:
+    """
+    A class initialised with a name, decorated to receive a greet method
+    """
+
+    def __init__(self, name):
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
