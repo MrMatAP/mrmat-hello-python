@@ -1,6 +1,6 @@
 #  MIT License
 #
-#  Copyright (c) 2022 Mathieu Imfeld
+#  Copyright (c) 2026 Mathieu Imfeld
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -20,32 +20,5 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-def can_greet(cls):
-    """
-    A class decorator injecting a greet method. Can be used for something interface-like (although that goes against
-    the original Python Zen, which favours duck-typing
-    """
-    if 'greet' in vars(cls):
-        raise TypeError(f'{cls.__name__} already defines greet()')
-
-    def greet(self):
-        return f'Hello {self.name}'
-
-    # This works, cls.greet = greet
-    setattr(cls, 'greet', greet)  # But this appears to be recommended
-
-    return cls
-
-
-@can_greet
-class Greeting:
-    """
-    A class initialised with a name, decorated to receive a greet method
-    """
-
-    def __init__(self, name):
-        self._name = name
-
-    @property
-    def name(self):
-        return self._name
+from .inversion import inversion as inversion
+from .enriched_class import Enricher, EnrichedBase, enriched_lookup

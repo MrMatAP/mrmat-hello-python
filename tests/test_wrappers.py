@@ -1,6 +1,6 @@
 #  MIT License
 #
-#  Copyright (c) 2022 Mathieu Imfeld
+#  Copyright (c) 2026 Mathieu Imfeld
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -20,32 +20,41 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-def can_greet(cls):
-    """
-    A class decorator injecting a greet method. Can be used for something interface-like (although that goes against
-    the original Python Zen, which favours duck-typing
-    """
-    if 'greet' in vars(cls):
-        raise TypeError(f'{cls.__name__} already defines greet()')
+import mhpython.wrappers
 
-    def greet(self):
-        return f'Hello {self.name}'
+def test_inversion():
 
-    # This works, cls.greet = greet
-    setattr(cls, 'greet', greet)  # But this appears to be recommended
+    @mhpython.wrappers.inversion
+    def return_true():
+        return True
 
-    return cls
+    @mhpython.wrappers.inversion
+    def return_false():
+        return False
+
+    assert not return_true()
+    assert return_false()
 
 
-@can_greet
-class Greeting:
-    """
-    A class initialised with a name, decorated to receive a greet method
-    """
+def test_enriched_lookup():
+    # Test with explicit key
+    enricher = mhpython.wrappers.Enricher({"custom_key": "custom_value"})
 
-    def __init__(self, name):
-        self._name = name
+    class TestClass(mhpython.wrappers.EnrichedBase):
+        @mhpython.wrappers.enriched_lookup(key="custom_key")
+        def some_property(self):
+            pass
 
-    @property
-    def name(self):
-        return self._name
+    obj = TestClass(enricher)
+    assert obj.some_property() == "custom_value"
+
+    # Test with method name as key
+    enricher2 = mhpython.wrappers.Enricher({"another_property": "method_name_value"})
+
+    class TestClass2(mhpython.wrappers.EnrichedBase):
+        @mhpython.wrappers.enriched_lookup()
+        def another_property(self):
+            pass
+
+    obj2 = TestClass2(enricher2)
+    assert obj2.another_property() == "method_name_value"
