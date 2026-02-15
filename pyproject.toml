@@ -34,7 +34,7 @@ dependencies = [
     "langchain-ollama>=0.3.8",
     "psycopg2-binary>=2.9.11",
     "pydantic==2.12.5",
-    "pypdf==6.4.0",
+    "pypdf==6.6.0",
     "rich==14.2.0",
     "sqlalchemy[asyncio]>=2.0.44",
 ]
