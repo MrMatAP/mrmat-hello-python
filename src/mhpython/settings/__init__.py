@@ -20,6 +20,6 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-from .exceptions import VaultSettingsException
+from .exceptions import VaultSettingsException as VaultSettingsException
 from .vault_settings import VaultSettingsBase as VaultSettingsBase
-from .hashi_vault_settings import HashiVaultAuthMethod, HashiVaultField
+from .hashi_vault_settings import HashiVaultField as HashiVaultField
