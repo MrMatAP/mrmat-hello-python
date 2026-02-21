@@ -23,11 +23,13 @@ import pathlib
 import typing
 
 import pytest
+import dotenv
 import pytest_asyncio
 import sqlalchemy.ext.asyncio
 import sqlalchemy.orm
 
 import mhpython.ddd.base
+
 from mhpython.ddd.domain import NodeEntity, ImageEntity, NetworkEntity
 from mhpython.ddd.repository import (
     ImageRepository,
@@ -36,6 +38,7 @@ from mhpython.ddd.repository import (
     ClusterRepository,
 )
 
+dotenv.load_dotenv()
 
 @pytest.fixture(scope='session')
 def generics_db():
