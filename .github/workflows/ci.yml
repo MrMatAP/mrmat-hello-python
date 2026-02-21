@@ -22,7 +22,7 @@ jobs:
       id: debounce
       uses: MrMatAP/mrmat-debounce-action@latest
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ settings.GITHUB_TOKEN }}
     - name: Version the project
       id: version
       uses: MrMatAP/mrmat-versioning-action@latest
@@ -75,7 +75,7 @@ jobs:
       id: create_release
       uses: MrMatAP/mrmat-release-action@latest
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ settings.GITHUB_TOKEN }}
         release_name: Release ${{ needs.prep.outputs.version }}
         release_version: ${{ needs.prep.outputs.version }}
         release_description: |

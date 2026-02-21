@@ -148,3 +148,8 @@ mhpython/py_io/py-io-output.txt
 # uv
 
 .venv
+
+#
+# .env
+
+.env
