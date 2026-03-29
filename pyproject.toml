@@ -28,7 +28,7 @@ dynamic = ["version"]
 dependencies = [
     "aiosqlite==0.22.1",
     "azure-identity>=1.25.2",
-    "cryptography==46.0.5",
+    "cryptography==46.0.6",
     "hvac>=2.4.0",
     "kafka-python>=2.3.0",
     "langchain==1.2.10",
