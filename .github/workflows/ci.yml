@@ -11,7 +11,7 @@ on:
 jobs:
   # Prepare the build
   prep:
-    runs-on: ubuntu-latest
+    runs-on: mrmat-hello-python
     permissions:
       contents: read
     outputs:
@@ -33,7 +33,7 @@ jobs:
 
   # A regular project build. Test results will explicitly be reported during a pull request build
   build:
-    runs-on: ubuntu-latest
+    runs-on: mrmat-hello-python
     needs: prep
     if: ${{ needs.prep.outputs.abort != 'true' }}
     permissions:
@@ -62,7 +62,7 @@ jobs:
     if:
       ${{ github.event_name == 'push' && github.ref == 'refs/heads/main'
       }}
-    runs-on: ubuntu-latest
+    runs-on: mrmat-hello-python
     permissions:
       contents: write
     needs:
